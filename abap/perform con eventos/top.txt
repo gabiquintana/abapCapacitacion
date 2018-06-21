@@ -1,0 +1,20 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_EVENTOS2_TOP
+*&---------------------------------------------------------------------*
+
+TYPES: BEGIN OF ts_final,
+carrid TYPE sflight-carrid,
+connid TYPE sflight-connid,
+fldate TYPE sflight-fldate,
+seatsmax TYPE sflight-seatsmax,
+seatsocc TYPE sflight-seatsocc,
+seatsocc_b TYPE sflight-seatsocc_b,
+seatsmax_f TYPE sflight-seatsmax_f,
+seatsocc_f TYPE sflight-seatsocc_f,
+percentage(2) TYPE p DECIMALS 2,
+  END OF ts_final.
+
+data: gt_final TYPE TABLE OF ts_final,
+      gs_final TYPE ts_final,
+      gs_sbook TYPE sbook,
+      gt_sbook TYPE TABLE OF sbook.

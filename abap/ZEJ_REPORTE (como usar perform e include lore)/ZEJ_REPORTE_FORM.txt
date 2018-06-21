@@ -1,0 +1,72 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZEJ_REPORTE_FORM
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  F_OBTENER_DATOS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_obtener_datos.
+
+* SELECTS --------------------------------------------------------------
+  SELECT * FROM spfli INTO CORRESPONDING FIELDS OF  TABLE itab002
+   WHERE carrid IN s_carrid.
+
+  SELECT COUNT(*) INTO cantidad FROM spfli.
+
+ENDFORM.                    " F_OBTENER_DATOS
+*&---------------------------------------------------------------------*
+*&      Form  F_ARMAR_LISTA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_armar_lista.
+
+* EXPLICACION: --------------------------------------------------------
+* HAGO EL MOVE CORRESPONDING COPIANDO LA CABECERA DE LA ITAB2 CARGADA A
+*LA CABECERA DE LA ITAB1 VACIA Y CON EL APPEND LO BAJO DE LA CABECERA
+* QUE RECIBIO(ITAB1) LA DATA A LA TABLA INTERNA VACIA (ITAB1).
+
+  LOOP AT itab002 .
+    MOVE-CORRESPONDING itab002 TO itab001.
+    APPEND itab001.
+  ENDLOOP.
+
+ENDFORM.                    " F_ARMAR_LISTA
+*&---------------------------------------------------------------------*
+*&      Form  F_MOSTRAR_LISTA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_mostrar_lista.
+
+* SENTENCIAS VARIAS ----------------------------------------------------
+  WRITE: 'Cantidad de registros de SPFLI: ', cantidad.
+*ULINE.
+  SKIP.
+
+  WRITE: sy-uline(82).
+
+  FORMAT COLOR 1.
+  WRITE:/2 'Registro',     AT 14 sy-vline,
+           'Airline Code', AT 29 sy-vline,
+           'Flight No.',   AT 42 sy-vline,
+           'Depart.city',  AT 62 sy-vline,
+           'Arrival city', AT 82 sy-vline,
+        /  sy-uline(82).
+
+  FORMAT COLOR 1 OFF.
+*MUESTRO EN PANTALLA --------------------------------------------------
+  LOOP AT itab001.
+
+    WRITE:/2 sy-tabix  CENTERED,     AT 14 sy-vline,
+           AT 20 itab001-carrid,     AT 29 sy-vline,
+           AT 34 itab001-connid,     AT 42 sy-vline,
+                 itab001-cityfrom,   AT 62 sy-vline,
+                 itab001-cityto,     AT 82 sy-vline.
+
+  ENDLOOP.
+
+  WRITE:/ sy-uline(82).
+
+ENDFORM.                    " F_MOSTRAR_LISTA

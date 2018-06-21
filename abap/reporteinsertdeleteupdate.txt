@@ -1,0 +1,83 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_REPORTEMAT
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  ZU64_REPORTEMAT.
+Parameters: p_codmat type ZU64_MATERIAS-codmat, " Código Materia"
+p_mat type ZU64_MATERIAS-nombre OBLIGATORY,  "Nombre Materia"
+p_horas type ZU64_MATERIAS-horas,  "Horas"
+p_oper type ZU64_OPER OBLIGATORY.  "Operación # A: Insert, M: Update ó modify B: Delete"
+TABLES: ZU64_MATERIAS.
+
+TYPES: BEGIN OF st_materia,
+ mandt type  ZU64_MATERIAS-mandt, "mucho muy importante poner mandante o no anda"
+ codmat type ZU64_MATERIAS-codmat,
+  materia type ZU64_MATERIAS-nombre,
+  horas type ZU64_MATERIAS-horas,
+  END OF st_materia.
+
+DATA: gs_materia TYPE st_materia,
+      gs_aux TYPE st_materia.
+
+"al ejecutar te va a dejar meter todo lo que quieras porque no va a llevarte a otra ventana al cargar dato"
+gs_materia-mandt = 400.
+gs_materia-codmat = p_codmat.
+gs_materia-materia = p_mat.
+gs_materia-horas = p_horas.
+
+CASE p_oper.
+  WHEN 'A'.
+    SELECT SINGLE ZU64_MATERIAS~codmat
+      FROM ZU64_MATERIAS into gs_aux
+      WHERE ZU64_MATERIAS~codmat = gs_materia-codmat.
+      if sy-subrc <> 0.
+    INSERT INTO ZU64_MATERIAS values gs_materia.
+    "exitosa"
+    if sy-subrc EQ 0.
+      COMMIT WORK.
+      MESSAGE s000(ZU64_MSGERROR). "mensaje s de afirmativo"
+     else.
+       MESSAGE i001(ZU64_MSGERROR). "mensaje i de informacion"
+     endif.
+    ELSE.
+      MESSAGE i001(ZU64_MSGERROR).
+      "no exitosa"
+     endif.
+
+  WHEN 'B'.
+    SELECT SINGLE ZU64_MATERIAS~codmat
+      FROM ZU64_MATERIAS into gs_aux
+      WHERE ZU64_MATERIAS~codmat = gs_materia-codmat.
+      if sy-subrc EQ 0.
+     DELETE FROM ZU64_MATERIAS WHERE codmat = gs_materia-codmat.
+     if sy-subrc eq 0.
+     COMMIT WORK.
+     MESSAGE s002(ZU64_MSGERROR). "exitoso"
+     else.
+       MESSAGE i003(ZU64_MSGERROR). "no exitoso"
+     endif.
+     else.
+       MESSAGE i003(ZU64_MSGERROR). "no exitoso"
+     ENDIF.
+  WHEN 'M'.
+ SELECT SINGLE ZU64_MATERIAS~codmat
+      FROM ZU64_MATERIAS into gs_aux
+      WHERE ZU64_MATERIAS~codmat = gs_materia-codmat.
+      if sy-subrc EQ 0.
+     UPDATE ZU64_MATERIAS FROM gs_materia.
+     if sy-subrc eq 0.
+     COMMIT WORK.
+     MESSAGE s004(ZU64_MSGERROR). "exitoso"
+     else.
+       MESSAGE i005(ZU64_MSGERROR). "no exitoso"
+     endif.
+     else.
+       MESSAGE i005(ZU64_MSGERROR). "no exitoso"
+     ENDIF.
+  WHEN OTHERS.
+    MESSAGE i008(ZU64_MSGERROR). "no exitoso"
+ENDCASE.

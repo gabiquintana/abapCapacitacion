@@ -1,0 +1,77 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_REP003_FORM
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  F_OBTENER_DATOS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form F_OBTENER_DATOS .
+
+SELECT sflight~carrid sflight~connid sflight~fldate sflight~price
+  FROM sflight into table gt_sflight
+  WHERE sflight~price in s_price.
+
+if sy-subrc is INITIAL.
+SELECT sbook~carrid sbook~connid sbook~fldate sbook~bookid
+ FROM sbook INTO TABLE gt_sbook
+ FOR ALL ENTRIES IN gt_sflight
+  WHERE sbook~carrid = gt_sflight-carrid AND sbook~connid = gt_sflight-connid AND sbook~fldate = gt_sflight-fldate "joins"
+  AND sbook~carrid in s_carrid and sbook~connid in s_connid and sbook~fldate in s_fldate. "condiciones"
+endif.
+
+if sy-subrc is INITIAL.
+SELECT spfli~carrid spfli~connid spfli~cityfrom spfli~airpfrom spfli~cityto spfli~airpto
+  FROM spfli
+  into TABLE gt_spfli
+  FOR ALL ENTRIES IN gt_sbook "inner join gt_sbook
+  WHERE spfli~carrid = gt_sbook-carrid AND spfli~connid = gt_sbook-connid. "va - en estructuras aunque sea select" "y las relaciones"
+endif.
+
+if sy-subrc is INITIAL.
+SELECT scarr~carrid scarr~carrname scarr~url
+  FROM scarr
+  into TABLE gt_scarr
+  FOR ALL ENTRIES IN gt_spfli
+  WHERE scarr~carrid = gt_spfli-carrid.
+endif.
+
+endform.                    " F_OBTENER_DATOS
+*&---------------------------------------------------------------------*
+*&      Form  F_ARMAR_TABLA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form F_ARMAR_TABLA .
+
+LOOP AT gt_sbook into gs_sbook.
+
+  READ TABLE gt_sflight into gs_sflight with key carrid = gs_sbook-carrid connid = gs_sbook-connid fldate = gs_sbook-fldate.
+IF sy-subrc is initial.
+gs_reporte-price = gs_sflight-price.
+
+ENDIF.
+READ TABLE gt_spfli into gs_spfli with key carrid = gs_sbook-carrid connid = gs_sbook-connid.
+IF sy-subrc is initial.
+gs_reporte-cityfrom = gs_spfli-cityfrom.
+gs_reporte-airpfrom = gs_spfli-airpfrom.
+gs_reporte-cityto = gs_spfli-cityto.
+gs_reporte-airpto = gs_spfli-airpto.
+ENDIF.
+READ TABLE gt_scarr into gs_scarr with key carrid = gs_sbook-carrid.
+IF sy-subrc is INITIAL.
+gs_reporte-carrname = gs_scarr-carrname.
+gs_reporte-url = gs_scarr-url.
+ENDIF.
+gs_reporte-carrid = gs_sbook-carrid.
+gs_reporte-connid = gs_sbook-connid.
+
+ENDLOOP.
+
+endform.                    " F_ARMAR_TABLA

@@ -1,0 +1,8 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_REP003_SCREEN
+*&---------------------------------------------------------------------*
+TABLES: sflight.
+SELECT-OPTIONS: s_carrid for sflight-carrid,  "llamar a tabla siosi con select options"
+                s_connid for sflight-connid,
+                s_fldate for sflight-fldate,
+                s_price for sflight-price.

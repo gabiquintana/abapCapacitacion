@@ -1,0 +1,40 @@
+Ejercicios de Consultas de Bases de Datos:
+
+Ejercicio 1) Se requiere obtener un listado de conexiones con los siguientes datos:
+
+Carrid, Connid, Airpfrom, Airpto, Nombre de Aerolinea
+
+El usuario deberá ingresar por parámetro el código de Aerolínea
+
+Ejercicio 2) Se requiere obtener un listado de reservas con los siguientes datos:
+
+Carrid, Connid, Fldate, Nombre de Aerolínea, Nombre de Cliente
+
+El usuario deberá ingresar un rango de fechas de reserva como parámetro.
+
+Ejercicio 3)
+
+Listar todas reservas del Ejercicio 2 y además tener en cuenta que solo deben listarse los clientes que pertenezcan únicamente 
+a la ciudad ‘Walldorf’. Usar la tabla SCUSTOM(Tabla de Clientes)
+
+(Recomendación: Copiar el Ejer 2 a otro programa, tomarse 10 minutos y analizar como encarar el problema nuevamente, 
+ver que se puede cambiar o agregar para cumplir lo pedido)
+
+Ejercicio 4)
+
+Realizar un Reporte que dado un CARRID y un FLDATE liste todas las reservas para dichas condiciones, el layout deberá ser el siguiente:
+
+Carrid, connid, fldate, customer_id, customer_name.
+
+Todo el resultado debera estar en una tabla interna.
+
+Realizarlo con ABAP JOIN
+
+SELECT p~carrid p~connid p~cityto f~fldate           
+  FROM spfli AS p INNER JOIN sflight AS f ON p~carrid = f~carrid AND p~connid = f~connid
+   INTO CORRESPONDING FIELDS OF TABLE it_flight
+WHERE p~cityfrom = p_cityf. 
+ 
+
+
+

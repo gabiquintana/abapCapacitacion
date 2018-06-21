@@ -1,0 +1,8 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU67_EVENTOS2_SCREEN
+*&---------------------------------------------------------------------*
+PARAMETERS: p_carrid TYPE S_CARR_ID.
+
+SELECT-OPTIONS: s_connid FOR gs_sbook-connid.
+
+SELECTION-SCREEN FUNCTION KEY 1.

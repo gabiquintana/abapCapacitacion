@@ -1,0 +1,5 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZEJ_REPORTE_SCREEN
+*&---------------------------------------------------------------------*
+*Parametros de selección de Pantalla
+SELECT-OPTIONS s_carrid FOR spfli-carrid.

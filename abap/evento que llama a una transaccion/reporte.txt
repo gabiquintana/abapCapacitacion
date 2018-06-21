@@ -1,0 +1,39 @@
+REPORT  ZU67_EVENTOS2 NO STANDARD PAGE HEADING.
+
+INCLUDE ZU67_EVENTOS2_TOP.
+INCLUDE ZU67_EVENTOS2_SCREEN.
+INCLUDE ZU67_EVENTOS2_FORM.
+
+INITIALIZATION.
+
+  sscrfields-functxt_01 = 'Calculadora'.
+
+      AT SELECTION-SCREEN.
+      IF sy-ucomm = 'FC01'.
+        call TRANSACTION 'ZU62_BTN'.
+      ENDIF.
+
+START-OF-SELECTION.
+
+  PERFORM f_cargaDatos.
+  PERFORM f_mostrarDatos.
+
+END-OF-SELECTION.
+
+
+AT LINE-SELECTION.
+
+  WRITE:/ 'CarrID:', gs_reporte-carrid COLOR 2,/ 'ConnID:', gs_reporte-connid COLOR 2,/ 'Fecha:', gs_reporte-fldate COLOR 2, / sy-uline(52).
+  SELECT *
+    FROM sbook INTO TABLE gt_sbook
+    WHERE sbook~carrid = gs_reporte-carrid AND sbook~connid = gs_reporte-connid
+                                           AND sbook~fldate = gs_reporte-fldate.
+    IF sy-subrc = 0.
+
+        WRITE:/ sy-vline, ' BookID ' COLOR 2, sy-vline, 'CustomID' COLOR 2,sy-vline, 'T' COLOR 2,sy-vline, 'C' COLOR 2,sy-vline, 'OrderDATE ' COLOR 2,sy-vline, 'S' COLOR 2,sy-vline, 'X' COLOR 2,sy-vline,/ sy-uline(52).
+
+      LOOP AT gt_sbook INTO gs_sbook.
+        WRITE:/ sy-vline,gs_sbook-bookid, sy-vline,gs_sbook-customid,sy-vline, gs_sbook-custtype,sy-vline, gs_sbook-class,sy-vline, gs_sbook-order_date,sy-vline, gs_sbook-smoker,sy-vline, gs_sbook-cancelled,sy-vline,/ sy-uline(52).
+      ENDLOOP.
+
+    ENDIF.

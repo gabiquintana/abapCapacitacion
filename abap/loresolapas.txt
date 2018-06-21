@@ -1,0 +1,263 @@
+*&---------------------------------------------------------------------*
+*& Report  ZREPORTE_LORE8
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zreporte_lore8.
+
+* Structure for pushbutton command
+TABLES: sscrfields, sflight.
+* Constant for CASE statement
+CONSTANTS mark VALUE 'X'.
+*=============================
+* Begin of new or changed code
+*=============================
+* Workarea for data fetch
+DATA: it_flights TYPE TABLE OF sflights,
+      wa_flight  TYPE sflights,
+      switch     TYPE n VALUE '1'.
+*===========================
+* End of new or changed code
+*===========================
+* Selections for connections
+SELECTION-SCREEN BEGIN OF SCREEN 1100 AS SUBSCREEN.
+SELECT-OPTIONS: so_car FOR wa_flight-carrid,
+                so_con FOR sflight-connid.
+*=============================
+* Begin of new or changed code
+*=============================
+SELECTION-SCREEN SKIP 2.
+SELECTION-SCREEN PUSHBUTTON pos_low(20) push_det USER-COMMAND details.
+SELECTION-SCREEN SKIP.
+SELECTION-SCREEN BEGIN OF BLOCK bl_det WITH FRAME TITLE text-tld.
+SELECT-OPTIONS: so_start FOR wa_flight-cityfrom MODIF ID det,
+                so_dest  FOR wa_flight-cityto MODIF ID det.
+SELECTION-SCREEN END OF BLOCK bl_det.
+*===========================
+* End of new or changed code
+*===========================
+SELECTION-SCREEN END OF SCREEN 1100.
+* Selections for flights
+SELECTION-SCREEN BEGIN OF SCREEN 1200 AS SUBSCREEN.
+SELECT-OPTIONS so_fdt FOR wa_flight-fldate NO-EXTENSION.
+SELECTION-SCREEN END OF SCREEN 1200.
+* Output parameter
+SELECTION-SCREEN BEGIN OF SCREEN 1300 AS SUBSCREEN.
+SELECTION-SCREEN BEGIN OF BLOCK param WITH FRAME.
+SELECTION-SCREEN BEGIN OF BLOCK radio WITH FRAME TITLE text-tl4.
+
+PARAMETERS: all RADIOBUTTON GROUP rbg1,
+            national RADIOBUTTON GROUP rbg1,
+            internat RADIOBUTTON GROUP rbg1 DEFAULT 'X'.
+SELECTION-SCREEN END OF BLOCK radio.
+
+PARAMETERS: country LIKE wa_flight-countryfr.
+SELECTION-SCREEN END OF BLOCK param.
+SELECTION-SCREEN END OF SCREEN 1300.
+
+SELECTION-SCREEN BEGIN OF TABBED BLOCK airlines FOR 10 LINES.
+SELECTION-SCREEN TAB (20) tab1 USER-COMMAND conn DEFAULT SCREEN 1100.
+SELECTION-SCREEN TAB (20) tab2 USER-COMMAND date DEFAULT SCREEN 1200.
+SELECTION-SCREEN TAB (20) tab3 USER-COMMAND type DEFAULT SCREEN 1300.
+SELECTION-SCREEN END OF BLOCK airlines.
+
+*&------------------------------------------------
+*& Event AT SELECTION-SCREEN ON BLOCK PARAM
+*&------------------------------------------------
+AT SELECTION-SCREEN ON BLOCK param. " OPTIONAL
+* check country for national flights is not empty
+  CHECK national = 'X' AND country = space.
+  MESSAGE 'Debe Ingresar el país' TYPE 'E'. "e003(bc405).
+*=============================
+* Begin of new or changed code
+*=============================
+
+*&------------------------------------------------
+*& Event INITIALIZATION
+*&------------------------------------------------
+INITIALIZATION.
+* Initialize select-options for CARRID" OPTIONAL
+  MOVE: 'AA' TO so_car-low,
+        'QF' TO so_car-high,
+        'BT' TO so_car-option,
+        'I' TO so_car-sign.
+  APPEND so_car.
+
+  CLEAR so_car.
+  MOVE: 'AZ' TO so_car-low,
+        'EQ' TO so_car-option,
+        'E' TO so_car-sign.
+  APPEND so_car.
+* Set texts for tabstrip pushbuttons
+  tab1 = 'Conexiones de vuelo'(tl1).
+  tab2 = 'Fecha de vuelo'(tl2).
+  tab3 = 'Tipo de vuelo'(tl3).
+* Set second tab page as initial tab
+  airlines-activetab = 'DATE'.
+  airlines-dynnr = '1200'.
+*=============================
+* Begin of new or changed code
+*=============================
+* Text for pushbuttons
+*  push_det = 'Ocultar Detalles'(p02).
+*===========================
+* End of new or changed code
+*===========================
+
+*&------------------------------------------------
+*& Event at selection-screen output
+*&------------------------------------------------
+AT SELECTION-SCREEN OUTPUT.
+  CASE sy-dynnr.
+    WHEN 1100.
+
+      LOOP AT SCREEN.
+        IF screen-group1 = 'DET'.
+          screen-active = switch.
+          MODIFY SCREEN.
+        ENDIF.
+      ENDLOOP.
+
+      IF switch = '1'.
+        push_det = text-p02.
+      ELSE.
+        push_det = text-p01.
+* clear additional select-options to avoid unwanted
+* influence at selection from database
+        REFRESH: so_start,
+                 so_dest.
+      ENDIF.
+  ENDCASE.
+*&------------------------------------------------
+*& Event at selection-screen
+*&------------------------------------------------
+AT SELECTION-SCREEN.
+* Evaluate pushbutton command
+  CASE sscrfields-ucomm.
+    WHEN 'DETAILS'.
+      CHECK sy-dynnr = 1100.
+      IF switch = '1'.
+        switch = '0'.
+      ELSE.
+        switch = '1'.
+      ENDIF.
+  ENDCASE.
+*===========================
+* End of new or changed code
+*===========================
+*&------------------------------------------------
+*& Event START-OF-SELECTION
+*&------------------------------------------------
+START-OF-SELECTION.
+
+  REFRESH: it_flights.
+* Checking the output parameters
+  CASE mark.
+    WHEN all.
+* Radiobutton ALL is marked
+      SELECT * FROM sflights INTO TABLE it_flights
+       WHERE carrid IN so_car
+         AND connid IN so_con
+         AND fldate IN so_fdt
+*=============================
+* Begin of new or changed code
+*=============================
+         AND cityfrom IN so_start
+         AND cityto   IN so_dest.
+*===========================
+* End of new or changed code
+*===========================
+      IF sy-subrc IS INITIAL.
+
+        LOOP AT it_flights INTO wa_flight.
+
+          WRITE: / wa_flight-carrid,
+                   wa_flight-connid,
+                   wa_flight-fldate,
+                   wa_flight-countryfr,
+                   wa_flight-cityfrom,
+                   wa_flight-airpfrom,
+                   wa_flight-countryto,
+                   wa_flight-cityto,
+                   wa_flight-airpto,
+                   wa_flight-seatsmax,
+                   wa_flight-seatsocc.
+
+        ENDLOOP.
+
+      ENDIF.
+
+    WHEN national.
+* Radiobutton NATIONAL is marked
+      SELECT * FROM sflights INTO TABLE it_flights
+       WHERE carrid   IN so_car
+         AND connid   IN so_con
+         AND fldate   IN so_fdt
+         AND cityfrom IN so_start
+         AND cityto   IN so_dest
+*===========================
+* End of new or changed code
+*===========================
+         AND countryto = sflights~countryfr
+         AND countryto = country.
+
+      IF sy-subrc IS INITIAL.
+
+        LOOP AT it_flights INTO wa_flight.
+
+          WRITE: / wa_flight-carrid,
+                   wa_flight-connid,
+                   wa_flight-fldate,
+                   wa_flight-countryfr,
+                   wa_flight-cityfrom,
+                   wa_flight-airpfrom,
+                   wa_flight-countryto,
+                   wa_flight-cityto,
+                   wa_flight-airpto,
+                   wa_flight-seatsmax,
+                   wa_flight-seatsocc.
+
+        ENDLOOP.
+
+      ENDIF.
+
+    WHEN internat.
+* Radiobutton INTERNAT is marked
+      SELECT * FROM sflights INTO TABLE it_flights
+       WHERE carrid IN so_car
+         AND connid IN so_con
+         AND fldate IN so_fdt
+*=============================
+* Begin of new or changed code
+*=============================
+         AND cityfrom IN so_start
+         AND cityto   IN so_dest
+*===========================
+* End of new or changed code
+*===========================
+         AND countryto <> sflights~countryfr.
+
+      IF sy-subrc IS INITIAL.
+
+        LOOP AT it_flights INTO wa_flight.
+
+          WRITE: / wa_flight-carrid,
+                   wa_flight-connid,
+                   wa_flight-fldate,
+                   wa_flight-countryfr,
+                   wa_flight-cityfrom,
+                   wa_flight-airpfrom,
+                   wa_flight-countryto,
+                   wa_flight-cityto,
+                   wa_flight-airpto,
+                   wa_flight-seatsmax,
+                   wa_flight-seatsocc.
+
+        ENDLOOP.
+
+      ENDIF.
+
+  ENDCASE.

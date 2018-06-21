@@ -1,0 +1,122 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_REP003_FORM
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  F_OBTENER_DATOS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM f_obtener_datos .
+
+  SELECT sflight~carrid sflight~connid sflight~fldate sflight~price
+    FROM sflight INTO TABLE gt_sflight
+    WHERE sflight~price IN s_price.
+
+  IF sy-subrc IS INITIAL.
+
+* OPTIMIZACION FOR ALL ENTRIES
+
+    APPEND LINES OF gt_sflight TO gt_sflight_tmp.
+    SORT gt_sflight_tmp BY carrid connid fldate.
+    DELETE ADJACENT DUPLICATES FROM gt_sflight_tmp COMPARING carrid connid fldate. "no va separado por comas"
+
+    SELECT sbook~carrid sbook~connid sbook~fldate sbook~bookid
+     FROM sbook INTO TABLE gt_sbook
+     FOR ALL ENTRIES IN gt_sflight_tmp
+      WHERE sbook~carrid = gt_sflight_tmp-carrid AND sbook~connid = gt_sflight_tmp-connid AND sbook~fldate = gt_sflight_tmp-fldate "joins"
+      AND sbook~carrid IN s_carrid AND sbook~connid IN s_connid AND sbook~fldate IN s_fldate. "condiciones"
+  ENDIF.
+
+  IF sy-subrc IS INITIAL.
+
+* OPTIMIZACION FOR ALL ENTRIES
+
+    APPEND LINES OF gt_sbook TO gt_sbook_tmp.
+    SORT gt_sbook_tmp BY carrid connid. "me fijo que necesita spfli"
+    DELETE ADJACENT DUPLICATES FROM gt_sbook_tmp COMPARING carrid connid. "no va separado por comas"
+
+    SELECT spfli~carrid spfli~connid spfli~cityfrom spfli~airpfrom spfli~cityto spfli~airpto
+      FROM spfli
+      INTO TABLE gt_spfli
+      FOR ALL ENTRIES IN gt_sbook_tmp "inner join gt_sbook
+      WHERE spfli~carrid = gt_sbook_tmp-carrid AND spfli~connid = gt_sbook_tmp-connid. "va - en estructuras aunque sea select" "y las relaciones"
+  ENDIF.
+
+
+
+  IF sy-subrc IS INITIAL.
+
+* OPTIMIZACION FOR ALL ENTRIES
+
+    APPEND LINES OF gt_spfli TO gt_spfli_tmp.
+    SORT gt_spfli_tmp BY carrid. "la scarr solo me pide carrid"
+    DELETE ADJACENT DUPLICATES FROM gt_spfli_tmp COMPARING carrid. "no va separado por comas"
+
+    SELECT scarr~carrid scarr~carrname scarr~url
+      FROM scarr
+      INTO TABLE gt_scarr
+      FOR ALL ENTRIES IN gt_spfli_tmp
+      WHERE scarr~carrid = gt_spfli_tmp-carrid.
+  ENDIF.
+
+
+ENDFORM.                    " F_OBTENER_DATOS
+*&---------------------------------------------------------------------*
+*&      Form  F_ARMAR_TABLA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM f_armar_tabla .
+
+  LOOP AT gt_sbook INTO gs_sbook.
+
+    READ TABLE gt_sflight INTO gs_sflight WITH KEY carrid = gs_sbook-carrid connid = gs_sbook-connid fldate = gs_sbook-fldate.
+    IF sy-subrc IS INITIAL.
+      gs_reporte-price = gs_sflight-price.
+
+    ENDIF.
+    READ TABLE gt_spfli INTO gs_spfli WITH KEY carrid = gs_sbook-carrid connid = gs_sbook-connid.
+    IF sy-subrc IS INITIAL.
+      gs_reporte-cityfrom = gs_spfli-cityfrom.
+      gs_reporte-airpfrom = gs_spfli-airpfrom.
+      gs_reporte-cityto = gs_spfli-cityto.
+      gs_reporte-airpto = gs_spfli-airpto.
+    ENDIF.
+    READ TABLE gt_scarr INTO gs_scarr WITH KEY carrid = gs_sbook-carrid.
+    IF sy-subrc IS INITIAL.
+      gs_reporte-carrname = gs_scarr-carrname.
+      gs_reporte-url = gs_scarr-url.
+    ENDIF.
+    gs_reporte-carrid = gs_sbook-carrid.
+    gs_reporte-connid = gs_sbook-connid.
+    gs_reporte-fldate = gs_sbook-fldate.
+gs_reporte-bookid = gs_sbook-bookid.
+  APPEND gs_reporte to gt_reporte.
+  ENDLOOP.
+
+ENDFORM.                    " F_ARMAR_TABLA
+*&---------------------------------------------------------------------*
+*&      Form  F_MOSTRAR_LISTA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form F_MOSTRAR_LISTA .
+
+LOOP at gt_reporte into gs_reporte.
+  WRITE:/ gs_reporte-carrid, gs_reporte-connid, gs_reporte-fldate, gs_reporte-price, gs_reporte-carrname, gs_reporte-url,
+  gs_reporte-cityfrom, gs_reporte-airpfrom, gs_reporte-cityto, gs_reporte-airpto, gs_reporte-bookid.
+at last.
+  write: sy-tabix.
+  endat.
+ENDLOOP.
+
+endform.                    " F_MOSTRAR_LISTA

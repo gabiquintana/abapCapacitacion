@@ -1,0 +1,16 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZEJ_REPORTE_TOP
+*&---------------------------------------------------------------------*
+* Tablas ---------------------------------------------------------------
+TABLES spfli.
+* DATA -----------------------------------------------------------------
+DATA: cantidad TYPE i.
+
+DATA: BEGIN OF itab001 OCCURS 0,
+carrid    LIKE spfli-carrid,
+connid    LIKE spfli-connid,
+cityfrom  LIKE spfli-cityfrom,
+cityto    LIKE spfli-cityto,
+END OF itab001.
+
+DATA itab002 LIKE spfli OCCURS 0 WITH HEADER LINE.

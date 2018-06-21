@@ -1,0 +1,131 @@
+*&---------------------------------------------------------------------*
+*& Report  ZREPORTE_LORE
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+REPORT zreporte_lore3."Este reporte es de prueba
+
+*DATA: BEGIN OF empresa OCCURS 10,
+*        name(20),
+*        producto(30),
+*        sales TYPE p ,
+*      END OF empresa.
+*
+*empresa-name = 'Sony'.
+*empresa-sales = 15000.
+*empresa-producto = 'Producto 1'.
+*
+*COLLECT empresa.
+*
+*empresa-name = 'Mac Donald'.
+*empresa-sales = 25000.
+*empresa-producto = 'Producto 2'.
+*
+*COLLECT empresa.
+*
+*empresa-name = 'Sony'.
+*empresa-sales = 18000.
+*empresa-producto = 'Producto 1'.
+*
+*COLLECT empresa.
+*
+*LOOP AT empresa.
+*  WRITE: / empresa-name, empresa-producto, empresa-sales.
+*ENDLOOP.
+
+
+
+
+DATA: BEGIN OF itab OCCURS 0,
+        f1 TYPE i,
+        f2(6) TYPE c,
+        f3(10) TYPE n,
+        f4(16) TYPE p DECIMALS 2,
+      END OF itab.
+
+DATA: sub_tot(10) TYPE p DECIMALS 3.
+**--1
+itab-f1 = 1.
+itab-f2 = 'ONE'.
+itab-f3 = 10.
+itab-f4 = '1000.00'.
+APPEND itab.
+CLEAR itab.
+
+itab-f1 = 1.
+itab-f2 = 'ONE'.
+itab-f3 = 20.
+itab-f4 = '2000.00'.
+APPEND itab.
+CLEAR itab.
+
+itab-f1 = 1.
+itab-f2 = 'ONE'.
+itab-f3 = 30.
+itab-f4 = '3000.00'.
+APPEND itab.
+CLEAR itab.
+*--2
+itab-f1 = 2.
+itab-f2 = 'TWO'.
+itab-f3 = 10.
+itab-f4 = '1000.00'.
+APPEND itab.
+CLEAR itab.
+
+itab-f1 = 2.
+itab-f2 = 'TWO'.
+itab-f3 = 20.
+itab-f4 = '2000.00'.
+APPEND itab.
+CLEAR itab.
+
+*-- 3
+itab-f1 = 3.
+itab-f2 = 'THREE'.
+itab-f3 = 10.
+itab-f4 = '1000.00'.
+APPEND itab.
+CLEAR itab.
+
+itab-f1 = 3.
+itab-f2 = 'THREE'.
+itab-f3 = 20.
+itab-f4 = '2000.00'.
+APPEND itab.
+CLEAR itab.
+
+SORT itab BY f1.
+
+LOOP AT itab.
+
+  AT FIRST.
+    WRITE: /35 ' MATERIAL DETAILS:'.
+    ULINE.
+  ENDAT.
+
+  AT NEW f1.
+    WRITE: / 'DETAILS OF MATERIAL:' COLOR 7 , itab-f1.
+    ULINE.
+  ENDAT.
+
+  WRITE: / itab-f1, itab-f2, itab-f3, itab-f4.
+  sub_tot = sub_tot + itab-f4.
+
+  AT END OF f1.
+    ULINE.
+    WRITE: / 'SUB TOTAL :' COLOR 3 INVERSE ON, AT 43 sub_tot COLOR 3 INVERSE ON.
+    CLEAR sub_tot.
+  ENDAT.
+
+  AT LAST.
+
+    SUM.
+    ULINE.
+    WRITE: 'TOTAL SUM:', itab-f4.
+    ULINE.
+  ENDAT.
+
+ENDLOOP.

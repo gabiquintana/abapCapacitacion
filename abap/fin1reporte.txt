@@ -1,0 +1,361 @@
+*&---------------------------------------------------------------------*
+*& Report  ZREPORTE_GABRIEL
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zreporte_gabriel.
+*WRITE 'hola mundo'.
+*WRITE:'hola mundito',
+*      'ABAP 2018'.
+*WRITE:/5(10)'01234567891011121314'.
+*WRITE:/ sy-datum QUICKINFO 'Fecha de creacion',
+*      / sy-uname,
+*      / sy-uzeit.
+*DATA: var1(15) TYPE c VALUE 'estoy aca',
+*      var2 TYPE c LENGTH 15,
+*      var3 TYPE i VALUE 10.
+*
+*WRITE: var3,var1(5).
+*DO 10 TIMES.
+*  WRITE:/ sy-index.
+*  DO 10 TIMES.
+*    IF sy-index = 5.
+*      WRITE:/ 'cinco'.
+*    ENDIF.
+*  ENDDO.
+*ENDDO.
+*DATA: cadena01 TYPE c LENGTH 10 VALUE 'vamos',
+*      cadena02 TYPE c LENGTH 15 VALUE 'argentina',
+*      final TYPE c LENGTH 20.
+*
+*CONCATENATE cadena01 cadena02 INTO final SEPARATED BY ' '. "concatena dos cadenas en otra variable y las separa por un espacio"
+*WRITE:/ final.
+*DATA: variable TYPE c LENGTH 8 VALUE  'E U R'.
+*CONDENSE variable NO-GAPS. " saca espacios"
+*WRITE: variable.
+*DATA: variable4 TYPE c LENGTH 20 VALUE 'mi nombre es ?'.
+*REPLACE '?' WITH 'Mario' INTO variable4. "reemplaza una cadena por otra"
+*WRITE:/ variable4.
+*"replace all OCCURRENCES OF '?' in cadena1 with 'Mario' para reemplazar todos y no solo la primera
+*DATA: oracion(50) VALUE 'CUB A ES LINDA'.
+*SEARCH oracion FOR 'CUB'.
+*WRITE:/ sy-subrc.
+*SEARCH oracion FOR 'cub' STARTING AT 1. "no distingue mayusculas de minusculas, no case sensitive"
+*WRITE:/ sy-subrc.
+*DATA: oracion2(18) TYPE c VALUE 'mi nombre es mario'.
+*SHIFT  oracion2 BY 3 PLACES. "elimina los primeros 3 caracteres de la variable"
+*WRITE:/ oracion2.
+*DATA: var(20) TYPE c VALUE 'mi,nombre,es,lucas',
+*      vari1(7) TYPE c,
+*      vari2(7) TYPE c,
+*      vari3(7) TYPE c,
+*      vari4(7) TYPE c.
+*SPLIT var AT ',' INTO vari1  "divido en subcadenas separadas por ',' y lo asigno a otras variables"
+*                      vari2
+*                      vari3
+*                      vari4.
+*WRITE:/ vari1,
+*      / vari2,
+*      / vari3,
+*      / vari4.
+*DATA: x(10) TYPE c VALUE 'hola mundo'.
+*TRANSLATE x TO UPPER CASE. "transforma a mayusculas"
+*WRITE:/ x.
+*"translate text using', '. replaza la coma por el espacio
+*data: cadena type string value 'HOLA MUNDO',
+*      longitud type i.
+*longitud = strlen( cadena ). "longitud cadena"
+*WRITE:/ cadena, longitud.
+*data: mientero type i value 2.
+*case mientero.
+*  when '1'.
+*    write: 'mi auto es camaro'.
+*  when '2'.
+*    write: 'gg'.
+*  when OTHERS.
+*    write: 'no tengo auto'.
+*  ENDCASE.
+**EXIT= sale del DO
+**Continue= sale de una instancia del DO y pasa a la proxima sin ejecutar el codigo que esta debajo
+*
+*DATA: entero TYPE i VALUE 1.
+*while entero LT 10. "lt es lo mismo que <"
+*  entero = entero + 1.
+*  write:/'el numero es', entero.
+*  ENDWHILE.
+*
+*data: mcolor type i.
+*do 8 times.
+*  FORMAT INTENSIFIED color = mcolor.
+*  mcolor = mcolor + 1.
+*  write:/ 'color:',mcolor.
+*ENDDO.
+*format INTENSIFIED color = 0 ."para volver al formato normal off dsp de color"
+*
+*message text-001 type 'S'. "salta abajo el nombre de error"
+*write:/ 'sigue ejecutando'.
+*
+*write:/ text-001. "texto 001 creado en goto, text elements, text symbols.
+*
+*types: BEGIN OF alumnos,
+*  padron(6) type n, "string de numeros no se puede hacer operaciones"
+*  apellido(25) type c,
+*  nombre(20) type c,
+*  direccion(50) type c,
+*  end of alumnos.
+*
+*data: wa_alumnos type alumnos,
+*      it_alumnos type table of alumnos. "internal table"
+*
+*wa_alumnos-padron = '00200'.
+*wa_alumnos-apellido = 'Perez'.
+*wa_alumnos-nombre = 'Raul'.        "declarar valores de tabla"
+*wa_alumnos-direccion = 'French 2432'.
+*
+*APPEND wa_alumnos to it_alumnos.
+*
+*loop at it_alumnos into wa_alumnos. "where apellido = 'gamba'
+*  write:/ wa_alumnos-padron, wa_alumnos-apellido. "para mostrar contenido de la tabla
+*  ENDLOOP.
+*
+*sort it_alumnos by padron. "se puede ordenar por mas de una, por defecto ascendente, sino descending"
+*
+*READ TABLE it_alumnos into  wa_alumnos
+*   with key
+*          padron = '000100' "clave por la que busca, puede ser mas de una pero siempre son and"
+*          BINARY SEARCH. "con tabla ordenada hace la busqueda binaria solo, empieza de la mitad"
+*if sy-subrc = 0. "hacer siempre"
+*  wa_alumnos-apellido = 'gomez'.
+*  modify it_alumnos from wa_alumnos index sy-tabix.
+*  endif.
+
+** Declarado de variables
+*DATA: BEGIN OF gt_mitabla2 OCCURS 0,
+* nombre(20) TYPE c,
+* apellido(20) TYPE c,
+* telefono(9) TYPE n,
+*END OF gt_mitabla2.
+** Rellenado de la tabla
+*gt_mitabla2-nombre = 'Juan'.
+*gt_mitabla2-apellido = 'Pérez'.
+*gt_mitabla2-telefono = '612345678'.
+*APPEND gt_mitabla2.
+*gt_mitabla2-nombre = 'Lucas'.
+*gt_mitabla2-apellido = 'García'.
+*gt_mitabla2-telefono = '698765432'.
+*APPEND gt_mitabla2.
+*gt_mitabla2-nombre = 'María'.
+*gt_mitabla2-apellido = 'Gutiérrez'.
+*gt_mitabla2-telefono = '600111222'.
+*APPEND gt_mitabla2.
+*DATA: mcolor TYPE i VALUE 3.
+** Mostrar en pantalla la tabla
+*LOOP AT gt_mitabla2.
+*  FORMAT INTENSIFIED COLOR = mcolor.
+*  mcolor = mcolor + 1.
+*  IF mcolor = 4.
+*    FORMAT INTENSIFIED OFF. "LO HAGO MAS CLARO"
+*  ENDIF.
+*
+*  WRITE:/ sy-uline(56), / sy-vline, gt_mitabla2-nombre,
+*  AT 22 sy-vline, gt_mitabla2-apellido,   "22 es la posicion"
+*  AT 44 sy-vline, gt_mitabla2-telefono,
+*  sy-vline.
+*  CLEAR gt_mitabla2. "para que no me quede basura"
+*
+*ENDLOOP.
+*WRITE:/ sy-uline(56).
+*
+*
+** Tipos
+*TYPES: BEGIN OF ty_encabezado, "DECLARA LA ESTRUCTURA"
+* nombre(20) TYPE c,
+* apellido(20) TYPE c,
+* telefono(9) TYPE n,
+*END OF ty_encabezado.
+*TYPES: tt_mitabla TYPE TABLE OF ty_encabezado. "CREA UN TIPO PARA LA TABLA PARA SER TOMADO POR OTRAS TABLAS Y NO VOLVER A DECLARARLA"
+** Declaración de variables
+*DATA: st_encabezado TYPE ty_encabezado, "DECLARA VARIABLES DEL TIPO DE LA STRUCTURA(WA) Y EL TIPO DE LA TABLA(OTRA TABLA)"
+* gt_mitabla TYPE tt_mitabla.
+** Rellenado de la tabla
+*st_encabezado-nombre = 'Juan'.
+*st_encabezado-apellido = 'Pérez'.
+*st_encabezado-telefono = '612345678'.
+*APPEND st_encabezado TO gt_mitabla.
+*st_encabezado-nombre = 'Lucas'.
+*st_encabezado-apellido = 'García'.
+*st_encabezado-telefono = '698765432'.
+*APPEND st_encabezado TO gt_mitabla.
+*st_encabezado-nombre = 'María'.
+*st_encabezado-apellido = 'Gutiérrez'.
+*st_encabezado-telefono = '600111222'.
+*APPEND st_encabezado TO gt_mitabla.
+** Mostrar en pantalla la tabla
+*LOOP AT gt_mitabla INTO st_encabezado.
+*  FORMAT INTENSIFIED COLOR = mcolor.
+*  mcolor = mcolor + 1.
+*  WRITE:/ sy-uline(56),"raya horizontal uline"
+*  / sy-vline, st_encabezado-nombre, "raya vline es vertical"
+*  AT 22 sy-vline, st_encabezado-apellido,
+*  AT 44 sy-vline, st_encabezado-telefono, sy-vline.
+*  FORMAT INVERSE. "PARA LAS LETRAS, DEBE HABER UN INTESIFIED COLOR PARA HACER UN INVERSE O UN OFF"
+*ENDLOOP.
+*WRITE:/ sy-uline(56).
+*
+*
+*FORMAT INTENSIFIED COLOR OFF.
+
+*APPEND LINES OF tablaorigen TO tabladestino. copio los datos de una tabla a otra
+* if g_mitabla2[] = g_it_mitabla[] veo si una tabla es completamente igual a la otra
+*Describe table gt_table LINES int i , copia la longitud de la tabla en un int i
+
+DATA: BEGIN OF empresa OCCURS 10,"el 10 dice que va a tener un maximo de 10 registros no se pone por lo general se pone 0"
+  name(20), "sino se aclara tipo se toma char"
+  producto(30),
+  sales TYPE p DECIMALS 3, "decimals 3 para poner la cantidad de decimales que quiero que use"
+  END OF empresa. "esto ya es una tabla"
+
+empresa-name = 'Sony'.
+empresa-sales = '15.555'. "no es numerica porque sino no se muestra, para calculos si uso tipo i no puedo usar p (packed)"
+empresa-producto = 'Producto 1'.
+
+COLLECT empresa. "funciona como append pero suma tipos numericos"
+
+empresa-name = 'Mac Donald'.
+empresa-sales = '15.000'.
+empresa-producto = 'Producto 2'.
+
+COLLECT empresa.
+
+empresa-name = 'Sony'.
+empresa-sales = '18.700'. "tipo i no puede usar decimales como en este caso 18.7'
+empresa-producto = 'Producto 1'.
+
+COLLECT empresa.
+FORMAT INTENSIFIED COLOR  = 5.
+LOOP AT empresa.
+  WRITE:/ empresa-name,
+  AT 22 empresa-sales,
+  AT 44 empresa-producto.
+  FORMAT INTENSIFIED COLOR = 7.
+ENDLOOP.
+FORMAT INTENSIFIED color = 0.
+
+DATA: BEGIN OF itab OCCURS 0,"el 10 dice que va a tener un maximo de 10 registros no se pone por lo general se pone 0"
+  f1 TYPE i, "sino se aclara tipo se toma char"
+  f2(6) TYPE c,
+  f3(10) TYPE n ,
+  f4 TYPE p DECIMALS 2,
+  END OF itab. "esto ya es una tabla"
+
+DATA: sub_tot(10) TYPE p DECIMALS 3.
+
+itab-f1 = 1.
+itab-f2 = 'ONE'.
+itab-f3 = 10.
+itab-f4 = '1.500'.
+
+
+APPEND itab.
+CLEAR itab.
+
+itab-f1 = 2.
+itab-f2 = 'TWO'.
+itab-f3 = 10.
+itab-f4 = '11.500'.
+
+
+APPEND itab.
+CLEAR itab.
+
+itab-f1 = 1.
+itab-f2 = 'ONE'.
+itab-f3 = 20.
+itab-f4 = '20.500'.
+
+
+APPEND itab.
+CLEAR itab.
+
+itab-f1 = 2.
+itab-f2 = 'TWO'.
+itab-f3 = 20.
+itab-f4 = '15.500'.
+
+
+APPEND itab.
+CLEAR itab.
+
+itab-f1 = 3.
+itab-f2 = 'THREE'.
+itab-f3 = 10.
+itab-f4 = '80.75'.
+
+
+APPEND itab.
+CLEAR itab.
+
+itab-f1 = 1.
+itab-f2 = 'ONE'.
+itab-f3 = 30.
+itab-f4 = '50.500'.
+
+
+APPEND itab.
+CLEAR itab.
+
+itab-f1 = 3.
+itab-f2 = 'THREE'.
+itab-f3 = 20.
+itab-f4 = '6.500'.
+
+
+APPEND itab.
+CLEAR itab.
+
+itab-f1 = 3.
+itab-f2 = 'THREE'.
+itab-f3 = 30.
+itab-f4 = '19.300'.
+
+
+APPEND itab.
+CLEAR itab.
+
+SORT itab by f1.
+
+LOOP at itab.
+
+  AT FIRST.
+    WRITE:/ 'MATERIALES'.
+    ULINE.
+  ENDAT.
+
+ AT NEW f1.
+   WRITE:/ 'DESCRIPCION MATERIALES:' COLOR 7, itab-f1.
+   ULINE.
+ ENDAT.
+
+ WRITE:/ itab-f1, itab-f2, itab-f3, itab-f4.
+ sub_tot = sub_tot + itab-f4.
+
+ AT END OF f1.
+   ULINE.
+   WRITE: / 'SUB TOTAL :' COLOR 3 INVERSE ON, AT 43 sub_tot color 3 inverse on.
+   clear sub_tot.
+   ENDAT.
+
+ AT LAST.
+   SUM. "
+   WRITE:/ 'TOTAL: ',itab-f4.
+   ENDAT.
+
+   ENDLOOP.
+
+ "delete adjacent duplicates from itab comparing f1. borra los duplicados segun f1.
+
+ PARAMETER: p_num1 type i,
+            p_num2 TYPE i.  "para ingresar datos a traves de los datos"

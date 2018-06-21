@@ -1,0 +1,34 @@
+Ejercicio 5)
+
+1) Se requiere imprimir en pantalla (CARRID, CARRNAME, CURRCODE y URL) de la línea Aérea American Airlines, cuyo código de aerolínea es
+AA. (El maestro de Líneas aéreas es la tabla SCARR, usar la sentencia SELECT mas adecuada).
+
+2) Se requiere obtener solamente el CARRNAME y URL de la línea AA, realizar otro SELECT (el mas adecuado) no olvidar de hacer un CLEAR
+de la WA del punto 1 antes de hacer este SELECT. (Se debe usar la misma Working Area del punto 1)
+
+3) Se requiere imprimir en pantalla toda la información de todos los tipos de vuelos (tabla SPFLI) que realiza la línea aérea Lufthansa (LH). 
+(Usar el Select Adecuado).
+
+Ejercicio 6)
+
+1) Se requiere imprimir en pantalla (CARRID, CONNID, CARRNAME CITYFROM, CITYTO) de todas las conexiones (de todas las aerolineas)
+
+7) Cree un informe que contenga la cantidad de asientos ocupados para cada compañia aérea.
+Para hacer esto, determine el máximo, el mínimo y el promedio para el campo SFLIGHT-SEATSOCC (asientos ocupados)
+de la Tabla SFLIGHT. 
+
+Muestre estos valores en la lista con el siguiente detalle:
+-------------------------------------------------------------------------------
+Asientos ocupados para la compañia aérea: LH
+-------------------------------------------------------------------------------
+MÁXIMO: 38
+MÍNIMO: 10
+Promedio: 26.65
+
+Permitir al usuario elegir una compañia aérea( CARRID ) en la pantalla de selección.
+
+8) Mostrar todos los vuelos de todas las aerolineas, junto al modelo del avion,  el fabricante del mismo y su velocidad de operacion.
+
+Ejemplo de Listado:
+
+CARRNAME,CONNID,FLDATE,PRICE,PRODUCER,PLANETYPE,O P_SPEED

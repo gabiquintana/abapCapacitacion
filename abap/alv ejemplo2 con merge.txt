@@ -1,0 +1,62 @@
+*&---------------------------------------------------------------------*
+*& Report  YREPORTE_ALV_EJ2
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+REPORT yreporte_alv_ej2.
+
+TYPE-POOLS slis.
+
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv,
+      gs_layout   TYPE slis_layout_alv,
+      g_repid     LIKE sy-repid.
+
+DATA: gt_spfli TYPE TABLE OF spfli,
+      gs_spfli TYPE spfli.
+
+CLEAR gs_spfli.
+REFRESH gt_spfli.
+
+* Cargamos la tabla interna
+SELECT * FROM spfli INTO TABLE gt_spfli.
+IF sy-subrc IS INITIAL.
+* Cargamos el catalogo
+  CALL FUNCTION 'REUSE_ALV_FIELDCATALOG_MERGE'
+    EXPORTING
+      i_structure_name       = 'SPFLI'
+      i_bypassing_buffer     = 'X'
+    CHANGING
+      ct_fieldcat            = gt_fieldcat
+    EXCEPTIONS
+      inconsistent_interface = 1
+      program_error          = 2
+      OTHERS                 = 3.
+
+  IF sy-subrc <> 0.
+*Mostrar Error si no pudo cargar la estructura
+  ENDIF.
+
+* Llamamos a la función que muestra el listado en formato ALV
+  g_repid = sy-repid.
+  gs_layout-colwidth_optimize = 'X'.
+
+  CALL FUNCTION 'REUSE_ALV_LIST_DISPLAY'
+    EXPORTING
+      i_callback_program = g_repid
+      is_layout          = gs_layout
+      it_fieldcat        = gt_fieldcat
+      i_save             = 'A'
+    TABLES
+      t_outtab           = gt_spfli
+    EXCEPTIONS
+      program_error      = 1
+      OTHERS             = 2.
+
+  IF sy-subrc <> 0.
+*Mostrar Error si no pudo armar la LISTA
+  ENDIF.
+
+ENDIF.

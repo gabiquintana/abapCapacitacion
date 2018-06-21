@@ -1,0 +1,20 @@
+*&---------------------------------------------------------------------*
+*& Report  ZEJ_REPORTE
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+REPORT zej_reporte.
+
+INCLUDE zej_reporte_top.		"Declaración de Tipos y Datos globales
+INCLUDE zej_reporte_screen.  	"Declaración de parametros de selección de Pantalla
+INCLUDE zej_reporte_form.     	"Declaración de Rutinas de mi programa Principal
+
+START-OF-SELECTION.
+
+  PERFORM f_obtener_datos.
+  PERFORM f_armar_lista.
+  PERFORM f_mostrar_lista.
+
+END-OF-SELECTION.

@@ -1,0 +1,119 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_SELECTION_SCREEN2
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zu64_selection_screen2.
+
+**5) Declare tres parámetros como checkboxes. Cada uno de ellos representará una
+*clase de vuelo diferente (first, business and economy).
+*
+*PARAMETERS: pa_first AS CHECKBOX,
+*            pa_bs AS CHECKBOX,
+*            pa_eco AS CHECKBOX.
+*7) Declara tres parámetros como checkboxes. El primero siempre se debe verificar
+*una vez que se inicia el programa. Además, si el día actual está entre 1 y 20, los otros
+*checkboxes también deben verificarse una vez que se inicie el programa.
+
+
+*PARAMETERS: pa_first AS CHECKBOX DEFAULT 'X',
+*           pa_bs AS CHECKBOX,
+*            pa_eco AS CHECKBOX.
+*
+*INITIALIZATION.
+*if sy-datum+6(2) < 21.
+* pa_bs = 'X'.
+* pa_eco = 'X'.
+* MODIFY SCREEN .
+*  endif.
+
+* PARAMETER p_first RADIOBUTTON GROUP grp1 USER-COMMAND action.
+*PARAMETER p_busin RADIOBUTTON GROUP grp1.
+*PARAMETER p_econo LIKE p_first RADIOBUTTON GROUP grp1. "el grupo entero gr1  copia tambien el user command y solo se declara en uno solo del grupo"
+*PARAMETER p_input TYPE string.
+*AT SELECTION-SCREEN.
+*IF sy-ucomm = 'ACTION'.
+*CLEAR p_input.
+*ENDIF.
+
+*9) Declare tres radio buttons y dos campos de entrada. Si se selecciona el primer radio
+*button, ambos campos de entrada se deben mostrar y estar listos para la entrada. Si
+*se elige el segundo, el primer campo de entrada debe ser obligatorio y el segundo
+*debe estar bloqueado para la entrada. Si se elige el último botón de opción, ambos
+*campos de entrada no se deben mostrar en la pantalla.
+*CONSTANTS mark VALUE 'X'.
+*PARAMETERS: pa_uno RADIOBUTTON GROUP grp1 USER-COMMAND action, "grupos para saber cuando seleciona uno y no el otro del grupo, no puede seleccionar dos del mismo"
+*            pa_dos RADIOBUTTON GROUP grp1,
+*            pa_tres RADIOBUTTON GROUP grp1,
+*             p_input TYPE string MODIF ID cam,
+*             p_input2 TYPE string MODIF ID cam. "para dejar de mostrar todo y agrupar inputs"
+*
+*
+*
+*AT SELECTION-SCREEN OUTPUT.
+*
+*  LOOP AT SCREEN.
+*    CASE mark.
+*      WHEN pa_tres.
+*        IF screen-group1 = 'CAM'.
+*          screen-active = 0.
+*          MODIFY SCREEN.
+*        ENDIF.
+*      WHEN pa_uno.
+*        IF screen-group1 = 'CAM'. "group1 no tiene que ver con grp1 sino por el modif id cam le agrega cam a la lista de group1
+*          screen-active = 1.
+*          MODIFY SCREEN.
+*        ENDIF.
+*      WHEN pa_dos.
+*        IF screen-name = 'P_INPUT'.
+*          screen-required = 1.
+*              MODIFY SCREEN.
+*        ENDIF.
+*        IF screen-name = 'P_INPUT2'.
+*          screen-input = 0.
+*              MODIFY SCREEN.
+*        ENDIF.
+*      WHEN OTHERS.
+*    ENDCASE.
+*  ENDLOOP.
+
+*10) Declare cuatro parámetros. Los dos primeros deben ser un tipo caracter y los dos
+*últimos de tipo numérico. Separe cada par en la pantalla de selección usando bloques
+*de pantalla de selección. Ambos bloques deben contener un marco por lo que es
+*posible ver la separación entre ellos.
+* SELECTION-SCREEN BEGIN OF BLOCK limit WITH FRAME TITLE nombre. "nombre de bloque limit"
+*PARAMETERS: pa_uno TYPE c LENGTH 20,
+*            pa_dos TYPE c LENGTH 20.
+*
+*SELECTION-SCREEN END OF BLOCK limit.
+*SELECTION-SCREEN BEGIN OF BLOCK limit2 WITH FRAME  TITLE text-001. "para poner titulo al bloque"
+* PARAMETERS:   pa_tres TYPE i,
+*   pa_cua TYPE i.
+*SELECTION-SCREEN END OF BLOCK limit2.
+*
+*INITIALIZATION.
+*nombre = 'nombre sin text-000'.
+
+*11) Declare cuatro parámetros. Los dos primeros deben ser un tipo de carácter y los
+*dos últimos de tipo numérico. Separe cada par en la pantalla de selección usando
+*bloques de pantalla de selección. Ambos bloques deben contener un marco por lo que
+*es posible ver la separación entre ellos. Cada cuadro debe tener un título. Además,
+*defina un texto para cada etiqueta de parámetro usando elementos de texto.
+
+ SELECTION-SCREEN BEGIN OF BLOCK limit WITH FRAME TITLE nombre. "nombre de bloque limit"
+PARAMETERS: pa_uno TYPE c LENGTH 20,
+            pa_dos TYPE c LENGTH 20.
+
+SELECTION-SCREEN END OF BLOCK limit.
+SELECTION-SCREEN BEGIN OF BLOCK limit2 WITH FRAME  TITLE text-001. "para poner titulo al bloque"
+ PARAMETERS:   pa_tres TYPE i,
+   pa_cua TYPE i.
+SELECTION-SCREEN END OF BLOCK limit2.
+
+INITIALIZATION.
+nombre = 'nombre sin text-000'.
+
+"es igual al 10 pero le agrego text element a los parameteres"

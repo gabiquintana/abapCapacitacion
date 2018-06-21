@@ -1,0 +1,283 @@
+*&---------------------------------------------------------------------*
+*& Report  ZREPORTE_GABRIEL
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zreporte_gabriel5.
+
+
+
+**TABLES: mara.
+**PARAMETER: p_matnr TYPE mara-matnr.
+*TABLES: spfli, scarr.                                       "punto 1"
+*
+*PARAMETER: codaereo TYPE  scarr-carrid.
+*TYPES: BEGIN OF st_relacion,   "hago la estructura, para que luego la tabla tome el tipo de la estructura"
+*  carrid TYPE scarr-carrid,
+*  connid TYPE spfli-connid,
+*  airpfrom TYPE spfli-airpfrom,
+*  airpto TYPE spfli-airpto,
+*  carrname TYPE scarr-carrname,
+*  END OF st_relacion.
+*
+*DATA: wa_relacion TYPE st_relacion, "la word area toma el tipo de la structura"
+*      it_relacion TYPE TABLE OF st_relacion. "toma el tipo de la structura, la tabla"
+*
+*SELECT scarr~carrid spfli~connid spfli~airpfrom spfli~airpto scarr~carrname
+*  FROM spfli JOIN scarr ON spfli~carrid = scarr~carrid INTO TABLE it_relacion "select para pasar los datos joineados a mi tabla interna"
+*  WHERE spfli~carrid = codaereo. "que matchen los codaereos"
+*
+*IF sy-subrc <> 0.
+*  WRITE:/ 'No se encuentra'.
+*ENDIF.
+*
+*LOOP AT it_relacion INTO wa_relacion.
+*  WRITE:/ wa_relacion-carrid, wa_relacion-carrname.
+*ENDLOOP.
+*
+*"fin punto 1"
+*
+*                                                            "punto 2"
+**TABLES: scustom, sbook.
+**TYPES: BEGIN OF st_relacion2,
+**  carrid TYPE scarr-carrid,
+**  connid TYPE sbook-connid,
+**  fldate TYPE sbook-fldate,
+**  carrname TYPE scarr-carrname,
+**  name TYPE scustom-name,
+**  END OF st_relacion2.
+**
+**DATA: wa_relacion2 TYPE st_relacion2,
+**      it_relacion2 TYPE TABLE OF st_relacion2.
+**
+***PARAMETERS: fechai TYPE sbook-fldate,
+***           fechaf TYPE sbook-fldate.
+**SELECT-OPTIONS: fecha for sy-datum.
+**
+**SELECT scarr~carrid sbook~connid sbook~fldate scarr~carrname scustom~name
+**  from sbook inner join scustom on sbook~customid = scustom~id
+**             inner join scarr on sbook~carrid = scarr~carrid into table it_relacion2
+**   WHERE sbook~fldate IN fecha. " para que filtre por fechas ingresadas"
+**
+**IF sy-subrc <> 0.
+**  WRITE:/ 'no se ha encontrado tabla'.
+**ENDIF.
+**
+**LOOP AT it_relacion2 INTO wa_relacion2.
+**  WRITE:/ wa_relacion2-carrid, wa_relacion2-connid, wa_relacion2-fldate, wa_relacion2-carrname, wa_relacion2-name.
+**ENDLOOP.
+*
+**fin punto 2*
+*
+**inicio punto 3*
+*TABLES: scustom, sbook.
+*TYPES: BEGIN OF st_relacion2,
+*  carrid TYPE scarr-carrid,
+*  connid TYPE sbook-connid,
+*  fldate TYPE sbook-fldate,
+*  carrname TYPE scarr-carrname,
+*  name TYPE scustom-name,
+*  city type scustom-city,
+*  END OF st_relacion2.
+*
+*DATA: wa_relacion2 TYPE st_relacion2,
+*      it_relacion2 TYPE TABLE OF st_relacion2.
+*
+**PARAMETERS: fechai TYPE sbook-fldate,
+**           fechaf TYPE sbook-fldate.
+*SELECT-OPTIONS: fecha for sy-datum.
+*
+*SELECT scarr~carrid sbook~connid sbook~fldate scarr~carrname scustom~name scustom~city
+*  from sbook inner join scustom on sbook~customid = scustom~id
+*             inner join scarr on sbook~carrid = scarr~carrid into table it_relacion2
+*   WHERE sbook~fldate IN fecha and scustom~city = 'Walldorf' . " para que filtre por fechas ingresadas"
+*
+*IF sy-subrc <> 0.
+*  WRITE:/ 'no se ha encontrado tabla'.
+*ENDIF.
+*
+*LOOP AT it_relacion2 INTO wa_relacion2.
+*  WRITE:/ wa_relacion2-carrid, wa_relacion2-connid, wa_relacion2-fldate, wa_relacion2-carrname, wa_relacion2-name, wa_relacion2-city.
+*ENDLOOP.
+*
+**Ejercicio 4)
+*
+**Realizar un Reporte que dado un CARRID y un FLDATE liste todas las reservas para dichas condiciones, el layout deberá ser el siguiente:
+*
+**Carrid, connid, fldate, customer_id, customer_name.
+*
+**Todo el resultado debera estar en una tabla interna.
+*
+*
+*
+*TYPES: BEGIN OF st_reporte4,
+*  carrid TYPE sbook-carrid,
+*  connid TYPE sbook-connid,
+*  fldate TYPE sbook-fldate,
+*  customid TYPE sbook-customid,
+*  name TYPE scustom-name,
+*  END OF st_reporte4.
+*
+*DATA:
+*      it_reporte4 TYPE TABLE OF st_reporte4,
+*      wa_reporte4 TYPE st_reporte4.
+*
+*PARAMETERS: con1 TYPE sbook-carrid,
+*            con2 TYPE sbook-fldate.
+*
+*
+*SELECT sbook~carrid sbook~connid sbook~fldate sbook~customid scustom~name
+*    FROM sbook INNER JOIN scustom ON sbook~customid = scustom~id INTO TABLE it_reporte4
+*  WHERE sbook~carrid = con1 and sbook~fldate = con2.
+*
+*IF sy-subrc NE 0.
+*  WRITE:/ 'No se encontro'.
+*ENDIF.
+*
+*
+*LOOP AT it_reporte4 INTO wa_reporte4.
+*  WRITE:/ wa_reporte4-carrid, wa_reporte4-connid,wa_reporte4-fldate,
+*   wa_reporte4-customid, wa_reporte4-name.
+*
+*ENDLOOP.
+*
+**fin punto 4*
+*for all entries solo para dos tablas, devuelve una tabla interna relacionada con las otras.
+*up to rows 2 para traer solo 2 registros
+*
+*SELECT *       "selecciono todo"
+*FROM makt     "de la tabla externa makt"
+*INTO TABLE it_makt  "la copio a mi interna que es una copia de la mara"
+*FOR ALL ENTRIES IN it_mara   "para todas las entradas en la mara"
+*WHERE matnr= IT_MARA~MATNR.  "donde se unan las claves de una y la otra, seria como el on"
+*and spras= st-langu. "idioma"  "otra condicion.
+
+
+
+* TYPES: BEGIN OF st_reporte5,
+*  bookid TYPE sbook-bookid,
+*  fldate TYPE sflight-fldate,
+*  price TYPE sflight-price,
+*  END OF st_reporte5.
+*
+*SELECT-OPTIONS: fecha for sy-datum.
+*
+*TYPES: BEGIN OF st_intermedia,
+*  bookid TYPE sbook-bookid,
+*  END OF st_intermedia.
+*
+*  DATA: wa_intermedia TYPE st_intermedia,
+*        it_intermedia TYPE TABLE OF st_intermedia,
+*        wa_reporte5 TYPE st_reporte5,
+*        it_reporte5 TYPE TABLE OF st_reporte5.
+*
+*  PARAMETERS: cliente TYPE scustom-name.
+*
+*  SELECT distinct sbook~bookid FROM scustom INNER JOIN sbook ON scustom~id = sbook~customid
+*    INTO TABLE it_intermedia
+*    WHERE scustom~name = cliente.
+*
+*  SELECT sbook~bookid sflight~fldate sflight~price
+*    FROM sbook INNER JOIN sflight ON sbook~mandt = sflight~mandt
+*                                  AND sbook~carrid = sflight~carrid
+*                                  AND sbook~connid = sflight~connid
+*                                  AND sbook~fldate = sflight~fldate
+*    INTO TABLE it_reporte5
+*    FOR ALL ENTRIES IN it_intermedia
+*    WHERE sbook~bookid = it_intermedia-bookid and
+*    sbook~fldate IN fecha.
+*
+*    WRITE:/ 'El cliente', cliente COLOR 3, 'realizo los siguientes vuelos'.
+*    WRITE:/ sy-uline(48).
+*    LOOP AT it_reporte5 INTO wa_reporte5.
+*      WRITE:/ sy-vline, wa_reporte5-bookid, sy-vline, wa_reporte5-fldate, sy-vline, wa_reporte5-price, sy-vline.
+*    ENDLOOP.
+ "ejercicio 1 con vista propia"
+*TABLEs: ZVISTAUSER64.
+*PARAMETER: codaereo TYPE  ZVISTAUSER64-carrid.
+*TYPES: BEGIN OF st_relacion,   "hago la estructura, para que luego la tabla tome el tipo de la estructura"
+*  carrid TYPE ZVISTAUSER64-carrid,
+*  connid TYPE ZVISTAUSER64-connid,
+*  airpfrom TYPE ZVISTAUSER64-airpfrom,
+*  airpto TYPE ZVISTAUSER64-airpto,
+*  carrname TYPE ZVISTAUSER64-carrname,
+*  END OF st_relacion.
+*
+*DATA: wa_relacion TYPE st_relacion, "la word area toma el tipo de la structura"
+*      it_relacion TYPE TABLE OF st_relacion. "toma el tipo de la structura, la tabla"
+*
+*SELECT ZVISTAUSER64~carrid ZVISTAUSER64~connid ZVISTAUSER64~airpfrom ZVISTAUSER64~airpto ZVISTAUSER64~carrname
+*  FROM ZVISTAUSER64 INTO TABLE it_relacion "select para pasar los datos joineados a mi tabla interna"
+*  WHERE ZVISTAUSER64~carrid = codaereo. "que matchen los codaereos"
+*
+*IF sy-subrc <> 0.
+*  WRITE:/ 'No se encuentra'.
+*ENDIF.
+*
+*LOOP AT it_relacion INTO wa_relacion.
+*  WRITE:/ wa_relacion-carrid, wa_relacion-carrname.
+*ENDLOOP.
+*"fin ejercicio 1 con vista propia"
+*Ejercicio 5)
+*
+*1) Se requiere imprimir en pantalla (CARRID, CARRNAME, CURRCODE y URL) de la línea Aérea American Airlines, cuyo código de aerolínea es
+*AA. (El maestro de Líneas aéreas es la tabla SCARR, usar la sentencia SELECT mas adecuada).
+*
+*2) Se requiere obtener solamente el CARRNAME y URL de la línea AA, realizar otro SELECT (el mas adecuado) no olvidar de hacer un CLEAR
+*de la WA del punto 1 antes de hacer este SELECT. (Se debe usar la misma Working Area del punto 1)
+*
+*3) Se requiere imprimir en pantalla toda la información de todos los tipos de vuelos (tabla SPFLI) que realiza la línea aérea Lufthansa (LH).
+*(Usar el Select Adecuado).
+
+TABLES: SCARR, SPFLI.
+TYPES: BEGIN OF st_relacion,   "hago la estructura, para que luego la tabla tome el tipo de la estructura"
+  carrid TYPE scarr-carrid,
+  carrname TYPE scarr-carrname,
+  currcode TYPE scarr-currcode,
+  url TYPE scarr-url,
+  END OF st_relacion.
+
+  DATA: wa_relacion TYPE st_relacion, "la word area toma el tipo de la structura"
+      it_relacion TYPE TABLE OF st_relacion. "toma el tipo de la structura, la tabla"
+
+SELECT scarr~carrid scarr~carrname scarr~currcode  scarr~url
+  FROM scarr INTO TABLE it_relacion "select para pasar los datos joineados a mi tabla interna"
+  WHERE scarr~carrid = 'AA'. "que matchen los codaereos"
+
+IF sy-subrc <> 0.
+  WRITE:/ 'No se encuentra'.
+ENDIF.
+
+LOOP AT it_relacion INTO wa_relacion.
+  WRITE:/ wa_relacion-carrid, wa_relacion-carrname, wa_relacion-currcode, wa_relacion-url.
+ENDLOOP.
+
+*Ejercicio 6)
+*
+*1) Se requiere imprimir en pantalla (CARRID, CONNID, CARRNAME CITYFROM, CITYTO) de todas las conexiones (de todas las aerolineas)
+
+TYPES: BEGIN OF st_relacion2,   "hago la estructura, para que luego la tabla tome el tipo de la estructura"
+  carrid TYPE scarr-carrid,
+  carrname TYPE scarr-carrname,
+  connid TYPE spfli-connid,
+ cityfrom TYPE spfli-cityfrom,
+  cityto type spfli-cityto,
+  END OF st_relacion2.
+
+  DATA: wa_relacion2 TYPE st_relacion2, "la word area toma el tipo de la structura"
+      it_relacion2 TYPE TABLE OF st_relacion2. "toma el tipo de la structura, la tabla"
+
+SELECT scarr~carrid scarr~carrname spfli~connid spfli~cityfrom spfli~cityto
+FROM scarr INNER JOIN spfli on scarr~carrid = spfli~carrid INTO TABLE it_relacion2. "select para pasar los datos joineados a mi tabla interna"
+   "que matchen los codaereos"
+
+IF sy-subrc <> 0.
+  WRITE:/ 'No se encuentra'.
+ENDIF.
+
+LOOP AT it_relacion2 INTO wa_relacion2.
+  WRITE:/ wa_relacion2-carrid, wa_relacion2-carrname, wa_relacion2-connid, wa_relacion2-cityfrom, wa_relacion2-cityto.
+ENDLOOP.

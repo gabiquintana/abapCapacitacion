@@ -1,0 +1,37 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_EVENTOS3
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  ZU64_EVENTOS3.
+PARAMETERS: p_value1 TYPE p DECIMALS 3,
+            p_value2 TYPE p DECIMALS 3,
+            p_result TYPE p DECIMALS 3.
+
+TABLES: sscrfields.
+SELECTION-SCREEN PUSHBUTTON /5(10) text-002 USER-COMMAND pb1. "user-command para identificar nombre de boton"
+"sy-ucomm te dice que boton estas tocando"
+SELECTION-SCREEN PUSHBUTTON  20(10) text-003 USER-COMMAND pb2.
+SELECTION-SCREEN PUSHBUTTON  35(10) text-004 USER-COMMAND pb3.
+SELECTION-SCREEN PUSHBUTTON  50(10) text-005 USER-COMMAND pb4.
+AT SELECTION-SCREEN.
+  WRITE:/ sy-ucomm.
+  CASE sy-ucomm.
+    WHEN 'PB1'.
+      p_result = p_value1 + p_value2.
+    WHEN 'PB2'.
+      p_result = p_value1 - p_value2.
+    WHEN 'PB3'.
+      p_result = p_value1 * p_value2.
+    WHEN 'PB4'.
+      IF sy-ucomm = 'PB4' AND p_value2 = 0.
+    MESSAGE: e020(ZU64_MSGERROR).
+    ELSE.
+      p_result = p_value1 / p_value2.
+    ENDIF.
+    when others.
+     MESSAGE: e021(ZU64_MSGERROR).
+  ENDCASE.

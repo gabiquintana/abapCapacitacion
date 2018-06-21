@@ -1,0 +1,80 @@
+*&---------------------------------------------------------------------*
+*& Report  ZREPORTE_GABRIEL
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zreporte_gabriel.
+WRITE 'hola mundo'.
+WRITE:'hola mundito',
+      'ABAP 2018'.
+WRITE:/5(10)'01234567891011121314'.
+WRITE:/ sy-datum QUICKINFO 'Fecha de creacion',
+      / sy-uname,
+      / sy-uzeit.
+DATA: var1(15) TYPE c VALUE 'estoy aca',
+      var2 TYPE c LENGTH 15,
+      var3 TYPE i VALUE 10.
+
+WRITE: var3,var1(5).
+DO 10 TIMES.
+  WRITE:/ sy-index.
+  DO 10 TIMES.
+    IF sy-index = 5.
+      WRITE:/ 'cinco'.
+    ENDIF.
+  ENDDO.
+ENDDO.
+DATA: cadena01 TYPE c LENGTH 10 VALUE 'vamos',
+      cadena02 TYPE c LENGTH 15 VALUE 'argentina',
+      final TYPE c LENGTH 20.
+
+CONCATENATE cadena01 cadena02 INTO final SEPARATED BY ' '. "concatena dos cadenas en otra variable y las separa por un espacio"
+WRITE:/ final.
+DATA: variable TYPE c LENGTH 8 VALUE  'E U R'.
+CONDENSE variable NO-GAPS. " saca espacios"
+WRITE: variable.
+DATA: variable4 TYPE c LENGTH 20 VALUE 'mi nombre es ?'.
+REPLACE '?' WITH 'Mario' INTO variable4. "reemplaza una cadena por otra"
+WRITE:/ variable4.
+"replace all OCCURRENCES OF '?' in cadena1 with 'Mario' para reemplazar todos y no solo la primera
+DATA: oracion(50) VALUE 'CUB A ES LINDA'.
+SEARCH oracion FOR 'CUB'.
+WRITE:/ sy-subrc.
+SEARCH oracion FOR 'cub' STARTING AT 1. "no distingue mayusculas de minusculas, no case sensitive"
+WRITE:/ sy-subrc.
+DATA: oracion2(18) TYPE c VALUE 'mi nombre es mario'.
+SHIFT  oracion2 BY 3 PLACES. "elimina los primeros 3 caracteres de la variable"
+WRITE:/ oracion2.
+DATA: var(20) TYPE c VALUE 'mi,nombre,es,lucas',
+      vari1(7) TYPE c,
+      vari2(7) TYPE c,
+      vari3(7) TYPE c,
+      vari4(7) TYPE c.
+SPLIT var AT ',' INTO vari1  "divido en subcadenas separadas por ',' y lo asigno a otras variables"
+                      vari2
+                      vari3
+                      vari4.
+WRITE:/ vari1,
+      / vari2,
+      / vari3,
+      / vari4.
+DATA: x(10) TYPE c VALUE 'hola mundo'.
+TRANSLATE x TO UPPER CASE. "transforma a mayusculas"
+WRITE:/ x.
+"translate text using', '. replaza la coma por el espacio
+data: cadena type string value 'HOLA MUNDO',
+      longitud type i.
+longitud = strlen( cadena ). "longitud cadena"
+WRITE:/ cadena, longitud.
+data: mientero type i value 2.
+case mientero.
+  when '1'.
+    write: 'mi auto es camaro'.
+  when '2'.
+    write: 'gg'.
+  when OTHERS.
+    write: 'no tengo auto'.
+  ENDCASE.

@@ -1,0 +1,30 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_SELECTION_SCREEN
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zu64_selection_screen.
+*3) Declare un select-options para valores numéricos sin múltiples rangos. Luego,
+*valide si se ingresa un rango mayor a 100 y, de ser así, muestre un mensaje de error
+*“El rango es muy grande”.
+DATA d_val TYPE i.
+DATA v_difference TYPE i.
+DATA contador TYPE i VALUE 0.
+SELECT-OPTIONS s_val FOR d_val.
+v_difference = s_val-high - s_val-low.
+START-OF-SELECTION.
+LOOP AT s_val.
+if s_val-option = 'BT'.
+  contador = contador + 1.
+  endif.
+ENDLOOP.
+if  v_difference > 100 .
+  MESSAGE 'EL RANGO DEBE SER MENOR A 100' TYPE 'E'.
+endif.
+if contador >= 2.
+  MESSAGE 'SOLO SE PERMITE UN RANGO' TYPE 'E'.
+ENDIF.
+end-of-SELECTION.

@@ -1,0 +1,21 @@
+*&---------------------------------------------------------------------*
+*& Report  ZREPORTE_GABRIEL
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zreporte_gabriel.
+WRITE 'hola mundo'.
+WRITE:'hola mundito',
+      'ABAP 2018'.
+WRITE:/5(10)'01234567891011121314'.
+WRITE:/ sy-datum QUICKINFO 'Fecha de creacion',
+      / sy-uname,
+      / sy-uzeit.
+DATA: var1(15) TYPE c VALUE 'estoy aca',
+      var2 TYPE c LENGTH 15,
+      var3 TYPE i VALUE 10.
+
+WRITE: var3,var1(5).

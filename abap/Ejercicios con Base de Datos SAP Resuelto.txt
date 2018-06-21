@@ -1,0 +1,287 @@
+*&---------------------------------------------------------------------*
+*& Report  ZREPORTE_GABRIEL
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zreporte_gabriel3.
+
+*DATA: BEGIN OF itab OCCURS 0,"el 10 dice que va a tener un maximo de 10 registros no se pone por lo general se pone 0"
+*  f1 TYPE i, "sino se aclara tipo se toma char"
+*  f2(6) TYPE c,
+*  f3(10) TYPE n ,
+*  f4 TYPE p DECIMALS 2,
+*  END OF itab. "esto ya es una tabla"
+*
+*DATA: sub_tot(10) TYPE p DECIMALS 3.
+*
+*itab-f1 = 1.
+*itab-f2 = 'ONE'.
+*itab-f3 = 10.
+*itab-f4 = '1.500'.
+*
+*
+*APPEND itab.
+*CLEAR itab.
+*
+*itab-f1 = 2.
+*itab-f2 = 'TWO'.
+*itab-f3 = 10.
+*itab-f4 = '11.500'.
+*
+*
+*APPEND itab.
+*CLEAR itab.
+*
+*itab-f1 = 1.
+*itab-f2 = 'ONE'.
+*itab-f3 = 20.
+*itab-f4 = '20.500'.
+*
+*
+*APPEND itab.
+*CLEAR itab.
+*
+*itab-f1 = 2.
+*itab-f2 = 'TWO'.
+*itab-f3 = 20.
+*itab-f4 = '15.500'.
+*
+*
+*APPEND itab.
+*CLEAR itab.
+*
+*itab-f1 = 3.
+*itab-f2 = 'THREE'.
+*itab-f3 = 10.
+*itab-f4 = '80.75'.
+*
+*
+*APPEND itab.
+*CLEAR itab.
+*
+*itab-f1 = 1.
+*itab-f2 = 'ONE'.
+*itab-f3 = 30.
+*itab-f4 = '50.500'.
+*
+*
+*APPEND itab.
+*CLEAR itab.
+*
+*itab-f1 = 3.
+*itab-f2 = 'THREE'.
+*itab-f3 = 20.
+*itab-f4 = '6.500'.
+*
+*
+*APPEND itab.
+*CLEAR itab.
+*
+*itab-f1 = 3.
+*itab-f2 = 'THREE'.
+*itab-f3 = 30.
+*itab-f4 = '19.300'.
+*
+*
+*APPEND itab.
+*CLEAR itab.
+*
+*SORT itab by f1.
+*
+*LOOP at itab.
+*
+*  AT FIRST.
+*    WRITE:/ 'MATERIALES'.
+*    ULINE.
+*  ENDAT.
+*
+* AT NEW f1.
+*   WRITE:/ 'DESCRIPCION MATERIALES:' COLOR 7, itab-f1.
+*   ULINE.
+* ENDAT.
+*
+* WRITE:/ itab-f1, itab-f2, itab-f3, itab-f4.
+* sub_tot = sub_tot + itab-f4.
+*
+* AT END OF f1.
+*   ULINE.
+*   WRITE: / 'SUB TOTAL :' COLOR 3 INVERSE ON, AT 43 sub_tot color 3 inverse on.
+*   clear sub_tot.
+*   ENDAT.
+*
+* AT LAST.
+*   SUM. "
+*   WRITE:/ 'TOTAL: ',itab-f4.
+*   ENDAT.
+*
+*   ENDLOOP.
+*
+* "delete adjacent duplicates from itab comparing f1. borra los duplicados segun f1.
+*
+* PARAMETER: p_num1 type i,
+*            p_num2 TYPE i.  "para ingresar datos a traves de los datos"
+*PARAMETER: num1 TYPE p DECIMALS 2 DEFAULT 0,
+*           num2 TYPE p DECIMALS 2 DEFAULT 0,
+*           operando TYPE c.
+*
+*DATA: resultado TYPE p DECIMALS 2.
+*IF operando <> '+' AND operando <> '-' AND operando <> '*' AND operando <> '/'.
+*  MESSAGE text-001 TYPE 'E'. "salta abajo el nombre de error"
+*ENDIF.
+*
+*CASE operando.
+*  WHEN '+'.
+*    resultado = num1 + num2.
+*  WHEN '-'.
+*    resultado = num1 - num2.
+*  WHEN '*'.
+*    resultado = num1 * num2.
+*  WHEN OTHERS.
+*    IF operando = '/' AND num2 = 0.
+*      WRITE:/ 'Division por 0 imposible de realizar'.
+*    ELSE.
+*      resultado = num1 / num2.
+*    ENDIF.
+*ENDCASE.
+*IF operando = '/' AND num2 = '0'.
+*ELSE.
+*  WRITE:/ 'el resultado es: ',
+*          resultado.
+*ENDIF.
+
+*TABLES: mara.
+*PARAMETER: p_matnr TYPE mara-matnr.
+TABLES: spfli, scarr.                                       "punto 1"
+
+PARAMETER: codaereo TYPE  scarr-carrid.
+TYPES: BEGIN OF st_relacion,   "hago la estructura, para que luego la tabla tome el tipo de la estructura"
+  carrid TYPE scarr-carrid,
+  connid TYPE spfli-connid,
+  airpfrom TYPE spfli-airpfrom,
+  airpto TYPE spfli-airpto,
+  carrname TYPE scarr-carrname,
+  END OF st_relacion.
+
+DATA: wa_relacion TYPE st_relacion, "la word area toma el tipo de la structura"
+      it_relacion TYPE TABLE OF st_relacion. "toma el tipo de la structura, la tabla"
+
+SELECT scarr~carrid spfli~connid spfli~airpfrom spfli~airpto scarr~carrname
+  FROM spfli JOIN scarr ON spfli~carrid = scarr~carrid INTO TABLE it_relacion "select para pasar los datos joineados a mi tabla interna"
+  WHERE spfli~carrid = codaereo. "que matchen los codaereos"
+
+IF sy-subrc <> 0.
+  WRITE:/ 'No se encuentra'.
+ENDIF.
+
+LOOP AT it_relacion INTO wa_relacion.
+  WRITE:/ wa_relacion-carrid, wa_relacion-carrname.
+ENDLOOP.
+
+"fin punto 1"
+
+                                                            "punto 2"
+*TABLES: scustom, sbook.
+*TYPES: BEGIN OF st_relacion2,
+*  carrid TYPE scarr-carrid,
+*  connid TYPE sbook-connid,
+*  fldate TYPE sbook-fldate,
+*  carrname TYPE scarr-carrname,
+*  name TYPE scustom-name,
+*  END OF st_relacion2.
+*
+*DATA: wa_relacion2 TYPE st_relacion2,
+*      it_relacion2 TYPE TABLE OF st_relacion2.
+*
+**PARAMETERS: fechai TYPE sbook-fldate,
+**           fechaf TYPE sbook-fldate.
+*SELECT-OPTIONS: fecha for sy-datum.
+*
+*SELECT scarr~carrid sbook~connid sbook~fldate scarr~carrname scustom~name
+*  from sbook inner join scustom on sbook~customid = scustom~id
+*             inner join scarr on sbook~carrid = scarr~carrid into table it_relacion2
+*   WHERE sbook~fldate IN fecha. " para que filtre por fechas ingresadas"
+*
+*IF sy-subrc <> 0.
+*  WRITE:/ 'no se ha encontrado tabla'.
+*ENDIF.
+*
+*LOOP AT it_relacion2 INTO wa_relacion2.
+*  WRITE:/ wa_relacion2-carrid, wa_relacion2-connid, wa_relacion2-fldate, wa_relacion2-carrname, wa_relacion2-name.
+*ENDLOOP.
+
+*fin punto 2*
+
+*inicio punto 3*
+TABLES: scustom, sbook.
+TYPES: BEGIN OF st_relacion2,
+  carrid TYPE scarr-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  carrname TYPE scarr-carrname,
+  name TYPE scustom-name,
+  city type scustom-city,
+  END OF st_relacion2.
+
+DATA: wa_relacion2 TYPE st_relacion2,
+      it_relacion2 TYPE TABLE OF st_relacion2.
+
+*PARAMETERS: fechai TYPE sbook-fldate,
+*           fechaf TYPE sbook-fldate.
+SELECT-OPTIONS: fecha for sy-datum.
+
+SELECT scarr~carrid sbook~connid sbook~fldate scarr~carrname scustom~name scustom~city
+  from sbook inner join scustom on sbook~customid = scustom~id
+             inner join scarr on sbook~carrid = scarr~carrid into table it_relacion2
+   WHERE sbook~fldate IN fecha and scustom~city = 'Walldorf' . " para que filtre por fechas ingresadas"
+
+IF sy-subrc <> 0.
+  WRITE:/ 'no se ha encontrado tabla'.
+ENDIF.
+
+LOOP AT it_relacion2 INTO wa_relacion2.
+  WRITE:/ wa_relacion2-carrid, wa_relacion2-connid, wa_relacion2-fldate, wa_relacion2-carrname, wa_relacion2-name, wa_relacion2-city.
+ENDLOOP.
+
+*Ejercicio 4)
+
+*Realizar un Reporte que dado un CARRID y un FLDATE liste todas las reservas para dichas condiciones, el layout deberá ser el siguiente:
+
+*Carrid, connid, fldate, customer_id, customer_name.
+
+*Todo el resultado debera estar en una tabla interna.
+
+
+
+TYPES: BEGIN OF st_reporte4,
+  carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  customid TYPE sbook-customid,
+  name TYPE scustom-name,
+  END OF st_reporte4.
+
+DATA:
+      it_reporte4 TYPE TABLE OF st_reporte4,
+      wa_reporte4 TYPE st_reporte4.
+
+PARAMETERS: con1 TYPE sbook-carrid,
+            con2 TYPE sbook-fldate.
+
+
+SELECT sbook~carrid sbook~connid sbook~fldate sbook~customid scustom~name
+    FROM sbook INNER JOIN scustom ON sbook~customid = scustom~id INTO TABLE it_reporte4
+  WHERE sbook~carrid = con1 and sbook~fldate = con2.
+
+IF sy-subrc NE 0.
+  WRITE:/ 'No se encontro'.
+ENDIF.
+
+
+LOOP AT it_reporte4 INTO wa_reporte4.
+  WRITE:/ wa_reporte4-carrid, wa_reporte4-connid,wa_reporte4-fldate,
+   wa_reporte4-customid, wa_reporte4-name.
+
+ENDLOOP.

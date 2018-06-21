@@ -1,0 +1,415 @@
+*&---------------------------------------------------------------------*
+*& Report  YREPORTE_ALV_EJ1
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+REPORT yreporte_alv_ej1.
+
+*TYPE-POOLS : slis .
+**DATA DECLARAATIONS
+*DATA : i_mara TYPE TABLE OF mara .
+*DATA : wa_mara TYPE mara .
+**ALV DECLARATIONS
+*DATA : i_fcat TYPE slis_t_fieldcat_alv .
+*DATA : wa_fcat TYPE slis_fieldcat_alv .
+*DATA : v_pos TYPE i .
+*DATA : i_events TYPE slis_t_event .
+*DATA : wa_events LIKE LINE OF i_events .
+*DATA : i_heading TYPE slis_t_listheader .
+*DATA : wa_heading LIKE LINE OF i_heading .
+*
+*START-OF-SELECTION .
+*  PERFORM get_data .
+*  PERFORM create_fcat .
+*  PERFORM get_events .
+*  PERFORM display_data .
+*
+*END-OF-SELECTION .
+*
+**&---------------------------------------------------------------------*
+**&      Form  GET_DATA
+**&---------------------------------------------------------------------*
+**       text
+**----------------------------------------------------------------------*
+*FORM get_data .
+*  SELECT * FROM mara
+*      INTO TABLE i_mara
+*       UP TO 100 ROWS .
+*ENDFORM.                    " GET_DATA
+**&---------------------------------------------------------------------*
+**&      Form  DISPLAY_DATA
+**&---------------------------------------------------------------------*
+**       text
+**----------------------------------------------------------------------*
+*FORM display_data.
+*
+*  DATA: ls_layout TYPE slis_layout_alv.
+*
+*  ls_layout-colwidth_optimize = 'X'.
+*  ls_layout-zebra = 'X'.
+*
+*  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+*    EXPORTING
+*      i_callback_program = sy-repid
+*      is_layout          = ls_layout
+*      it_fieldcat        = i_fcat
+*      it_events          = i_events
+*    TABLES
+*      t_outtab           = i_mara.
+*
+*  IF sy-subrc <> 0.
+** Implement suitable error handling here
+*  ENDIF.
+*
+*ENDFORM.                    " DISPLAY_DATA
+*
+**&---------------------------------------------------------------------*
+**&      Form  CREATE_FCAT
+**&---------------------------------------------------------------------*
+**       text
+**----------------------------------------------------------------------*
+*FORM create_fcat .
+*  v_pos = 1 .
+*  wa_fcat-col_pos = v_pos.
+*  wa_fcat-fieldname = 'MATNR' .
+*  wa_fcat-seltext_m = 'Material.NO' .
+*  wa_fcat-hotspot = 'X' .
+*  APPEND wa_fcat TO i_fcat .
+*  CLEAR wa_fcat .
+*
+*  v_pos = v_pos + 1.
+*  wa_fcat-col_pos = v_pos .
+*  wa_fcat-fieldname = 'MTART' .
+*  wa_fcat-seltext_m = 'Material.Type' .
+*  APPEND wa_fcat TO i_fcat .
+*  CLEAR wa_fcat .
+*
+*
+*  v_pos = v_pos + 1.
+*  wa_fcat-col_pos = v_pos .
+*  wa_fcat-fieldname = 'MBRSH' .
+*  wa_fcat-seltext_m = 'Ind.Sector' .
+*  APPEND wa_fcat TO i_fcat .
+*  CLEAR wa_fcat .
+*
+*
+*  v_pos = v_pos + 1.
+*  wa_fcat-col_pos = v_pos .
+*  wa_fcat-fieldname = 'MATKL' .
+*  wa_fcat-seltext_m = 'Mat.Grp' .
+*  APPEND wa_fcat TO i_fcat .
+*  CLEAR wa_fcat .
+*
+*
+*  v_pos = v_pos + 1.
+*
+*  wa_fcat-col_pos = v_pos .
+*  wa_fcat-fieldname = 'MEINS' .
+*  wa_fcat-seltext_m = 'Units' .
+*  APPEND wa_fcat TO i_fcat .
+*  CLEAR wa_fcat .
+*
+*ENDFORM.                    " CREATE_FCAT
+**&---------------------------------------------------------------------*
+**&      Form  GET_EVENTS
+**&---------------------------------------------------------------------*
+**       text
+**----------------------------------------------------------------------*
+*FORM get_events .
+*  CALL FUNCTION 'REUSE_ALV_EVENTS_GET'
+** EXPORTING
+**   I_LIST_TYPE           = 0
+*   IMPORTING
+*     et_events             = i_events .
+*
+*  READ TABLE i_events INTO wa_events WITH KEY name = 'TOP_OF_PAGE' .
+*  wa_events-form = 'FORM_TOP_OF_PAGE' .
+*  MODIFY  i_events FROM wa_events INDEX sy-tabix .
+*
+*
+************END OF LIST
+*  READ TABLE i_events INTO wa_events WITH KEY name = 'END_OF_LIST' .
+*  wa_events-form = 'FORM_END_OF_LIST' .
+*  MODIFY  i_events FROM wa_events INDEX sy-tabix .
+*ENDFORM.                    " GET_EVENTS
+*
+**&---------------------------------------------------------------------*
+**&      Form  FORM_TOP_OF_PAGE
+**&---------------------------------------------------------------------*
+**       text
+**----------------------------------------------------------------------*
+*FORM form_top_of_page .
+*
+*  REFRESH i_heading .
+*  CLEAR wa_heading .
+*
+*  wa_heading-typ = 'H' .
+**  WA_HEADING-KEY = 'H' .
+*  wa_heading-info = 'MATERIAL MASTER REPORT' .
+*  APPEND wa_heading TO i_heading .
+*
+*  wa_heading-typ = 'S' .
+*  wa_heading-key = 'USERNAME' .
+*  wa_heading-info = sy-uname .
+*  APPEND wa_heading TO i_heading .
+*
+*  wa_heading-typ = 'A' .
+*  wa_heading-key = 'DATE' .
+*  wa_heading-info = sy-datum .
+*  APPEND wa_heading TO i_heading .
+*
+*
+*  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+*    EXPORTING
+*      it_list_commentary = i_heading
+*      i_logo             = 'ENJOYSAP_LOGO'
+**     I_END_OF_LIST_GRID =
+**     I_ALV_FORM         =
+*    .
+*
+*ENDFORM.                    "FORM_TOP_OF_PAGE
+*
+**&---------------------------------------------------------------------*
+**&      Form  FORM_END_OF_LIST
+**&---------------------------------------------------------------------*
+**       text
+**----------------------------------------------------------------------*
+*FORM form_end_of_list .
+*  REFRESH i_heading .
+*  CLEAR wa_heading .
+*
+*  wa_heading-typ = 'S' .
+*  wa_heading-info = 'Totales' .
+*  APPEND wa_heading TO i_heading .
+*
+*  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+*    EXPORTING
+*      it_list_commentary = i_heading
+*      i_end_of_list_grid = 'X'.
+*ENDFORM .                    "FORM_END_OF_LIST
+
+TYPE-POOLS: slis.
+*DATA DECLARATIONS
+DATA: gt_ekpo TYPE TABLE OF ekpo,
+      gs_ekpo TYPE ekpo.
+
+*ALV DECLARATIONS
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv,
+      gt_sortcat  TYPE slis_t_sortinfo_alv.
+
+DATA: gt_events TYPE slis_t_event,
+      gs_events LIKE LINE OF gt_events.
+
+DATA: gt_heading TYPE slis_t_listheader,
+      gs_heading LIKE LINE OF gt_heading.
+
+DATA: v_pos TYPE i.
+
+START-OF-SELECTION.
+
+  PERFORM f_get_data.
+  PERFORM f_create_fcat.
+*  PERFORM f_get_events.
+*  PERFORM f_field_sort.
+  PERFORM f_display_data.
+
+END-OF-SELECTION.
+
+*&---------------------------------------------------------------------*
+*&      Form  GET_DATA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_get_data.
+
+  SELECT * FROM ekpo INTO TABLE gt_ekpo
+      UP TO 15 ROWS.
+
+ENDFORM.                    " GET_DATA
+*&---------------------------------------------------------------------*
+*&      Form  DISPLAY_DATA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_display_data.
+
+  DATA: ls_layout TYPE slis_layout_alv.
+
+  ls_layout-colwidth_optimize = 'X'.
+  ls_layout-zebra             = 'X'.
+
+  CALL FUNCTION 'REUSE_ALV_LIST_DISPLAY'
+    EXPORTING
+      i_callback_program = sy-repid
+      is_layout          = ls_layout
+      it_fieldcat        = gt_fieldcat
+*      it_sort            = gt_sortcat
+*      it_events          = gt_events
+      i_save             = 'A'
+    TABLES
+      t_outtab           = gt_ekpo.
+
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+ENDFORM.                    " DISPLAY_DATA
+
+*&---------------------------------------------------------------------*
+*&      Form  CREATE_FCAT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_create_fcat.
+
+  v_pos = 1.
+  gs_fieldcat-fieldname   = 'EBELN'.
+  gs_fieldcat-ref_tabname = 'EKPO'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-fieldname = 'EBELP'.
+  gs_fieldcat-ref_tabname = 'EKPO'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-fieldname = 'AEDAT'.
+  gs_fieldcat-ref_tabname = 'EKPO'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-fieldname = 'TXZ01'.
+  gs_fieldcat-ref_tabname = 'EKPO'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-fieldname = 'WERKS'.
+  gs_fieldcat-ref_tabname = 'EKPO'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-fieldname = 'LGORT'.
+  gs_fieldcat-ref_tabname = 'EKPO'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-fieldname   = 'MENGE'.
+  gs_fieldcat-ref_tabname = 'EKPO'.
+*  gs_fieldcat-do_sum      = 'X'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+*  v_pos = v_pos + 1.
+*  gs_fieldcat-fieldname = 'MEINS'.
+*  gs_fieldcat-ref_tabname = 'EKPO'.
+*  APPEND gs_fieldcat TO gt_fieldcat.
+*  CLEAR gs_fieldcat.
+
+ENDFORM.                    " CREATE_FCAT
+*&---------------------------------------------------------------------*
+*&      Form  GET_EVENTS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_get_events.
+
+  CALL FUNCTION 'REUSE_ALV_EVENTS_GET'
+* EXPORTING
+*   I_LIST_TYPE           = 0
+    IMPORTING
+      et_events = gt_events.
+
+  READ TABLE gt_events INTO gs_events WITH KEY name = 'TOP_OF_PAGE'.
+  IF sy-subrc IS INITIAL.
+    gs_events-form = 'FORM_TOP_OF_PAGE'.
+    MODIFY gt_events FROM gs_events INDEX sy-tabix .
+  ENDIF.
+
+***********END OF LIST
+  READ TABLE gt_events INTO gs_events WITH KEY name = 'END_OF_LIST'.
+  IF sy-subrc IS INITIAL.
+    gs_events-form = 'FORM_END_OF_LIST' .
+    MODIFY gt_events FROM gs_events INDEX sy-tabix.
+  ENDIF.
+
+ENDFORM.                    " GET_EVENTS
+
+*&---------------------------------------------------------------------*
+*&      Form  FORM_TOP_OF_PAGE
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM form_top_of_page.
+
+  REFRESH gt_heading.
+  CLEAR gs_heading.
+
+  gs_heading-typ  = 'H'.
+*  gs_heading-KEY = 'H' .
+  gs_heading-info = 'Purchasing Document REPORT'.
+  APPEND gs_heading TO gt_heading.
+
+  gs_heading-typ  = 'S'.
+  gs_heading-key  = 'USERNAME'.
+  gs_heading-info = sy-uname.
+  APPEND gs_heading TO gt_heading.
+
+  gs_heading-typ  = 'S'.
+  gs_heading-key  = 'DATE'.
+  gs_heading-info = sy-datum.
+  APPEND gs_heading TO gt_heading.
+
+  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+    EXPORTING
+      it_list_commentary = gt_heading
+      i_logo             = 'ENJOYSAP_LOGO'.
+
+ENDFORM.                    "FORM_TOP_OF_PAGE
+
+*&---------------------------------------------------------------------*
+*&      Form  FORM_END_OF_LIST
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM form_end_of_list.
+
+  REFRESH gt_heading.
+  CLEAR gs_heading.
+
+  gs_heading-typ = 'S' .
+  gs_heading-info = 'Totales'.
+  APPEND gs_heading TO gt_heading .
+
+  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+    EXPORTING
+      it_list_commentary = gt_heading
+      i_end_of_list_grid = 'X'.
+
+ENDFORM .                    "FORM_END_OF_LIST
+
+*&---------------------------------------------------------------------*
+*&      Form  f_field_sort
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_field_sort.
+
+  DATA: ls_sort TYPE slis_sortinfo_alv.
+
+  ls_sort-fieldname = 'EBELN'.
+  ls_sort-spos      =  1.
+  ls_sort-up        = 'X'.
+  ls_sort-subtot    = 'X'.
+*  ls_sort-expa      = 'X'.  " Sirve para que salgan los subtotales plegados
+  APPEND ls_sort TO gt_sortcat.
+
+ENDFORM.                    "f_field_sort

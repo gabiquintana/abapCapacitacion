@@ -1,0 +1,105 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_SELECTION_SCREEN2
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zu64_selection_screen3.
+
+TABLES: sflight, spfli, sscrfields.
+
+SELECTION-SCREEN BEGIN OF SCREEN 1100 AS SUBSCREEN.
+SELECTION-SCREEN BEGIN OF BLOCK bl_1 WITH FRAME TITLE text-000.
+SELECT-OPTIONS s_carrid FOR sflight-carrid.
+SELECT-OPTIONS s_connid FOR sflight-connid.
+SELECTION-SCREEN SKIP 2.
+SELECTION-SCREEN PUSHBUTTON 10(16) boton1 USER-COMMAND press1 MODIF ID gr1.
+SELECTION-SCREEN SKIP.
+SELECT-OPTIONS s_cityfr FOR spfli-cityfrom MODIF ID gr2.
+SELECT-OPTIONS s_cityto FOR spfli-cityto MODIF ID gr2.
+SELECTION-SCREEN END OF BLOCK bl_1.
+DATA: btn1 TYPE i,
+      switch TYPE i VALUE 0.
+SELECTION-SCREEN END OF SCREEN 1100.
+
+SELECTION-SCREEN BEGIN OF SCREEN 1200 AS SUBSCREEN.
+SELECT-OPTIONS s_fldate FOR sflight-fldate NO-EXTENSION.
+SELECTION-SCREEN END OF SCREEN 1200.
+
+SELECTION-SCREEN BEGIN OF SCREEN 1300 AS SUBSCREEN.
+SELECTION-SCREEN BEGIN OF BLOCK bl3 WITH FRAME TITLE text-007.
+PARAMETERS: p_rb1 RADIOBUTTON GROUP grp1 USER-COMMAND action,
+            p_rb2 RADIOBUTTON GROUP grp1 ,
+            p_rb3 RADIOBUTTON GROUP grp1 DEFAULT 'X',
+            p_co TYPE sflights-countryfr MODIF ID gr4.
+SELECTION-SCREEN END OF BLOCK bl3.
+SELECTION-SCREEN END OF SCREEN 1300.
+
+SELECTION-SCREEN BEGIN OF TABBED BLOCK airlines FOR 10 LINES.
+SELECTION-SCREEN TAB (20) tab1 USER-COMMAND conn DEFAULT SCREEN 1100.
+SELECTION-SCREEN TAB (20) tab2 USER-COMMAND date DEFAULT SCREEN 1200.
+SELECTION-SCREEN TAB (20) tab3 USER-COMMAND type DEFAULT SCREEN 1300.
+SELECTION-SCREEN END OF BLOCK airlines.
+
+INITIALIZATION.
+  tab1 = 'Conexiones de vuelo'(tl1).
+  tab2 = 'Fecha de vuelo'(tl2).
+  tab3 = 'Tipo de vuelo'(tl3).
+
+AT SELECTION-SCREEN.
+  if sy-dynnr = 1100.
+  IF sscrfields-ucomm = 'PRESS1'.
+    btn1 = 1.
+    IF switch = 0.
+      switch = 1.
+    ELSE.
+      switch = 0.
+      btn1 = 0.
+    ENDIF.
+  ENDIF.
+endif.
+AT SELECTION-SCREEN OUTPUT.
+  if sy-dynnr = 1100.
+  IF  btn1 = 1.
+    LOOP AT SCREEN.
+      IF screen-group1 EQ 'GR2'.
+        screen-active = 0.
+        MODIFY SCREEN.
+      ENDIF.
+    ENDLOOP.
+  ELSE.
+    IF btn1 = 0.
+      LOOP AT SCREEN.
+        IF screen-group1 EQ 'GR2'.
+          screen-active = 1.
+          MODIFY SCREEN.
+        ENDIF.
+      ENDLOOP.
+    ENDIF.
+    btn1 = 0.
+  ENDIF.
+  IF switch = 1.
+    boton1 = text-004.
+  ELSE.
+    boton1 = text-003.
+  ENDIF.
+  endif.
+  if sy-dynnr = 1300.
+  IF p_rb2 = 'X'.
+    LOOP AT SCREEN.
+      IF screen-group1 = 'GR4'.
+        screen-active = 1.
+        MODIFY SCREEN.
+      ENDIF.
+    ENDLOOP.
+  ELSE.
+    LOOP AT SCREEN.
+      IF screen-group1 = 'GR4'.
+        screen-active = 0.
+        MODIFY SCREEN.
+      ENDIF.
+    ENDLOOP.
+  ENDIF.
+  endif.

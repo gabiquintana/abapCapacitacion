@@ -1,0 +1,24 @@
+form F_CARGADATOS .
+  SELECT *
+  FROM sflight INTO CORRESPONDING FIELDS OF TABLE gt_reporte
+  WHERE sflight~carrid = p_carrid AND sflight~connid IN s_connid.
+endform.                    " F_CARGADATOS
+
+
+form F_MOSTRARDATOS .
+  IF sy-subrc = 0.
+
+WRITE:/ sy-uline(63),/ sy-vline,'CID' COLOR 3,sy-vline, 'CNID' COLOR 3,sy-vline, 'FECHAVUELO' COLOR 3,sy-vline, ' OCUPADOS ' COLOR 3,sy-vline, 'MAXCAPACID' COLOR 3,sy-vline, 'PERCENT' COLOR 3, sy-vline.
+
+    LOOP AT gt_reporte INTO gs_reporte.
+      gs_reporte-percentage = ( gs_reporte-seatsocc_b + gs_reporte-seatsmax_f + gs_reporte-seatsocc_f ) / gs_reporte-seatsmax.
+      MODIFY TABLE gt_reporte FROM gs_reporte.
+
+     WRITE:/ sy-uline(63),/ sy-vline,gs_reporte-carrid HOTSPOT,sy-vline, gs_reporte-connid HOTSPOT,sy-vline, gs_reporte-fldate HOTSPOT,sy-vline, gs_reporte-seatsocc,sy-vline, gs_reporte-seatsmax,sy-vline, gs_reporte-percentage, '%', sy-vline.
+      HIDE: gs_reporte-carrid, gs_reporte-connid, gs_reporte-fldate.
+
+    ENDLOOP.
+    ELSE.
+      MESSAGE: i010(ZU67_MSG_ERROR_CARGA).
+  ENDIF.
+endform.                    " F_MOSTRARDATOS

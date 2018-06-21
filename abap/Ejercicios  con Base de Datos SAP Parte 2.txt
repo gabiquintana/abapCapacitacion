@@ -1,0 +1,14 @@
+Ejercicio 5)
+
+1) Se requiere imprimir en pantalla (CARRID, CARRNAME, CURRCODE y URL) de la línea Aérea American Airlines, cuyo código de aerolínea es
+AA. (El maestro de Líneas aéreas es la tabla SCARR, usar la sentencia SELECT mas adecuada).
+
+2) Se requiere obtener solamente el CARRNAME y URL de la línea AA, realizar otro SELECT (el mas adecuado) no olvidar de hacer un CLEAR
+de la WA del punto 1 antes de hacer este SELECT. (Se debe usar la misma Working Area del punto 1)
+
+3) Se requiere imprimir en pantalla toda la información de todos los tipos de vuelos (tabla SPFLI) que realiza la línea aérea Lufthansa (LH). 
+(Usar el Select Adecuado).
+
+Ejercicio 6)
+
+1) Se requiere imprimir en pantalla (CARRID, CONNID, CARRNAME CITYFROM, CITYTO) de todas las conexiones (de todas las aerolineas)

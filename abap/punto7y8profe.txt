@@ -1,0 +1,152 @@
+*&---------------------------------------------------------------------*
+*& Report  ZREPORTE_LORE5
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+REPORT zreporte_lore5.
+
+*TYPES: BEGIN OF t_repdata.
+*        INCLUDE STRUCTURE scarr.
+*TYPES: connid   TYPE spfli-connid,
+*       cityfrom TYPE spfli-cityfrom,
+*       cityto   TYPE spfli-cityto.
+*TYPES: END OF t_repdata.
+
+TABLES: sflight.
+
+*Mostrar todos los vuelos de todas las aerolineas, junto al modelo del avion,
+*el fabricante del mismo y su velocidad de operacion.
+*CARRNAME,CONNID,FLDATE,PRICE,PRODUCER,PLANETYPE,OP_SPEED
+
+TYPES: BEGIN OF ty_sflight,
+          carrid    TYPE sflight-carrid,
+          connid    TYPE sflight-connid,
+          fldate    TYPE sflight-fldate,
+          price     TYPE sflight-price,
+          planetype TYPE sflight-planetype,
+       END OF ty_sflight,
+
+       BEGIN OF ty_scarr,
+          carrid   TYPE scarr-carrid,
+          carrname TYPE scarr-carrname,
+       END OF ty_scarr,
+
+       BEGIN OF ty_plane,
+          planetype TYPE saplane-planetype,
+          producer  TYPE saplane-producer,
+          op_speed  TYPE saplane-op_speed,
+       END OF ty_plane,
+
+       BEGIN OF ty_lista,
+          carrname  TYPE scarr-carrname,
+          connid    TYPE sflight-connid,
+          fldate    TYPE sflight-fldate,
+          price     TYPE sflight-price,
+          planetype TYPE saplane-planetype,
+          producer  TYPE saplane-producer,
+          op_speed  TYPE saplane-op_speed,
+       END OF ty_lista.
+
+DATA: it_sflight TYPE TABLE OF ty_sflight,
+      wa_sflight TYPE ty_sflight,
+      it_scarr   TYPE TABLE OF ty_scarr,
+      wa_scarr   TYPE ty_scarr,
+      it_plane   TYPE TABLE OF ty_plane,
+      wa_plane   TYPE ty_plane,
+      cantidad   TYPE sy-dbcnt.
+
+DATA: wa_lista TYPE ty_lista,
+      it_lista TYPE TABLE OF ty_lista.
+
+SELECT-OPTIONS s_carrid FOR sflight-carrid.
+
+REFRESH: it_sflight, it_scarr, it_plane, it_lista.
+
+* OBTENGO LA LISTA DE VUELOS DESDE LA SFLIGHT
+SELECT carrid connid fldate price planetype FROM sflight
+  INTO TABLE it_sflight WHERE carrid IN s_carrid.
+
+* VERIFICO SI OBTUVE AL MENOS UN REGISTRO
+IF sy-subrc EQ 0.
+* GUARDO LA CANTIDAD DE REGISTROS PROCESADOS.
+  cantidad = sy-dbcnt.
+
+* OBTENGO CARRID Y CARRNAME DE SCARR EN IT_SCARR PARA
+* TODOS LOS DATOS DE MI TABLA IT_SFLIGHT (comparando por carrid)
+  SELECT carrid carrname FROM scarr INTO TABLE it_scarr
+     FOR ALL ENTRIES IN it_sflight
+   WHERE carrid = it_sflight-carrid.
+
+  IF sy-subrc EQ 0.
+* SI EL SELECT FUE EXITOSO
+
+* OBTENGO LOS CAMPOS NECESARIOS DE SAPLANE EN IT_PLANE PARA TODOS LOS DATOS DE MI TABLA AUXILIAR (comparando por planetype)
+    SELECT planetype producer op_speed FROM saplane
+      INTO TABLE it_plane
+       FOR ALL ENTRIES IN it_sflight
+     WHERE planetype = it_sflight-planetype.
+
+    IF sy-subrc EQ 0.
+* SI OBTUVO DATOS
+* ORDENO LAS TABLAS POR CLAVE DE INGRESO EN FORMA ASCENDENTE (por defecto)
+      SORT it_scarr BY carrid.
+      SORT it_plane BY planetype ASCENDING.
+
+      WRITE: / 'La cantidad de vuelos es:', cantidad.
+      SKIP.
+
+* NAVEGO MI TABLA DE VUELOS it_sflight
+      LOOP AT it_sflight INTO wa_sflight.
+
+        wa_lista-connid = wa_sflight-connid.
+        wa_lista-fldate = wa_sflight-fldate.
+        wa_lista-price  = wa_sflight-price.
+
+* POR CADA VUELO, COPIO A WA_SCARR LOS DATOS DEL CARRID ACTUAL
+        READ TABLE it_scarr INTO wa_scarr WITH KEY carrid = wa_sflight-carrid
+                                          BINARY SEARCH.
+        IF sy-subrc EQ 0.
+
+          wa_lista-carrname = wa_scarr-carrname.
+
+* SI PUDE VER LA INFORMACION CORRECTAMENTE
+* POR EL VUELO ACTUAL, OBTENGO LOS DATOS DEL TIPO DE AVION
+          READ TABLE it_plane INTO wa_plane WITH KEY planetype = wa_sflight-planetype
+                                            BINARY SEARCH.
+          IF sy-subrc EQ 0.
+            wa_lista-planetype = wa_plane-planetype.
+            wa_lista-producer = wa_plane-producer.
+            wa_lista-op_speed = wa_plane-op_speed.
+* SI EL READ TABLE FUE EXITOSO, IMPRIMO TODOS LOS DATOS
+*            WRITE: / wa_scarr-carrname,
+*                     wa_sflight-connid, wa_sflight-fldate, wa_sflight-price,
+*                     wa_plane-producer, wa_plane-planetype, wa_plane-op_speed.
+          ENDIF.
+
+        ENDIF.
+
+        IF wa_lista IS NOT INITIAL.
+          APPEND wa_lista TO it_lista.
+        ENDIF.
+
+* LIMPIO TODAS LAS WA UTILIZADAS
+        CLEAR: wa_sflight, wa_scarr, wa_plane.
+
+      ENDLOOP.
+
+    ENDIF.
+
+  ENDIF.
+
+  IF it_lista IS NOT INITIAL.
+
+    LOOP AT it_lista INTO wa_lista.
+      WRITE: / wa_lista-carrname, wa_lista-connid, wa_lista-fldate, wa_lista-price,
+               wa_lista-producer, wa_lista-planetype, wa_lista-op_speed.
+    ENDLOOP.
+
+  ENDIF.
+
+ENDIF.

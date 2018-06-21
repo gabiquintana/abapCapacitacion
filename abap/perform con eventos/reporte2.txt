@@ -1,0 +1,22 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_EVENTOS2
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  ZU64_EVENTOS2.
+INCLUDE ZU64_EVENTOS2_top.    "Declaración de Tipos y Datos globales
+INCLUDE ZU64_EVENTOS2_screen.    "Declaración de parametros de selección de Pantalla
+INCLUDE ZU64_EVENTOS2_form.       "Declaración de Rutinas de mi programa Principal
+
+START-OF-SELECTION.
+
+  PERFORM f_cargardatos.
+  PERFORM f_mostrardatos.
+
+END-OF-SELECTION.
+
+  AT LINE-SELECTION.
+    PERFORM f_mostrardatos2.

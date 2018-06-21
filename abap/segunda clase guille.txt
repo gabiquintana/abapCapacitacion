@@ -1,0 +1,87 @@
+REPORT  zreporte67.
+
+CONSTANTS: saludo(11) TYPE c VALUE 'Hola Mundo!'.
+
+DATA: nombre(12) TYPE c.
+
+nombre = sy-uname.
+
+WRITE: saludo, " Este es un comentario
+       /10 'Usuario: ',
+       nombre QUICKINFO 'Usuario Activo',
+       /10 'Hoy es: ',
+       sy-datum,
+       / sy-uline.
+"------------------------------------------------------------------------
+WRITE:/ 'For Andidado:'.
+DO 10 TIMES.
+  IF sy-index <= 5.
+    WRITE:/ sy-index.
+    DO 2 TIMES.
+      WRITE: sy-index.
+    ENDDO.
+  ENDIF.
+ENDDO.
+"------------------------------------------------------------------------
+WRITE:/ sy-uline.
+WRITE:/ 'Concatenar:'.
+
+DATA: primero TYPE c LENGTH 10 VALUE 'Vamos',
+      segundo TYPE c LENGTH 10 VALUE 'Argentina',
+      final TYPE c LENGTH 20.
+
+CONCATENATE primero segundo INTO final SEPARATED BY ' '. "Concatenar dos cadenas
+WRITE:/ final,
+      / .
+*      / 'Sacar los espacios'.
+*CONDENSE final NO-GAPS.
+*WRITE:/ final.
+
+REPLACE 'Argentina' WITH 'Alemania' INTO final. "Remplazar una palabra por otra
+WRITE:/ 'SAP es Aleman, usa REPLACE:',
+      / final.
+*
+*SEARCH final FOR 'Alemania'. "Buscar en una cadena la palabra requerida
+*WRITE:/ sy-subrc.
+
+*SHIFT final BY 3 PLACES. "Recortar x lugares arrancando desde el comienzo
+*WRITE:/ final.
+
+"------------------------------------------------------------------------------------
+
+TRANSLATE final TO UPPER CASE. "Pasar todas las letras de una cadena de MIN a MAYUS
+WRITE:/ final.
+*DATA: var(20) TYPE c VALUE 'Mi nombre es Guille',
+*      var1(7) TYPE c,
+*      var2(7) TYPE c,
+*      var3(7) TYPE c,
+*      var4(7) TYPE c.
+*
+*SPLIT var AT ' ' INTO var1 "Separar una cadena en varias subcadenas delimitando por ' '
+*                      var2
+*                      var3
+*                      var4.
+*WRITE:/ var1,
+*      / var2,
+*      / var3,
+*      / var4.
+
+
+DATA longitud TYPE i.
+
+longitud = strlen( final ).
+
+WRITE:/ ,
+      / 'La longitud es: ',longitud.
+"----------------------------------------------------------------------
+
+DATA: prueba TYPE i VALUE 1.
+
+CASE prueba.
+  WHEN '1'.
+    WRITE:/ 'Pase por el WHEN = 1'.
+  WHEN '2'.
+    WRITE:/ 'Pase por el WHEN = 2'.
+  WHEN OTHERS.
+    WRITE:/ 'Pase por el WHEN = OTHERS'.
+ENDCASE.

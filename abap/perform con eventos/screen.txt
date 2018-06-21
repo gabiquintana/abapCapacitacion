@@ -1,0 +1,6 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_EVENTOS2_SCREEN
+*&---------------------------------------------------------------------*
+
+PARAMETERS p_carrid TYPE S_CARR_ID.
+SELECT-OPTIONS: s_connid for gs_final-connid.

@@ -1,0 +1,20 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_REP003
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  ZU64_REP003.
+INCLUDE ZU64_REP003_TOP.    "Declaración de Tipos y Datos globales
+INCLUDE ZU64_REP003_SCREEN.    "Declaración de parametros de selección de Pantalla
+INCLUDE ZU64_REP003_FORM.       "Declaración de Rutinas de mi programa Principal
+
+START-OF-SELECTION.
+
+ PERFORM f_obtener_datos.
+ PERFORM f_armar_tabla.
+*  PERFORM f_mostrar_lista.
+*
+END-OF-SELECTION.

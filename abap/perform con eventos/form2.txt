@@ -1,0 +1,65 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_EVENTOS2_FORM
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  F_CARGARDATOS
+*&---------------------------------------------------------------------*
+
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form F_CARGARDATOS .
+
+SELECT *
+  FROM sflight INTO CORRESPONDING FIELDS OF TABLE gt_final
+  WHERE sflight~carrid = p_carrid AND sflight~connid IN s_connid.
+
+endform.                                                                                         " F_CARGARDATOS
+                   " F_CARGARDATOS
+*&---------------------------------------------------------------------*
+*&      Form  F_MOSTRARDATOS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form F_MOSTRARDATOS .
+
+if sy-subrc = 0.
+  LOOP AT gt_final INTO gs_final.
+    gs_final-percentage = ( gs_final-seatsocc_b + gs_final-seatsmax_f + gs_final-seatsocc_f ) / gs_final-seatsmax.
+    modify TABLE gt_final FROM gs_final.
+
+  WRITE:/ gs_final-carrid, gs_final-connid, gs_final-fldate, gs_final-seatsocc, gs_final-seatsmax, gs_final-percentage, '%'.
+    HIDE: gs_final-carrid,
+     gs_final-connid,
+     gs_final-fldate.
+  ENDLOOP.
+
+  else.
+    MESSAGE: i010(ZU64_MSGERROR).
+  ENDIF.
+endform.                    " F_MOSTRARDATOS
+*&---------------------------------------------------------------------*
+*&      Form  F_MOSTRARDATOS2
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form F_MOSTRARDATOS2 .
+  WRITE:/ gs_final-carrid, gs_final-connid, gs_final-fldate.
+
+ SELECT * FROM sbook
+   INTO TABLE gt_sbook
+   WHERE sbook~carrid = gs_final-carrid AND sbook~connid = gs_final-connid AND sbook~fldate = gs_final-fldate.
+
+   if sy-subrc = 0.
+   LOOP AT gt_sbook INTO gs_sbook.
+    WRITE:/  gs_sbook-bookid, gs_sbook-customid, gs_sbook-custtype, gs_sbook-class, gs_sbook-order_date, gs_sbook-smoker, gs_sbook-cancelled.
+   ENDLOOP.
+   endif.
+endform.                    " F_MOSTRARDATOS2

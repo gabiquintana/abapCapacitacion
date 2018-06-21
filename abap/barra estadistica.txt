@@ -1,0 +1,45 @@
+REPORT  ZCALC_67.
+
+PARAMETERS: num1 TYPE p DECIMALS 2,
+            num2 TYPE p DECIMALS 2,
+            operador(4) TYPE c.
+DATA: resultado TYPE p DECIMALS 2.
+
+" Deteccion de ERROR
+
+IF ( operador <> '+' ) AND ( operador <> '-' ) AND ( operador <> '*' ) AND ( operador <> '/' ).
+  MESSAGE 'Ingrese un operando valido' TYPE 'I'.
+ENDIF.
+
+IF ( num1 IS INITIAL ) OR ( num2 IS INITIAL ).
+  MESSAGE 'Ingrese los dos numeros' TYPE 'I'.
+ENDIF.
+
+CASE operador.
+  WHEN '+'.
+    resultado = num1 + num2.
+  WHEN '-'.
+    resultado = num1 - num2.
+  WHEN '*'.
+    resultado = num1 * num2.
+    WHEN '/'.
+      IF ( num2 = 0 ).
+        MESSAGE 'Esta intentando dividir por 0' TYPE 'E'.
+      ENDIF.
+    resultado = num1 / num2.
+  WHEN OTHERS.
+    WRITE:/ 'No deberias pasar nunca por aca'.
+ENDCASE.
+
+WRITE:/ 'El resultado de la operacion es:', resultado COLOR 3.
+
+DATA: var TYPE i VALUE 2.
+
+WRITE:/ sy-vline,
+      / sy-vline.
+DO resultado TIMES.
+  WRITE: at var '#'.
+  var = var + 1.
+ENDDO.
+
+WRITE:/ sy-uline.

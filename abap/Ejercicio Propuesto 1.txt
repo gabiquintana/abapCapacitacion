@@ -1,0 +1,18 @@
+Ejercicio : Calculadora
+
+Calculadora con 3 parámetros de selección. 2 para el ingreso de números y 1 para el operando.
+Luego con esa información imprimimos el resultado de la cuenta.
+
+1) Declarar 3 parámetros de selección. 2 de tipo numérico y una alfanumérico.
+
+2) Declarar una variable con 2 decimales para poner el resultado.
+
+3) En la estructura del programa validar que solo se pueda realizar (+ - * /)
+
+4) Imprimir por pantalla un mensaje de error si se ingreso un operando invalido.
+
+5) Validar y dar error en caso de que se quiera realizar una división por cero.
+
+6) Realizar la cuenta con un CASE
+
+7) Imprimir el resultado.

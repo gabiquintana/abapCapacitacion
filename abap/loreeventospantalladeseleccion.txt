@@ -1,0 +1,256 @@
+REPORT zreporte_lore6 NO STANDARD PAGE HEADING.
+
+*PARAMETERS p_oper TYPE zoperacion." VISIBLE LENGTH 12 AS LISTBOX.
+*
+*DATA: campo(3) TYPE c.
+*
+*START-OF-SELECTION.
+*
+*  WRITE: / 'primera linea' HOTSPOT.
+*  campo = '111'.
+*
+*  HIDE campo. " asociamos valor 111 a la linea escrita anteriormente.
+*
+*  WRITE: / 'segunda linea'.
+*  campo = '222'."
+*
+*  HIDE campo. " asociamos valor 222 a la linea escrita anteriormente.
+*
+*END-OF-SELECTION.
+*
+*AT LINE-SELECTION.
+*  IF sy-lsind = 1.
+*    WRITE: / campo. " campo valdrá 111 si se selecciona la primera línea
+*    " o valdrá 222 si se selecciona la segunda
+*  ENDIF.
+
+
+*PARAMETERS p_field1 TYPE char10." DEFAULT 'INICIO'.
+*PARAMETERS p_field2 TYPE char10.
+
+*INITIALIZATION.
+*  BREAK-POINT.
+*  p_field1 = 'INICIAL1'.
+
+*AT SELECTION-SCREEN ON p_field1.
+*  BREAK-POINT.
+*  IF p_field1 IS INITIAL.
+*    MESSAGE 'Please enter field1' TYPE 'E'.
+*  ENDIF.
+*
+*AT SELECTION-SCREEN ON p_field2.
+*  IF p_field2 IS INITIAL.
+*    MESSAGE 'Please enter field2' TYPE 'E'.
+*  ENDIF.
+
+*AT SELECTION-SCREEN.
+*  BREAK-POINT.
+*  IF p_field1 IS INITIAL.
+*    MESSAGE 'Please enter field1' TYPE 'E'.
+*  ENDIF.
+*  IF p_field2 IS INITIAL.
+*    MESSAGE 'Please enter field2' TYPE 'E'.
+*  ENDIF.
+
+*  WRITE: / 'HOLA'.
+*DEMO_AT_SELECTION_ON_BLOCK
+*Demonstration for Block Processing on Selection Screen
+
+
+*PARAMETERS pa_car TYPE s_carr_id.
+
+*AT SELECTION-SCREEN.
+*  IF pa_car <> 'LH'.
+*    MESSAGE 'El tipo de Aerolinea ingresado no es correcto.' TYPE 'E'.
+*  ENDIF.
+
+
+*START-OF-SELECTION.
+*
+**  IF pa_car <> 'LH'.
+**    MESSAGE 'El tipo de Aerolinea ingresado no es correcto.' TYPE 'E'.
+**    MESSAGE 'El tipo de Aerolinea ingresado no es correcto.' TYPE 'S' DISPLAY LIKE 'E'.
+**    STOP.
+**  ENDIF.
+*
+*  WRITE: / 'EJECUTAR MI PROGRAMA PRINCIPAL'.
+*
+*END-OF-SELECTION.
+
+*TABLES sscrfields.
+*PARAMETERS : a(10), b(10).
+*
+*SELECTION-SCREEN FUNCTION KEY 1.
+*SELECTION-SCREEN FUNCTION KEY 2.
+*SELECTION-SCREEN FUNCTION KEY 3.
+*SELECTION-SCREEN FUNCTION KEY 4.
+*SELECTION-SCREEN FUNCTION KEY 5.
+*
+*INITIALIZATION.
+
+*  sscrfields-functxt_01 = 'SE80'.
+*  sscrfields-functxt_02 = 'SE11'.
+*  sscrfields-functxt_03 = 'SE37'.
+*  sscrfields-functxt_04 = 'SE38'.
+*  sscrfields-functxt_05 = 'SALIR'.
+*
+*AT SELECTION-SCREEN.
+*  CASE sy-ucomm.
+*    WHEN 'FC01'.
+*      CALL TRANSACTION 'SE80'.
+*    WHEN 'FC02'.
+*      CALL TRANSACTION 'SE11'.
+*    WHEN 'FC03'.
+*      CALL TRANSACTION 'SE37'.
+*    WHEN 'FC04'.
+*      CALL TRANSACTION 'SE38'.
+*    WHEN 'FC05'.
+*      LEAVE PROGRAM.
+*  ENDCASE.
+* Cargar la tabla SFLIGHT de la base de datos
+TABLES: sflight.
+
+SELECTION-SCREEN BEGIN OF LINE.
+SELECTION-SCREEN COMMENT 2(10) text-c01 FOR FIELD a.
+PARAMETERS: a(10).
+SELECTION-SCREEN COMMENT 25(10) lb2 FOR FIELD b.
+PARAMETERS : b(10).
+SELECTION-SCREEN COMMENT 50(10) lb3.
+PARAMETERS : c(10).
+SELECTION-SCREEN END OF LINE.
+
+SELECTION-SCREEN SKIP 1.
+
+** Definición de variables
+*DATA: gt_sflight TYPE TABLE OF sflight,
+*      gs_sflight TYPE sflight.
+*
+** Pantalla de selección
+*SELECTION-SCREEN BEGIN OF BLOCK b11 WITH FRAME.
+*
+*SELECTION-SCREEN BEGIN OF BLOCK b01 WITH FRAME TITLE text-t01.
+*
+*SELECTION-SCREEN SKIP 1.
+*
+*
+*
+*SELECT-OPTIONS: s_carrid FOR sflight-carrid,
+*                s_connid FOR sflight-connid,
+*                s_fldate FOR sflight-fldate.
+*
+**SELECTION-SCREEN SKIP 1.
+*
+*SELECTION-SCREEN END OF BLOCK b01.
+*
+*SELECTION-SCREEN END OF BLOCK b11.
+*
+*SELECTION-SCREEN BEGIN OF BLOCK b02 WITH FRAME.
+*
+*SELECT-OPTIONS: s_price FOR sflight-price.
+*
+*SELECTION-SCREEN END OF BLOCK b02.
+*
+*
+*INITIALIZATION.
+*
+*  s_carrid-sign   = 'I'. "Incluir
+*  s_carrid-option = 'EQ'. "=
+*  s_carrid-low    = 'AA'.
+*
+*  APPEND s_carrid.
+*
+*  s_carrid-sign   = 'I'.
+*  s_carrid-option = 'EQ'.
+*  s_carrid-low    = 'DL'.
+*  APPEND s_carrid.
+*
+*START-OF-SELECTION.
+** Copiado de los datos a la tabla con los filtros
+*  SELECT * FROM sflight INTO TABLE gt_sflight
+*           WHERE carrid IN s_carrid
+*           AND   connid IN s_connid
+*           AND   fldate IN s_fldate
+*           AND   price  IN s_price.
+*
+*END-OF-SELECTION.
+*  DATA texto TYPE char10.
+
+* Pantalla de selección
+PARAMETERS: p01 RADIOBUTTON GROUP rb1 USER-COMMAND uc DEFAULT 'X' .
+
+SELECT-OPTIONS: so1 FOR sflight-carrid MODIF ID md1,
+                so2 FOR sflight-connid MODIF ID md1,
+                so3 FOR sflight-fldate MODIF ID md1.
+
+SELECTION-SCREEN SKIP 1.
+
+PARAMETERS: p02 RADIOBUTTON GROUP rb1.
+
+SELECT-OPTIONS: so4 FOR sflight-carrid MODIF ID md2,
+                so5 FOR sflight-connid MODIF ID md2,
+                so6 FOR sflight-fldate MODIF ID md2.
+SELECTION-SCREEN SKIP 1.
+SELECT-OPTIONS: so7 FOR sflight-price MODIF ID md2,
+                so8 FOR sflight-currency MODIF ID md2,
+                so9 FOR sflight-planetype MODIF ID md2.
+
+INITIALIZATION.
+
+  lb2 = 'Input B'.
+  lb3 = 'Input C'.
+
+AT SELECTION-SCREEN OUTPUT.
+
+  IF p01 = 'X'.
+    LOOP AT SCREEN.
+      IF screen-group1 = 'MD2'.
+        screen-active = 0.
+        MODIFY SCREEN.
+      ENDIF.
+    ENDLOOP.
+  ELSE.
+    LOOP AT SCREEN.
+      IF screen-group1 = 'MD1'.
+        screen-active = 0.
+        MODIFY SCREEN.
+      ENDIF.
+    ENDLOOP.
+  ENDIF.
+
+*AT SELECTION-SCREEN.
+*
+*  IF a IS INITIAL.
+*    MESSAGE 'Ingresar carrid' TYPE 'E'.
+*  ENDIF.
+
+*  IF so4[] IS INITIAL AND p02 IS NOT INITIAL.
+*    MESSAGE 'Ingresar carrid' TYPE 'E'.
+*  ENDIF.
+
+
+START-OF-SELECTION.
+
+*  IF a IS INITIAL.
+*    MESSAGE 'Ingresar carrid' TYPE 'S' DISPLAY LIKE 'E'.
+*    EXIT.
+*  ENDIF.
+
+*perform f_valida_parametros.
+
+*  IF so4[] IS INITIAL AND p02 IS NOT INITIAL.
+*    MESSAGE 'Ingresar carrid' TYPE 'S' DISPLAY LIKE 'E'.
+*    EXIT.
+*  ENDIF.
+
+*  texto = sy-datum.
+*  CONCATENATE sy-datum+6(2) sy-datum+4(2) sy-datum+0(4) INTO texto SEPARATED BY '/'.
+
+*  WRITE: texto.
+
+*  WRITE: sy-datum TO texto DD/MM/YYYY.
+*  REPLACE ALL OCCURRENCES OF '.' IN texto WITH '/'.
+*
+*  WRITE: 'Sigue ejecutando.',
+*        / texto.
+*
+END-OF-SELECTION.

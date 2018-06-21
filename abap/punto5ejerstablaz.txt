@@ -1,0 +1,72 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_REPAPROBADO
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zu64_repaprobado.
+TABLES: zu64_alumnos, zu64_materias, zu64_matalu.
+
+TYPES: BEGIN OF st_final,
+  padron TYPE zu64_alumnos-padron,
+  nombre TYPE zu64_alumnos-nombre,
+  codmat TYPE zu64_materias-codmat,
+  nombremat TYPE zu64_materias-nombre,
+  faprobacion TYPE zu64_matalu-fecha,
+  END OF st_final.
+
+DATA: gs_final TYPE st_final,
+      gt_final TYPE TABLE OF st_final,
+      gt_matalu TYPE TABLE OF zu64_matalu,
+      gs_matalu TYPE zu64_matalu,
+      gt_alumnos TYPE TABLE OF zu64_alumnos,
+      gs_alumnos TYPE zu64_alumnos,
+      gt_materias TYPE TABLE OF zu64_materias,
+      gs_materias TYPE zu64_materias.
+
+SELECT-OPTIONS: s_codmat FOR ZU64_MATERIAS-codmat.
+
+SELECT zu64_matalu~mandt zu64_matalu~codmat zu64_matalu~padron zu64_matalu~fecha zu64_matalu~estado
+  FROM zu64_matalu INTO TABLE gt_matalu
+  WHERE zu64_matalu~estado = 'APROBADO' and codmat in s_codmat.
+
+IF sy-subrc = 0.
+  SELECT zu64_alumnos~mandt zu64_alumnos~padron zu64_alumnos~nombre zu64_alumnos~apellido zu64_alumnos~barrio zu64_alumnos~postal
+    FROM zu64_alumnos INTO TABLE gt_alumnos
+    FOR ALL ENTRIES IN gt_matalu
+    WHERE zu64_alumnos~padron = gt_matalu-padron.
+
+  IF sy-subrc EQ 0.
+    SELECT zu64_materias~mandt zu64_materias~codmat zu64_materias~nombre zu64_materias~horas
+      FROM zu64_materias INTO TABLE gt_materias
+      FOR ALL ENTRIES IN gt_matalu
+      WHERE zu64_materias~codmat = gt_matalu-codmat.
+    IF sy-subrc EQ 0.
+      LOOP AT gt_matalu INTO gs_matalu.
+        READ TABLE gt_alumnos INTO gs_alumnos WITH KEY padron = gs_matalu-padron.
+        IF sy-subrc EQ 0.
+          gs_final-padron = gs_alumnos-padron.
+          CONCATENATE gs_alumnos-nombre gs_alumnos-apellido INTO gs_final-nombre SEPARATED BY ' '.
+          READ TABLE gt_materias INTO gs_materias WITH KEY codmat = gs_matalu-codmat.
+          IF sy-subrc EQ 0.
+            gs_final-codmat = gs_materias-codmat.
+            gs_final-nombremat = gs_materias-nombre.
+            gs_final-faprobacion = gs_matalu-fecha.
+            APPEND gs_final to gt_final.
+          ENDIF.
+
+        ENDIF.
+
+
+      ENDLOOP.
+    ENDIF.
+  ENDIF.
+
+ENDIF.
+sort gt_final by padron.
+LOOP AT gt_final into gs_final.
+  WRITE:/ gs_final-padron, gs_final-nombre, gs_final-codmat, gs_final-nombremat, gs_final-faprobacion.
+
+ENDLOOP.
