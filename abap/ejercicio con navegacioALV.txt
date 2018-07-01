@@ -1,0 +1,264 @@
+*&---------------------------------------------------------------------*
+*& Report  YREPORTE_ALV_EJ5
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+REPORT yreporte_alv_ej5.
+* las tablas a usar. ***************************************************
+TABLES: spfli,
+        sflight,
+        scarr.
+
+
+* creacion de tablas internas ******************************************
+DATA: BEGIN OF itab01 OCCURS 0,
+carrid    LIKE spfli-carrid,
+connid    LIKE spfli-connid,
+cityfrom  LIKE spfli-cityfrom,
+cityto    LIKE spfli-cityto,
+END OF itab01.
+
+DATA: BEGIN OF itab02 OCCURS 0,
+currency LIKE sflight-currency,
+price    LIKE sflight-price,
+fldate   LIKE sflight-fldate,
+END OF itab02.
+
+DATA: BEGIN OF itab03 OCCURS 0,
+carrid   LIKE scarr-carrid,
+carrname LIKE scarr-carrname,
+url      LIKE scarr-url,
+END OF itab03.
+
+* ESTA TABLA SE AGREGÓ PARA UNIFICAR ANTES DEL ALV
+DATA: BEGIN OF itab04 OCCURS 0,
+carrid    LIKE   spfli-carrid,
+connid    LIKE   spfli-connid,
+cityfrom  LIKE   spfli-cityfrom,
+cityto    LIKE   spfli-cityto,
+currency  LIKE sflight-currency,
+price     LIKE sflight-price,
+fldate    LIKE sflight-fldate,
+carrname  LIKE  scarr-carrname,
+url       LIKE  scarr-url,
+END OF itab04.
+
+*sin estas 3 lineas el ALV no esiste!! fiera
+TYPE-POOLS: slis.
+DATA alv_itab_fieldcat TYPE slis_t_fieldcat_alv .
+DATA alv_estr_fieldcat TYPE slis_fieldcat_alv .
+
+
+* la pantalla de selección. ********************************************
+SELECTION-SCREEN BEGIN OF BLOCK block01 WITH FRAME TITLE text-001.
+PARAMETERS p_carrid LIKE scarr-carrid.
+SELECTION-SCREEN END OF BLOCK block01.
+
+
+* cargamos las tablas internas *****************************************
+
+SELECT * FROM spfli INTO CORRESPONDING FIELDS OF  TABLE itab01 WHERE
+carrid = p_carrid.
+
+*SELECT * FROM sflight INTO CORRESPONDING FIELDS OF  TABLE itab02 WHERE
+*carrid = p_carrid.
+
+SELECT * FROM scarr INTO CORRESPONDING FIELDS OF  TABLE itab03 WHERE
+carrid = p_carrid.
+
+************************************************************************
+************** ESTO ES PARA MASIFICAR TODO HACIA EL ALV ****************
+
+SELECT * FROM sflight INTO CORRESPONDING FIELDS OF  TABLE itab04 WHERE
+carrid = p_carrid.
+
+LOOP AT itab04.
+
+  READ TABLE itab01 WITH KEY carrid = itab04-carrid
+  connid = itab04-connid.
+  itab04-cityfrom  = itab01-cityfrom.
+  itab04-cityto    = itab01-cityto.
+
+  READ TABLE itab03 WITH KEY carrid = itab04-carrid.
+  itab04-carrname = itab03-carrname.
+  itab04-url      = itab03-url.
+
+  MODIFY itab04.
+ENDLOOP.
+
+************************************************************************
+************************************************************************
+alv_estr_fieldcat-col_pos        = 1.
+alv_estr_fieldcat-fieldname      = 'CARRID'.
+alv_estr_fieldcat-tabname        = 'ITAB04'.
+*alv_estr_fieldcat-datatype       = 'CHAR'.
+*alv_estr_fieldcat-outputlen      = '3' .
+alv_estr_fieldcat-hotspot        = 'X'.
+alv_estr_fieldcat-seltext_l      = 'CONNEXION ID'.
+APPEND alv_estr_fieldcat TO alv_itab_fieldcat.
+CLEAR alv_estr_fieldcat.
+
+alv_estr_fieldcat-col_pos        = 2.
+alv_estr_fieldcat-fieldname      = 'CONNID'.
+alv_estr_fieldcat-tabname        = 'ITAB04'.
+alv_estr_fieldcat-datatype       = 'CHAR'.
+alv_estr_fieldcat-outputlen      = '3' .
+alv_estr_fieldcat-seltext_l      = 'CONNEXION ID'.
+APPEND alv_estr_fieldcat TO alv_itab_fieldcat.
+CLEAR alv_estr_fieldcat.
+
+alv_estr_fieldcat-col_pos        = 3.
+alv_estr_fieldcat-fieldname      = 'FLDATE'.
+alv_estr_fieldcat-tabname        = 'ITAB04'.
+*alv_estr_fieldcat-datatype       = 'DATS'.
+*alv_estr_fieldcat-outputlen      = '8' .
+alv_estr_fieldcat-seltext_l      = 'FECHA VUELO'.
+APPEND alv_estr_fieldcat TO alv_itab_fieldcat.
+CLEAR alv_estr_fieldcat.
+
+alv_estr_fieldcat-col_pos        = 4.
+alv_estr_fieldcat-fieldname      = 'CITYFROM'.
+alv_estr_fieldcat-tabname        = 'ITAB04'.
+alv_estr_fieldcat-datatype       = 'CHAR'.
+alv_estr_fieldcat-outputlen      = '20' .
+alv_estr_fieldcat-seltext_l      = 'ORIGEN VUELO'.
+APPEND alv_estr_fieldcat TO alv_itab_fieldcat.
+CLEAR alv_estr_fieldcat.
+
+alv_estr_fieldcat-col_pos        = 5.
+alv_estr_fieldcat-fieldname      = 'CITYTO'.
+alv_estr_fieldcat-tabname        = 'ITAB04'.
+alv_estr_fieldcat-datatype       = 'CHAR'.
+alv_estr_fieldcat-outputlen      = '20' .
+alv_estr_fieldcat-seltext_l      = 'DESTINO VUELO'.
+APPEND alv_estr_fieldcat TO alv_itab_fieldcat.
+CLEAR alv_estr_fieldcat.
+
+alv_estr_fieldcat-col_pos        = 6.
+alv_estr_fieldcat-fieldname      = 'CURRENCY'.
+alv_estr_fieldcat-tabname        = 'ITAB04'.
+alv_estr_fieldcat-datatype       = 'CUKY'.
+alv_estr_fieldcat-outputlen      = '6' .
+alv_estr_fieldcat-seltext_l      = 'MONEDA'.
+APPEND alv_estr_fieldcat TO alv_itab_fieldcat.
+CLEAR alv_estr_fieldcat.
+
+alv_estr_fieldcat-col_pos        = 7.
+alv_estr_fieldcat-fieldname      = 'PRICE'.
+alv_estr_fieldcat-tabname        = 'ITAB04'.
+alv_estr_fieldcat-datatype       = 'CURR'.
+alv_estr_fieldcat-outputlen      = '15' .
+alv_estr_fieldcat-seltext_l      = 'PRECIO'.
+APPEND alv_estr_fieldcat TO alv_itab_fieldcat.
+CLEAR alv_estr_fieldcat.
+
+alv_estr_fieldcat-col_pos        = 8.
+alv_estr_fieldcat-fieldname      = 'CARRNAME'.
+alv_estr_fieldcat-tabname        = 'ITAB04'.
+alv_estr_fieldcat-datatype       = 'CHAR'.
+alv_estr_fieldcat-outputlen      = '20' .
+alv_estr_fieldcat-seltext_l      = 'COMPA#IA'.
+APPEND alv_estr_fieldcat TO alv_itab_fieldcat.
+CLEAR alv_estr_fieldcat.
+
+alv_estr_fieldcat-col_pos        = 9.
+alv_estr_fieldcat-fieldname      = 'URL'.
+alv_estr_fieldcat-tabname        = 'ITAB04'.
+alv_estr_fieldcat-datatype       = 'CHAR'.
+alv_estr_fieldcat-outputlen      = '255' .
+alv_estr_fieldcat-seltext_l      = 'WEB SITE'.
+APPEND alv_estr_fieldcat TO alv_itab_fieldcat.
+CLEAR alv_estr_fieldcat.
+
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+                   EXPORTING
+*                     I_INTERFACE_CHECK                 = ' '
+*                     I_BYPASSING_BUFFER                = ' '
+*                     I_BUFFER_ACTIVE                   = ' '
+                     i_callback_program                = sy-repid
+*                     I_CALLBACK_PF_STATUS_SET          = ' '
+                     i_callback_user_command           = 'F_USER_COMMAND'
+*                     I_CALLBACK_TOP_OF_PAGE            = ' '
+*                     I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*                     I_CALLBACK_HTML_END_OF_LIST       = ' '
+*                     I_STRUCTURE_NAME                  =
+*                     I_BACKGROUND_ID                   = ' '
+*                     I_GRID_TITLE                      =
+*                     I_GRID_SETTINGS                   =
+*                     IS_LAYOUT                         =
+ it_fieldcat                       = alv_itab_fieldcat
+*                     IT_EXCLUDING                      =
+*                     IT_SPECIAL_GROUPS                 =
+*                     IT_SORT                           =
+*                     IT_FILTER                         =
+*                     IS_SEL_HIDE                       =
+*                     I_DEFAULT                         = 'X'
+*                     I_SAVE                            = ' '
+*                     IS_VARIANT                        =
+*                     IT_EVENTS                         =
+*                     IT_EVENT_EXIT                     =
+*                     IS_PRINT                          =
+*                     IS_REPREP_ID                      =
+*                     I_SCREEN_START_COLUMN             = 0
+*                     I_SCREEN_START_LINE               = 0
+*                     I_SCREEN_END_COLUMN               = 0
+*                     I_SCREEN_END_LINE                 = 0
+*                     IT_ALV_GRAPHICS                   =
+*                     IT_HYPERLINK                      =
+*                     IT_ADD_FIELDCAT                   =
+*                   IMPORTING
+*                     E_EXIT_CAUSED_BY_CALLER           =
+*                     ES_EXIT_CAUSED_BY_USER            =
+     TABLES
+       t_outtab                          = itab04
+
+*                   EXCEPTIONS
+*                     PROGRAM_ERROR                     = 1
+*                     OTHERS                            = 2
+             .
+IF sy-subrc <> 0.
+* MESSAGE ID SY-MSGID TYPE SY-MSGTY NUMBER SY-MSGNO
+*         WITH SY-MSGV1 SY-MSGV2 SY-MSGV3 SY-MSGV4.
+ENDIF.
+
+*&---------------------------------------------------------------------*
+*&      Form  f_user_command
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*      -->R_UCOMM      text
+*      -->RS_SELFIELD  text
+*----------------------------------------------------------------------*
+FORM f_user_command USING r_ucomm     TYPE sy-ucomm
+                          rs_selfield TYPE slis_selfield.
+
+  IF rs_selfield-sel_tab_field CS 'CARRID'.
+
+    READ TABLE itab04 INDEX rs_selfield-tabindex.
+
+    SET PARAMETER ID 'CAR' FIELD itab04-carrid.
+    SET PARAMETER ID 'CON' FIELD itab04-connid.
+    SET PARAMETER ID 'DAY' FIELD itab04-fldate.
+
+    CALL TRANSACTION 'BC_GLOBAL_SFLGH_DISP' AND SKIP FIRST SCREEN.
+
+  ENDIF.
+
+*  CALL TRANSACTION 'BC_GLOBAL_SFLGH_EDIT' AND SKIP FIRST SCREEN.
+*  IF sy-subrc IS INITIAL.
+*
+*    SELECT SINGLE * FROM sflight WHERE carrid = itab04-carrid
+*                                   AND connid = itab04-connid
+*                                   AND fldate = itab04-fldate.
+*
+*    IF sy-subrc IS INITIAL.
+*      itab04-price = sflight-price.
+*      MODIFY itab04 INDEX rs_selfield-tabindex.
+*      rs_selfield-refresh = 'X'.
+*    ENDIF.
+*  ENDIF.
+
+ENDFORM.                    "f_user_command

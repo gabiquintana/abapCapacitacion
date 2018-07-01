@@ -1,0 +1,161 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_ALLENTRIES
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zu64_allentries.
+"LISTAR POR PANTALLA UNA LISTA DE RESERVAS DE VUELOS (SBOOK) CUYAS RESERVAS SEAN ASIENTO RESERVADOS POR FUMADORES (SMOKERS),
+"EL LISTADO DEBE CONTENER ESTOS CAMPOS: carrid, connid, fldate, order_date, name y street
+TABLES: sbook, scustom, sflight.
+TYPE-POOLS: slis.
+
+SELECT-OPTIONS: so_price FOR sflight-price.
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_layout   TYPE slis_layout_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv.
+
+TYPES: BEGIN OF ts_final,
+  carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  order_date TYPE sbook-order_date,
+  name TYPE scustom-name,
+  street TYPE scustom-street,
+  price TYPE sflight-price,
+  END OF ts_final.
+
+TYPES: BEGIN OF ts_sflight,
+  carrid TYPE sflight-carrid,
+  connid TYPE sflight-connid,
+  fldate TYPE sflight-fldate,
+  price TYPE sflight-price,
+  END OF ts_sflight.
+
+TYPES: BEGIN OF ts_sbook,
+    carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  order_date TYPE sbook-order_date,
+  customid TYPE sbook-customid,
+  END OF ts_sbook.
+
+TYPES: BEGIN OF ts_scustom,
+  id TYPE scustom-id,
+    name TYPE scustom-name,
+  street TYPE scustom-street,
+  END OF ts_scustom.
+
+  DATA: gt_final TYPE TABLE OF ts_final,
+        gs_final TYPE ts_final,
+        gt_sbook TYPE TABLE OF ts_sbook,
+        gs_sbook  TYPE ts_sbook,
+        gt_scustom TYPE TABLE OF ts_scustom,
+        gs_scustom TYPE ts_scustom,
+        gt_sflight TYPE TABLE OF ts_sflight,
+        gs_sflight TYPE ts_sflight.
+
+
+
+
+
+SELECT carrid connid fldate price
+    FROM sflight
+    INTO TABLE gt_sflight
+    WHERE price in so_price.
+
+SELECT carrid connid fldate order_date customid
+FROM sbook
+INTO TABLE gt_sbook
+FOR ALL ENTRIES IN gt_sflight
+WHERE carrid = gt_sflight-carrid and connid = gt_sflight-connid and fldate = gt_sflight-fldate and smoker = 'X'.
+
+IF sy-subrc = 0.
+SELECT id name street
+FROM scustom
+INTO TABLE gt_scustom
+FOR ALL ENTRIES IN gt_sbook
+WHERE id = gt_sbook-customid.
+  SORT gt_scustom by id.
+  IF sy-subrc = 0.
+    SELECT carrid connid fldate price
+    FROM sflight
+    INTO TABLE gt_sflight
+    FOR ALL ENTRIES IN gt_sbook
+    WHERE carrid = gt_sbook-carrid AND connid = gt_sbook-connid AND fldate = gt_sbook-fldate and price in so_price.
+
+      if sy-subrc = 0.
+   LOOP AT gt_sbook INTO gs_sbook.
+     READ TABLE gt_scustom INTO gs_scustom WITH KEY id = gs_sbook-customid
+     BINARY SEARCH.
+     IF sy-subrc = 0.
+       gs_final-name = gs_scustom-name.
+       gs_final-street = gs_scustom-street.
+     ENDIF.
+     READ TABLE gt_sflight INTO gs_sflight with key carrid = gs_sbook-carrid connid = gs_sbook-connid fldate = gs_sbook-fldate
+     BINARY SEARCH.
+     IF sy-subrc = 0.
+     gs_final-price = gs_sflight-price.
+     ENDIF.
+     gs_final-carrid = gs_sbook-carrid.
+     gs_final-connid = gs_sbook-connid.
+     gs_final-fldate = gs_sbook-fldate.
+     gs_final-order_date = gs_sbook-order_date.
+   APPEND gs_final TO gt_final.
+   ENDLOOP.
+   endif.
+  endif.
+ENDIF.
+
+*LOOP AT gt_final INTO gs_final.
+*WRITE:/ gs_final-carrid, gs_final-connid, gs_final-fldate, gs_final-order_date, gs_final-name, gs_final-street .
+*
+*at LAST.
+*  WRITE:/ sy-tabix.
+*  ENDAT.
+*ENDLOOP.
+
+gs_fieldcat-fieldname = 'CARRID'.
+gs_fieldcat-seltext_S = 'carr'.
+" gs_fieldcat-just = 'L'. para ponerlo a la izquierda
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'CONNID'.
+gs_fieldcat-seltext_S = 'connid'.
+APPEND gs_fieldcat to gt_fieldcat.
+
+gs_fieldcat-fieldname = 'FLDATE'.
+gs_fieldcat-seltext_S = 'fecha'.
+APPEND gs_fieldcat to gt_fieldcat.
+
+gs_fieldcat-fieldname = 'ORDER_DATE'.
+gs_fieldcat-seltext_S = 'FECHA DE ORDEN'.
+APPEND gs_fieldcat to gt_fieldcat.
+
+gs_fieldcat-fieldname = 'NAME'.
+gs_fieldcat-seltext_S = 'nombre'.
+APPEND gs_fieldcat to gt_fieldcat.
+
+gs_fieldcat-fieldname = 'STREET'.
+gs_fieldcat-seltext_S = 'calle'.
+APPEND gs_fieldcat to gt_fieldcat.
+
+gs_fieldcat-fieldname = 'PRICE'.
+gs_fieldcat-seltext_S = 'Precio'.
+APPEND gs_fieldcat to gt_fieldcat.
+
+gs_layout-colwidth_optimize = 'X'.
+gs_layout-zebra = 'X'.
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      i_callback_program = sy-repid
+      is_layout          = gs_layout
+      it_fieldcat        = gt_fieldcat
+      "i_save             = 'A'
+    TABLES
+      t_outtab           = gt_final
+    EXCEPTIONS
+      program_error      = 1
+      OTHERS             = 2.
