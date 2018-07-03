@@ -1,0 +1,189 @@
+REPORT  zu54_alv_botones.
+
+"LISTAR POR PANTALLA UNA LISTA DE RESERVAS DE VUELOS (SBOOK) CUYAS RESERVAS SEAN ASIENTO RESERVADOS POR FUMADORES (SMOKERS),
+"EL LISTADO DEBE CONTENER ESTOS CAMPOS: carrid, connid, fldate, order_date, name y street
+TABLES: sbook, scustom, sflight.
+TYPE-POOLS: slis.
+DATA: gt_exclude TYPE slis_t_extab,
+      wa_exclude TYPE slis_extab.
+TYPES: BEGIN OF ts_final,
+  carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  order_date TYPE sbook-order_date,
+  name TYPE scustom-name,
+  street TYPE scustom-street,
+  price TYPE sflight-price,
+END OF ts_final.
+
+TYPES: BEGIN OF ts_sbook,
+  carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  order_date TYPE sbook-order_date,
+  customid TYPE sbook-customid,
+END OF ts_sbook.
+
+TYPES: BEGIN OF ts_scustom,
+  id TYPE scustom-id,
+  name TYPE scustom-name,
+  street TYPE scustom-street,
+END OF ts_scustom.
+
+TYPES: BEGIN OF ts_sflight,
+  carrid TYPE sflight-carrid,
+  connid TYPE sflight-connid,
+  fldate TYPE sflight-fldate,
+  price TYPE sflight-price,
+END OF ts_sflight.
+
+DATA: gs_sbook TYPE ts_sbook,
+      gt_sbook TYPE TABLE OF ts_sbook,
+      gs_scustom TYPE ts_scustom,
+      gt_scustom TYPE TABLE OF ts_scustom,
+      gs_final TYPE ts_final,
+      gt_final TYPE TABLE OF ts_final,
+      gs_sflight TYPE ts_sflight,
+      gt_sflight TYPE TABLE OF ts_sflight.
+
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv.
+"gt_sortcat TYPE slis_t_sortinfo_alv.
+
+SELECT-OPTIONS: p_price FOR sflight-price.
+
+SELECT carrid connid fldate price
+  FROM sflight INTO TABLE gt_sflight
+  WHERE price IN p_price.
+
+SELECT carrid connid fldate order_date customid
+  FROM sbook INTO TABLE gt_sbook
+  FOR ALL ENTRIES IN gt_sflight
+  WHERE carrid = gt_sflight-carrid AND connid = gt_sflight-connid AND fldate = gt_sflight-fldate AND smoker = 'X'.
+
+SELECT id name street
+  FROM scustom INTO TABLE gt_scustom
+  FOR ALL ENTRIES IN gt_sbook
+  WHERE id = gt_sbook-customid.
+
+SORT gt_scustom BY id.
+SORT gt_sflight BY carrid connid fldate.
+
+LOOP AT gt_sbook INTO gs_sbook.
+
+  READ TABLE gt_scustom INTO gs_scustom
+  WITH KEY id = gs_sbook-customid BINARY SEARCH.
+
+  READ TABLE gt_sflight INTO gs_sflight
+  WITH KEY carrid = gs_sbook-carrid connid = gs_sbook-connid fldate = gs_sbook-fldate BINARY SEARCH.
+
+  IF sy-subrc = 0.
+    gs_final-carrid = gs_sbook-carrid.
+    gs_final-connid = gs_sbook-connid.
+    gs_final-fldate = gs_sbook-fldate.
+    gs_final-order_date = gs_sbook-order_date.
+    gs_final-name = gs_scustom-name.
+    gs_final-street = gs_scustom-street.
+    gs_final-price = gs_sflight-price.
+    APPEND gs_final TO gt_final.
+  ENDIF.
+
+ENDLOOP.
+
+DATA cont TYPE i VALUE 0.
+
+gs_fieldcat-fieldname = 'CARRID'.
+gs_fieldcat-ref_tabname = 'SBOOK'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'CONNID'.
+gs_fieldcat-ref_tabname = 'SBOOK'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'FLDATE'.
+gs_fieldcat-ref_tabname = 'SBOOK'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'ORDER_DATE'.
+gs_fieldcat-ref_tabname = 'SBOOK'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'NAME'.
+gs_fieldcat-ref_tabname = 'SCUSTOM'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'STREET'.
+gs_fieldcat-ref_tabname = 'SCUSTOM'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'PRICE'.
+gs_fieldcat-ref_tabname = 'SFLIGHT'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+DATA: ls_layout TYPE slis_layout_alv.
+ls_layout-colwidth_optimize = 'X'.
+ls_layout-zebra = 'X'.
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+  EXPORTING
+    i_callback_program = sy-repid
+    i_callback_user_command = 'USERCOMMAND'
+    i_callback_pf_status_set = 'MI_STANDARD'
+    is_layout          = ls_layout
+    it_fieldcat        = gt_fieldcat
+  TABLES
+    t_outtab           = gt_final.
+
+
+FORM MI_STANDARD USING rt_extab TYPE slis_t_extab.
+  wa_exclude-fcode = '&BT1'.
+APPEND wa_exclude TO gt_exclude.
+      SET PF-STATUS 'STANDARD' EXCLUDING gt_exclude.
+      ENDFORM.
+
+FORM USERCOMMAND USING r_ucomm TYPE sy-ucomm
+                       rs_selfield TYPE slis_selfield.
+  IF r_ucomm = '&BT1'.
+    MESSAGE 'Has pulsado el boton creado' TYPE 'I'.
+
+  ENDIF.
+ IF rs_selfield-sel_tab_field CS 'CARRID' AND r_ucomm eq '&IC1'.
+
+  READ TABLE gt_final INTO gs_final INDEX rs_selfield-tabindex.
+
+  SET PARAMETER ID 'CAR' FIELD gs_final-carrid.
+  SET PARAMETER ID 'CON' FIELD gs_final-connid.
+  SET PARAMETER ID 'DAY' FIELD gs_final-fldate.
+
+  CALL TRANSACTION 'BC_GLOBAL_SFLGH_EDIT' AND SKIP FIRST SCREEN.
+
+  IF sy-subrc IS INITIAL.
+
+    SELECT SINGLE *
+      FROM sflight
+      WHERE carrid = gs_final-carrid AND connid = gs_final-connid
+                                     AND fldate = gs_final-fldate.
+
+      IF sy-subrc = 0.
+        IF gs_final-price <> sflight-price.
+
+          gs_final-price = sflight-price.
+          MODIFY gt_final FROM gs_final INDEX rs_selfield-tabindex.
+          rs_selfield-refresh = 'X'. "ME23N
+
+        ENDIF.
+      ENDIF.
+
+  ENDIF.
+
+
+ ENDIF.
+
+  ENDFORM.

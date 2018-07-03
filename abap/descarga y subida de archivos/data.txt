@@ -1,0 +1,193 @@
+AZ 	0555	20090304	20090120	Carmel Leisert           	182 Oak Street                	195.00
+AZ 	0555	20090304	20081029	Lee Matthaeus            	179 17th St.                  	195.00
+AZ 	0555	20090304	20081028	Allen Martin             	17 Sagamore St.               	195.00
+AZ 	0555	20090304	20090205	James Meier              	160 Golden Gate Drive         	195.00
+AZ 	0555	20090304	20081231	Guenther Legrand         	Jacobistrasse 4               	195.00
+AZ 	0555	20090304	20081202	Max Grosshandel          	Industriestreetse 29          	195.00
+AZ 	0555	20090304	20090212	Lee Wohl                 	27 17th St.                   	195.00
+AZ 	0555	20090304	20081103	James Miguel             	217 Golden Gate Drive         	195.00
+AZ 	0555	20090304	20081117	Benjamin Prinz           	91 Voodoo Avenue              	195.00
+AZ 	0555	20090304	20090130	Andrej Wohl              	181 Poklukarjeva              	195.00
+AZ 	0555	20090304	20081217	Jean Buehler             	214 rue Voltaire              	195.00
+AZ 	0555	20090304	20090221	Siegfried Domenech       	Schillerstr. 130              	195.00
+AZ 	0555	20090304	20081115	Benjamin Matthaeus       	23 Voodoo Avenue              	195.00
+AZ 	0555	20090304	20081125	Matthias Lautenbach      	Gartenstr. 251                	195.00
+AZ 	0555	20090304	20081229	Uli Heiler               	Franz-Marc-Str. 61            	195.00
+AZ 	0555	20090304	20081223	Juan Dumbach             	24 Fuenlabrada                	195.00
+AZ 	0555	20090304	20081018	Christoph Legrand        	92 Federal Avenue             	195.00
+AZ 	0555	20090304	20081116	Juan Weiss               	204 Fuenlabrada               	195.00
+AZ 	0555	20090304	20090126	Horst Wohl               	Muehltalstr. 32               	195.00
+AZ 	0555	20090304	20090129	Carmel Zimmermann        	10 Oak Street                 	195.00
+AZ 	0555	20090304	20090217	Christine Gutenberg      	Emil-Heckel-Str. 161          	195.00
+AZ 	0555	20090304	20081008	Thilo Simon              	Zwischergasse 252             	195.00
+AZ 	0555	20090304	20081104	Salvador Heiler          	273 Piedad                    	195.00
+AZ 	0555	20090304	20081008	Pierre Sessler           	147 route de Pégomas          	195.00
+AZ 	0555	20090304	20081107	Thilo Columbo            	Zwischergasse 147             	195.00
+AZ 	0555	20090304	20081211	Irene Sessler            	Akazienweg 132                	195.00
+AZ 	0555	20090401	20090102	Adam Legrand             	Heidelberger Str. 193         	185.00
+AZ 	0555	20090401	20090203	Horst Bentink            	Muehltalstr. 118              	185.00
+AZ 	0555	20090401	20081123	Astrid Keller            	Karl-Schwaner-Str. 191        	185.00
+AZ 	0555	20090401	20081227	Illya Ittner             	Im Warmet 25                  	185.00
+AZ 	0555	20090401	20090208	Amelie Sudhoff           	Froschstr. 20                 	185.00
+AZ 	0555	20090401	20081202	Jean-Luc Marshall        	88 Rue Balzac                 	185.00
+AZ 	0555	20090401	20081116	Astrid Sudhoff           	Karl-Schwaner-Str. 8          	185.00
+AZ 	0555	20090401	20090214	Thilo Gahl               	Zwischergasse 85              	185.00
+AZ 	0555	20090401	20090305	Florian Miguel           	Gruenlingweg 263              	185.00
+AZ 	0555	20090401	20090304	Oesterreich. Wasserwerke 	Wendelsteinstr. 78            	185.00
+AZ 	0555	20090401	20081110	Theresia Meier           	Arndtstrasse 218              	185.00
+AZ 	0555	20090401	20090312	Horst Vrsic              	Elzstrasse 97                 	185.00
+AZ 	0555	20090401	20081223	August Jeremias          	Alte Reichsstr. 104           	185.00
+AZ 	0555	20090401	20081229	Laura Moyano             	Raupelsweg 24                 	185.00
+AZ 	0555	20090401	20081222	Anneliese Buchholz       	Am Deich 56                   	185.00
+AZ 	0555	20090401	20081221	Anne-Marie Leisert       	Marktplatz 268                	185.00
+AZ 	0555	20090401	20090111	Anna Neubacher           	Lerchenstr. 127               	185.00
+AZ 	0555	20090401	20090219	Andrej Kreiss            	181 Poklukarjeva              	185.00
+AZ 	0555	20090401	20090130	Claire Mechler           	Meerfeldstr. 37               	185.00
+AZ 	0555	20090401	20081228	Johannes Weiss           	Leichhof 34                   	185.00
+AZ 	0555	20090401	20090214	Anne-Marie Kramer        	Marktplatz 38                 	185.00
+AZ 	0555	20090401	20090220	Roland Fischer           	Gemeindestr. 101              	185.00
+AZ 	0555	20090401	20081209	Chantal Zimmermann       	146 rue Nieuport              	185.00
+AZ 	0555	20090401	20081126	Irene Marshall           	Akazienweg 271                	185.00
+AZ 	0555	20090401	20081207	Irene Hansmann           	Akazienweg 52                 	185.00
+AZ 	0555	20090401	20090308	Friedrich Kramer         	Friedensallee 102             	185.00
+AZ 	0555	20090401	20081118	Ludwig Madeya            	Wilhelm-Glaessing-Str. 255    	185.00
+AZ 	0555	20090401	20081206	Juan Eichbaum            	203 Fuenlabrada               	185.00
+AZ 	0555	20090429	20090320	Matthias Jacqmain        	Gartenstr. 118                	185.00
+AZ 	0555	20090429	20090212	Guenther Lautenbach      	Jacobistrasse 27              	185.00
+AZ 	0555	20090429	20090404	Siegfried Bentink        	Schillerstr. 277              	185.00
+AZ 	0555	20090429	20090222	Torben Leisert           	Carl-Metz Strasse 6           	185.00
+AZ 	0555	20090429	20090226	Hanley Supply House      	5 Westbrook Corporate Center  	185.00
+AZ 	0555	20090429	20081213	August Lautenbach        	Alte Reichsstr. 61            	185.00
+AZ 	0555	20090429	20090324	Jean Henry               	113 rue Voltaire              	185.00
+AZ 	0555	20090429	20090113	Sophie Heiler            	Mutterstadter Str. 34         	185.00
+AZ 	0555	20090429	20090315	Stephen Meier            	Arionweg 32                   	185.00
+AZ 	0555	20090429	20090402	Stephen Neubacher        	Arionweg 176                  	185.00
+AZ 	0555	20090429	20090307	Christa Pratt            	Ausserhalb 194                	185.00
+AZ 	0555	20090429	20081218	Benjamin Goerke          	8 Voodoo Avenue               	185.00
+AZ 	0555	20090429	20081208	Mathilde Domenech        	Erlengrund 263                	185.00
+AZ 	0555	20090429	20081221	Dominik Babilon          	Albert-Schweitzer-Str. 82     	185.00
+AZ 	0555	20090429	20090211	Irene Heiler             	Akazienweg 247                	185.00
+AZ 	0555	20090429	20090204	Chantal Miguel           	120 rue Nieuport              	185.00
+AZ 	0555	20090429	20081209	Simon Weiss              	rue de Moillebeau 242         	185.00
+AZ 	0555	20090429	20090222	Stephen Kirk             	Arionweg 147                  	185.00
+AZ 	0555	20090429	20081202	Christa Ryan             	Ausserhalb 186                	185.00
+AZ 	0555	20090429	20090123	Jean-Luc Sessler         	136 Rue Balzac                	185.00
+AZ 	0555	20090429	20090104	Irene Sudhoff            	Akazienweg 99                 	185.00
+AZ 	0555	20090429	20090305	James Prinz              	191 Golden Gate Drive         	185.00
+AZ 	0555	20090429	20090121	Holmes & Sherlock        	Towerbridge 12                	185.00
+AZ 	0555	20090527	20090308	Florian Sessler          	Gruenlingweg 169              	185.00
+AZ 	0555	20090527	20090107	Gerd Lindwurm            	Forstmann 125                 	185.00
+AZ 	0555	20090527	20090212	Christine Hunter         	Emil-Heckel-Str. 135          	185.00
+AZ 	0555	20090527	20090226	Horst Deichgraeber       	Elzstrasse 240                	185.00
+AZ 	0555	20090527	20090424	Johannes Deichgraeber    	Leichhof 215                  	185.00
+AZ 	0555	20090527	20090107	Horst Forstmann          	Elzstrasse 231                	185.00
+AZ 	0555	20090527	20090512	Andrej Bentink           	93 Poklukarjeva               	185.00
+AZ 	0555	20090527	20090223	Irmgard Benjamin         	Max-Planck-Str. 77            	185.00
+AZ 	0555	20090527	20090218	Christine Goerke         	Emil-Heckel-Str. 45           	185.00
+AZ 	0555	20090527	20090408	Andrej Deichgraeber      	56 Poklukarjeva               	185.00
+AZ 	0555	20090527	20090218	Ruth Zimmermann          	Melissenstr. 27               	185.00
+AZ 	0555	20090527	20090329	Theresia Ryan            	Arndtstrasse 177              	185.00
+AZ 	0555	20090527	20090127	Benjamin Keller          	164 Voodoo Avenue             	185.00
+AZ 	0555	20090527	20090208	Lee Gahl                 	10 17th St.                   	185.00
+AZ 	0555	20090527	20090506	James Mechler            	105 Golden Gate Drive         	185.00
+AZ 	0555	20090527	20090329	Andreas Eichbaum         	Hasnerstrasse 212             	185.00
+AZ 	0555	20090527	20090505	Benjamin Bentink         	204 Voodoo Avenue             	185.00
+AZ 	0555	20090527	20090107	Peter Ryan               	Karl-Marx-Allee 8             	185.00
+AZ 	0555	20090527	20090216	Ulla Benjamin            	Gruenlingweg 112              	185.00
+AZ 	0555	20090527	20090404	Amelie Cesari            	Froschstr. 179                	185.00
+AZ 	0555	20090527	20090226	Thilo Kirk               	Zwischergasse 197             	185.00
+AZ 	0555	20090527	20090409	Fabio Moyano             	Via Giulio Cesare 25          	185.00
+AZ 	0555	20090527	20090103	Anneliese Koslowski      	Am Deich 175                  	185.00
+AZ 	0555	20090527	20090320	Laura Heiler             	Raupelsweg 274                	185.00
+AZ 	0555	20090527	20090124	Guenther Kramer          	Jacobistrasse 214             	185.00
+AZ 	0555	20090624	20090129	Ulla Meier               	Gruenlingweg 145              	185.00
+AZ 	0555	20090624	20090214	Anneliese Picard         	Am Deich 236                  	185.00
+AZ 	0555	20090624	20090418	Marta Hansmann           	188 Camelias                  	185.00
+AZ 	0555	20090624	20090220	Simon Heiler             	rue de Moillebeau 260         	185.00
+AZ 	0555	20090624	20090504	Christa Prinz            	Ausserhalb 131                	185.00
+AZ 	0555	20090624	20090522	August Henry             	Alte Reichsstr. 262           	185.00
+AZ 	0555	20090624	20090601	Andreas Keller           	Hasnerstrasse 176             	185.00
+AZ 	0555	20090624	20090210	Carmel Martin            	94 Oak Street                 	185.00
+AZ 	0555	20090624	20090327	Irene Kreiss             	Akazienweg 244                	185.00
+AZ 	0555	20090624	20090423	Anna Kramer              	N7, 17                        	185.00
+AZ 	0555	20090624	20090329	Joschka Leisert          	Jogging-Str. 116              	185.00
+AZ 	0555	20090624	20090126	Adam Jacqmain            	Heidelberger Str. 152         	185.00
+AZ 	0555	20090624	20090418	Stephen Kirk             	Arionweg 147                  	185.00
+AZ 	0555	20090624	20090207	Ludwig Gutenberg         	Wilhelm-Glaessing-Str. 191    	185.00
+AZ 	0555	20090624	20090411	Christoph Sisko          	123 Federal Avenue            	185.00
+AZ 	0555	20090624	20090327	Chantal Forstmann        	245 rue Nieuport              	185.00
+AZ 	0555	20090624	20090419	Hendrik Mechler          	Auf dem Huegel 203            	185.00
+AZ 	0555	20090624	20090206	Joschka Ittner           	Jogging-Str. 48               	185.00
+AZ 	0555	20090624	20090514	Siegfried Vrsic          	Schillerstr. 40               	185.00
+AZ 	0555	20090624	20090409	PH Keyboard Corporation  	987 Syracuse Street           	185.00
+AZ 	0555	20090624	20090331	Andreas Martin           	Hasnerstrasse 84              	185.00
+AZ 	0555	20090624	20090509	Salvador Hansmann        	97 Piedad                     	185.00
+AZ 	0555	20090624	20090515	Guillermo Fischer        	167 Pza. Pablo Ruiz Picasso   	185.00
+AZ 	0555	20090624	20090517	Adam Mechler             	Heidelberger Str. 108         	185.00
+AZ 	0555	20090624	20090506	Lothar Legrand           	Stiftsbogen 147               	185.00
+AZ 	0555	20090624	20090525	Benjamin Deichgraeber    	249 Voodoo Avenue             	185.00
+AZ 	0555	20090624	20090402	Benjamin Mechler         	190 Voodoo Avenue             	185.00
+AZ 	0555	20090722	20090606	Gisela Cesari            	Goeckinghofstr. 274           	185.00
+AZ 	0555	20090722	20090403	Theresia Eichbaum        	Arndtstrasse 172              	185.00
+AZ 	0555	20090722	20090704	Lothar Heiler            	Stiftsbogen 129               	185.00
+AZ 	0555	20090722	20090619	Juan Gueldenpfennig      	68 Fuenlabrada                	185.00
+AZ 	0555	20090722	20090528	Adam Marshall            	Heidelberger Str. 182         	185.00
+AZ 	0555	20090722	20090527	Peter Sisko              	Karl-Marx-Allee 26            	185.00
+AZ 	0555	20090722	20090225	Cindy Gueldenpfennig     	122 Windstone Drive           	185.00
+AZ 	0555	20090722	20090614	Georg Picard             	Caspar-David-Friedrich-Str. 20	185.00
+AZ 	0555	20090722	20090312	Joschka Prinz            	Jogging-Str. 232              	185.00
+AZ 	0555	20090722	20090601	Torben Gueldenpfennig    	Carl-Metz Strasse 242         	185.00
+AZ 	0555	20090722	20090227	Juan Matthaeus           	240 Fuenlabrada               	185.00
+AZ 	0555	20090722	20090326	Hendrik Weiss            	Auf dem Huegel 230            	185.00
+AZ 	0555	20090722	20090308	Amelie Pratt             	Froschstr. 252                	185.00
+AZ 	0555	20090722	20090516	August Matthaeus         	Alte Reichsstr. 83            	185.00
+AZ 	0555	20090722	20090308	Thomas Montero           	232 Lake Shore Drive          	185.00
+AZ 	0555	20090722	20090610	Destec Office Supplies   	2500 City West Blvd.          	185.00
+AZ 	0555	20090722	20090324	Marta Kirk               	109 Camelias                  	185.00
+AZ 	0555	20090722	20090409	Dr. Ricken & Partner     	Mannheimer Str. 118           	185.00
+AZ 	0555	20090722	20090415	Claire Gutenberg         	Meerfeldstr. 276              	185.00
+AZ 	0555	20090722	20090624	Chantal Sisko            	105 rue Nieuport              	185.00
+AZ 	0555	20090722	20090417	Peter Henry              	Karl-Marx-Allee 230           	185.00
+AZ 	0555	20090722	20090518	Horst Benjamin           	Muehltalstr. 37               	185.00
+AZ 	0555	20090722	20090608	Stephen Legrand          	Arionweg 251                  	185.00
+AZ 	0555	20090722	20090402	Lee Kirk                 	203 17th St.                  	185.00
+AZ 	0555	20090722	20090225	Ulla Matthaeus           	Gruenlingweg 120              	185.00
+AZ 	0555	20090722	20090401	James Legrand            	62 Golden Gate Drive          	185.00
+AZ 	0555	20090722	20090601	Claire Moyano            	Meerfeldstr. 92               	185.00
+AZ 	0555	20090819	20090617	Illya Hunter             	Im Warmet 107                 	185.00
+AZ 	0555	20090819	20090627	Christoph Henry          	174 Federal Avenue            	185.00
+AZ 	0555	20090819	20090505	Claire Sommer            	Meerfeldstr. 212              	185.00
+AZ 	0555	20090819	20090403	Torben Sudhoff           	Carl-Metz Strasse 35          	185.00
+AZ 	0555	20090819	20090627	Ida Fischer              	Dudweilerstr. 53              	185.00
+AZ 	0555	20090819	20090531	Torben Fischer           	Carl-Metz Strasse 200         	185.00
+AZ 	0555	20090819	20090622	Thomas Columbo           	264 Lake Shore Drive          	185.00
+AZ 	0555	20090819	20090527	Marta Heiler             	269 Camelias                  	185.00
+AZ 	0555	20090819	20090426	Achim Henry              	Rankestr. 281                 	185.00
+AZ 	0555	20090819	20090330	Georg Cesari             	Caspar-David-Friedrich-Str. 25	185.00
+AZ 	0555	20090819	20090613	Siegfried Sudhoff        	Schillerstr. 61               	185.00
+AZ 	0555	20090819	20090609	Christine Gueldenpfennig 	Emil-Heckel-Str. 67           	185.00
+AZ 	0555	20090819	20090617	Guillermo Hunter         	141 Pza. Pablo Ruiz Picasso   	185.00
+AZ 	0555	20090819	20090525	Horst Detemple           	Muehltalstr. 90               	185.00
+AZ 	0555	20090819	20090513	Adam Kreiss              	Heidelberger Str. 77          	185.00
+AZ 	0555	20090819	20090410	Christine Martin         	Emil-Heckel-Str. 233          	185.00
+AZ 	0555	20090819	20090326	Irmgard Kreiss           	Max-Planck-Str. 178           	185.00
+AZ 	0555	20090819	20090604	Horst Kramer             	Muehltalstr. 70               	185.00
+AZ 	0555	20090819	20090328	Thilo Martin             	Zwischergasse 60              	185.00
+AZ 	0555	20090819	20090410	Ruth Schneider           	Melissenstr. 57               	185.00
+AZ 	0555	20090819	20090705	Jean Bentink             	194 rue Voltaire              	185.00
+AZ 	0555	20090819	20090530	Zebra Supplies           	950 Tower Lane                	185.00
+AZ 	0555	20090819	20090417	Gerd Hansmann            	Forstmann 108                 	185.00
+AZ 	0555	20090819	20090429	Ulla Legrand             	Gruenlingweg 245              	185.00
+AZ 	0555	20090916	20090505	Christine Mechler        	Emil-Heckel-Str. 132          	185.00
+AZ 	0555	20090916	20090503	Thilo Hansmann           	Zwischergasse 214             	185.00
+AZ 	0555	20090916	20090529	Thilo Miguel             	Zwischergasse 96              	185.00
+AZ 	0555	20091014	20090701	Gisela Kramer            	Goeckinghofstr. 253           	185.00
+AZ 	0555	20091014	20090702	Mathilde Sisko           	Erlengrund 225                	185.00
+AZ 	0555	20091014	20090609	Lothar Vrsic             	Hauptstr. 174                 	185.00
+AZ 	0555	20091014	20090624	Guillermo Heiler         	167 Pza. Pablo Ruiz Picasso   	185.00
+AZ 	0555	20091014	20090606	Laura Gutenberg          	Raupelsweg 90                 	185.00
+AZ 	0555	20091014	20090524	Christa Hunter           	Ausserhalb 177                	185.00
+AZ 	0555	20091209	20090317	Annemarie Columbo        	Stauboernchenstrasse 26       	185.00
+AZ 	0555	20091209	20090624	Achim Buchholz           	Rankestr. 161                 	185.00
+AZ 	0555	20091209	20090409	Lothar Dumbach           	Stiftsbogen 272               	185.00
+AZ 	0555	20100106	20090527	Juan Delon               	163 Fuenlabrada               	185.00
