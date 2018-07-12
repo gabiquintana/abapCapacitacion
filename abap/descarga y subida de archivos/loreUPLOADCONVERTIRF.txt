@@ -1,0 +1,177 @@
+REPORT yinterface_upload.
+
+TYPE-POOLS: truxs.
+*----------------------------------------------------------------------*
+*     Data Decalaration
+*----------------------------------------------------------------------*
+DATA: gt_spfli  TYPE TABLE OF spfli,
+      gwa_spfli TYPE spfli.
+
+DATA: gv_filename TYPE string,
+      gv_filetype TYPE char10 VALUE 'ASC'.
+
+DATA: gt_text TYPE truxs_t_text_data,
+      gs_text LIKE LINE OF gt_text.
+
+DATA: gv_rc TYPE i.
+DATA: gt_file_table  TYPE filetable,
+      gwa_file_table TYPE file_table.
+
+PARAMETERS: p_file TYPE ibipparms-path OBLIGATORY.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+
+*  CALL METHOD cl_gui_frontend_services=>file_open_dialog
+*    EXPORTING
+*      window_title = 'Select a file'
+*    CHANGING
+*      file_table   = gt_file_table
+*      rc           = gv_rc.
+*  IF sy-subrc = 0.
+*    READ TABLE gt_file_table INTO gwa_file_table INDEX 1.
+*    p_file = gwa_file_table-filename.
+*  ENDIF.
+
+  p_file = 'C:\lista.txt'.
+
+  CALL FUNCTION 'F4_FILENAME'
+   EXPORTING
+*     PROGRAM_NAME        =
+*     DYNPRO_NUMBER      =
+     field_name                = 'P_FILE'
+    IMPORTING
+      file_name = p_file.
+
+  IF sy-subrc IS INITIAL.
+
+  ENDIF.
+
+*----------------------------------------------------------------------*
+*     START-OF-SELECTION
+*----------------------------------------------------------------------*
+START-OF-SELECTION.
+
+  PERFORM read_file.
+  PERFORM process_data.
+
+END-OF-SELECTION.
+
+*&---------------------------------------------------------------------*
+*&      Form  read_file
+*&---------------------------------------------------------------------*
+FORM read_file.
+*Move complete file path to file name
+*  gv_filename = 'C:\test\data.txt'.
+  gv_filename = p_file.
+
+*Upload the data from a file in SAP presentation server to internal
+*table
+  CALL FUNCTION 'GUI_UPLOAD'
+    EXPORTING
+      filename            = gv_filename
+      filetype            = gv_filetype
+      has_field_separator = 'X'
+    TABLES
+      data_tab            = gt_text. "gt_spfli.
+
+ENDFORM.                    " read_file
+
+*&---------------------------------------------------------------------*
+*&      Form  process_data
+*&---------------------------------------------------------------------*
+FORM process_data.
+
+*Display the internal table data
+  LOOP AT gt_spfli INTO gwa_spfli.
+    WRITE:/ gwa_spfli-carrid,
+            gwa_spfli-connid,
+            gwa_spfli-countryfr,
+            gwa_spfli-cityfrom,
+            gwa_spfli-airpfrom,
+            gwa_spfli-countryto,
+            gwa_spfli-cityto,
+            gwa_spfli-airpto,
+            gwa_spfli-fltime,
+            gwa_spfli-deptime,
+            gwa_spfli-arrtime,
+            gwa_spfli-distance,
+            gwa_spfli-distid,
+            gwa_spfli-fltype,
+            gwa_spfli-period.
+
+    CLEAR: gwa_spfli.
+
+  ENDLOOP.
+
+  DATA: lv_fltime   TYPE char10,
+        lv_distance TYPE char14,
+        lv_period   TYPE char3,
+        lv_num      TYPE p.
+
+
+  LOOP AT gt_text INTO gs_text.
+
+    SPLIT  gs_text AT ';' INTO gwa_spfli-carrid
+                              gwa_spfli-connid
+                              gwa_spfli-countryfr
+                              gwa_spfli-cityfrom
+                              gwa_spfli-airpfrom
+                              gwa_spfli-countryto
+                              gwa_spfli-cityto
+                              gwa_spfli-airpto
+                              lv_fltime  "gwa_spfli-fltime
+                              gwa_spfli-deptime
+                              gwa_spfli-arrtime
+                               lv_distance "gwa_spfli-distance
+                              gwa_spfli-distid
+                              gwa_spfli-fltype
+                              lv_period. "gwa_spfli-period.
+
+    CALL FUNCTION 'CONVERSION_EXIT_SDURA_INPUT'
+      EXPORTING
+        input  = lv_fltime
+      IMPORTING
+        output = gwa_spfli-fltime.
+
+
+*    gwa_spfli-fltime = lv_fltime.
+
+
+
+    CALL FUNCTION 'MOVE_CHAR_TO_NUM'
+      EXPORTING
+        chr             = lv_distance
+      IMPORTING
+        num             = lv_num
+      EXCEPTIONS
+        convt_no_number = 1
+        convt_overflow  = 2
+        OTHERS          = 3.
+
+    gwa_spfli-distance = lv_num.
+    gwa_spfli-period = lv_period.
+
+    APPEND gwa_spfli TO gt_spfli.
+
+  ENDLOOP.
+
+  LOOP AT gt_spfli INTO gwa_spfli.
+    WRITE:/ gwa_spfli-carrid,
+            gwa_spfli-connid,
+            gwa_spfli-countryfr,
+            gwa_spfli-cityfrom,
+            gwa_spfli-airpfrom,
+            gwa_spfli-countryto,
+            gwa_spfli-cityto,
+            gwa_spfli-airpto,
+            gwa_spfli-fltime,
+            gwa_spfli-deptime,
+            gwa_spfli-arrtime,
+            gwa_spfli-distance,
+            gwa_spfli-distid,
+            gwa_spfli-fltype,
+            gwa_spfli-period.
+    CLEAR: gwa_spfli.
+  ENDLOOP.
+
+ENDFORM.                    " process_data

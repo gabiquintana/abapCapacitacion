@@ -1,0 +1,288 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZSTRUCTFORM
+*&---------------------------------------------------------------------*
+FORM upload.
+
+  CALL FUNCTION 'GUI_UPLOAD'
+    EXPORTING
+      filename            = gv_filename
+      filetype            = gv_filetype
+      has_field_separator = 'X'
+   IMPORTING
+     FILELENGTH                    = contador2 "le asigno a una variable la longitud"
+    TABLES
+      data_tab            = gt_text.
+
+
+
+
+
+ENDFORM.                    "UPLOAD
+*&---------------------------------------------------------------------*
+*&      Form  CARGAR_TABLAS_INTERNAS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM cargar_tablas_internas.
+  DATA operacion TYPE c.
+  gs_materias-mandt = 400.
+  DATA gs_select TYPE zu64_materias.
+  LOOP AT gt_text INTO gs_text.
+
+    SPLIT gs_text AT ';' INTO gs_materias-codmat
+                              gs_materias-nombre
+                              gs_materias-horas
+                              operacion.
+    CASE operacion.
+      WHEN 'A'.
+        SELECT SINGLE * FROM zu64_materias INTO gs_select
+          WHERE codmat = gs_materias-codmat.
+        IF sy-subrc <> 0.
+          APPEND gs_materias TO gt_materiasA.
+          INSERT into zu64_materias values gs_materias.
+        ELSE.
+          gs_errores-codmat = gs_materias-codmat.
+          gs_errores-nombre = gs_materias-nombre.
+          gs_errores-horas = gs_materias-horas.
+          gs_errores-operacion = operacion.
+          APPEND gs_errores TO gt_errores.
+        ENDIF.
+      WHEN 'B'.
+        SELECT SINGLE * FROM zu64_materias INTO gs_select
+        WHERE codmat = gs_materias-codmat.
+        IF sy-subrc  = 0.
+          APPEND gs_materias TO gt_materiasB.
+          DELETE FROM zu64_materias WHERE codmat = gs_materias-codmat.
+        ELSE.
+          gs_errores-codmat = gs_materias-codmat.
+          gs_errores-nombre = gs_materias-nombre.
+          gs_errores-horas = gs_materias-horas.
+          gs_errores-operacion = operacion.
+          APPEND gs_errores TO gt_errores.
+        ENDIF.
+      WHEN 'M'.
+        SELECT SINGLE * FROM zu64_materias INTO gs_select
+        WHERE codmat = gs_materias-codmat.
+        IF sy-subrc  = 0.
+          APPEND gs_materias TO gt_materiasM.
+          MODIFY zu64_materias FROM gs_materias.
+        ELSE.
+          gs_errores-codmat = gs_materias-codmat.
+          gs_errores-nombre = gs_materias-nombre.
+          gs_errores-horas = gs_materias-horas.
+          gs_errores-operacion = operacion.
+          APPEND gs_errores TO gt_errores.
+        ENDIF.
+    ENDCASE.
+    APPEND gs_materias TO gt_materias.
+    contador1 = contador1 + 1. "contador de registros"
+  ENDLOOP.
+ENDFORM.                    "CARGAR_TABLAS_INTERNAS
+*&---------------------------------------------------------------------*
+*&      Form  ALVS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form ALVS .
+TYPE-POOLS:slis.
+DATA: i_fieldcat TYPE slis_t_fieldcat_alv,
+i_fieldcat2 TYPE slis_t_fieldcat_alv,
+i_fieldcat3 TYPE slis_t_fieldcat_alv,
+i_fieldcat4 TYPE slis_t_fieldcat_alv.
+DATA: r_fieldcat TYPE slis_fieldcat_alv,
+r_layout TYPE slis_layout_alv,
+r_sort TYPE slis_sortinfo_alv,
+r_eventos TYPE slis_alv_event,
+i_eventos_1 TYPE slis_t_event,
+i_eventos_2 TYPE slis_t_event,
+i_eventos_3 TYPE slis_t_event,
+i_eventos_4 TYPE slis_t_event.
+
+r_fieldcat-fieldname = 'CODMAT'.
+r_fieldcat-seltext_m = 'CODIGOMATERIA'.
+r_fieldcat-tabname = 'gt_materias'.
+
+r_fieldcat-outputlen = 12.
+APPEND r_fieldcat TO i_fieldcat.
+CLEAR r_fieldcat.
+r_fieldcat-fieldname = 'NOMBRE'.
+r_fieldcat-seltext_m = 'nombre'.
+r_fieldcat-tabname = 'gt_materias'.
+r_fieldcat-outputlen = 6.
+APPEND r_fieldcat TO i_fieldcat.
+CLEAR r_fieldcat.
+r_fieldcat-fieldname = 'HORAS'.
+r_fieldcat-seltext_m = 'HORASMATERIA'.
+r_fieldcat-tabname = 'gt_materias'.
+r_fieldcat-outputlen = 20.
+APPEND r_fieldcat TO i_fieldcat.
+CLEAR r_fieldcat.
+
+
+r_fieldcat-fieldname = 'CODMAT'.
+r_fieldcat-seltext_m = 'CODIGOMATERIA'.
+r_fieldcat-tabname = 'gt_errores'.
+r_fieldcat-outputlen = 12.
+APPEND r_fieldcat TO i_fieldcat2.
+CLEAR r_fieldcat.
+r_fieldcat-fieldname = 'NOMBRE'.
+r_fieldcat-seltext_m = 'nombreMATERIA'.
+r_fieldcat-tabname = 'gt_errores'.
+r_fieldcat-outputlen = 6.
+APPEND r_fieldcat TO i_fieldcat2.
+CLEAR r_fieldcat.
+r_fieldcat-fieldname = 'HORAS'.
+r_fieldcat-seltext_m = 'HORASMATERIA'.
+r_fieldcat-tabname = 'gt_errores'.
+r_fieldcat-outputlen = 20.
+APPEND r_fieldcat TO i_fieldcat2.
+CLEAR r_fieldcat.
+r_fieldcat-fieldname = 'OPERACION'.
+r_fieldcat-seltext_m = 'operacion'.
+r_fieldcat-tabname = 'gt_errores'.
+r_fieldcat-outputlen = 6.
+APPEND r_fieldcat TO i_fieldcat2.
+CLEAR r_fieldcat.
+ r_layout-colwidth_optimize = 'X'.
+r_layout-zebra = 'X'.
+
+r_eventos-form = 'ALTA'.
+r_eventos-name = slis_ev_top_of_page.
+APPEND r_eventos TO i_eventos_1.
+CLEAR r_eventos.
+* Completar eventos de segunda sección del reporte
+*REFRESH i_eventos_1.
+* Evento para titulo de la sección del reporte
+r_eventos-form = 'BAJAS'.
+r_eventos-name = slis_ev_top_of_page.
+APPEND r_eventos TO i_eventos_2.
+CLEAR r_eventos.
+*REFRESH i_eventos_2.
+r_eventos-form = 'MODIFICACION'.
+r_eventos-name = slis_ev_top_of_page.
+APPEND r_eventos TO i_eventos_3.
+CLEAR r_eventos.
+* Completar eventos de segunda sección del reporte
+*REFRESH i_eventos_3.
+* Evento para titulo de la sección del reporte
+r_eventos-form = 'ERRORES'.
+r_eventos-name = slis_ev_top_of_page.
+APPEND r_eventos TO i_eventos_4.
+CLEAR r_eventos.
+*REFRESH i_eventos_4.
+*------------------
+CALL FUNCTION 'REUSE_ALV_BLOCK_LIST_INIT'
+EXPORTING
+i_callback_program = sy-repid.
+
+if gt_materiasA is not INITIAL.
+CALL FUNCTION 'REUSE_ALV_BLOCK_LIST_APPEND'
+EXPORTING
+is_layout = r_layout
+it_fieldcat = i_fieldcat
+i_tabname = 'GT_MATERIAS'
+it_events = i_eventos_1
+TABLES
+t_outtab = gt_materiasA
+EXCEPTIONS
+program_error = 1
+maximum_of_appends_reached = 2
+OTHERS = 3.
+ENDIF.
+if gt_materiasB is not INITIAL.
+CALL FUNCTION 'REUSE_ALV_BLOCK_LIST_APPEND'
+EXPORTING
+is_layout = r_layout
+it_fieldcat = i_fieldcat
+i_tabname = 'GT_MATERIAS'
+it_events = i_eventos_2
+TABLES
+t_outtab = gt_materiasB
+EXCEPTIONS
+program_error = 1
+maximum_of_appends_reached = 2
+OTHERS = 3.
+ENDIF.
+if gt_materiasM is not INITIAL.
+CALL FUNCTION 'REUSE_ALV_BLOCK_LIST_APPEND'
+EXPORTING
+is_layout = r_layout
+it_fieldcat = i_fieldcat
+i_tabname = 'GT_MATERIAS'
+it_events = i_eventos_3
+TABLES
+t_outtab = gt_materiasM
+EXCEPTIONS
+program_error = 1
+maximum_of_appends_reached = 2
+OTHERS = 3.
+ENDIF.
+if gt_errores is not INITIAL.
+CALL FUNCTION 'REUSE_ALV_BLOCK_LIST_APPEND'
+EXPORTING
+is_layout = r_layout
+it_fieldcat = i_fieldcat2
+i_tabname = 'GT_ERRORES'
+it_events = i_eventos_4
+TABLES
+t_outtab = gt_errores
+EXCEPTIONS
+program_error = 1
+maximum_of_appends_reached = 2
+OTHERS = 3.
+ENDIF.
+CALL FUNCTION 'REUSE_ALV_BLOCK_LIST_DISPLAY'
+EXCEPTIONS
+program_error = 1
+OTHERS = 2.
+
+endform.                    " ALVS
+FORM modificacion. "#EC CALLED
+SKIP 1.
+if bandera is INITIAL.
+WRITE: /'Usuario', sy-uname,/'Nombre de Archivo', p_path, / 'tamaño archivo', contador2,'bytes', / 'Cantidad de registros procesados', contador1, 'Modificacion'.
+bandera = 'X'.
+else.
+WRITE: / 'Modificacion'.
+ENDIF.
+ENDFORM. "top_of_page1
+*----------------------------------------------------------------------*
+* Form top_of_page2
+*----------------------------------------------------------------------*
+* text
+*----------------------------------------------------------------------*
+FORM alta. "#EC CALLED
+SKIP 1.
+if bandera is INITIAL.
+WRITE: /'Usuario', sy-uname,/'Nombre de Archivo', p_path, / 'tamaño archivo', contador2,'bytes', / 'Cantidad de registros procesados', contador1, 'Alta'.
+bandera = 'X'.
+else.
+  write: / 'Alta'.
+  ENDIF.
+ENDFORM.
+FORM errores. "#EC CALLED
+SKIP 1.
+if bandera is INITIAL.
+WRITE: /'Usuario', sy-uname,/'Nombre de Archivo', p_path, / 'tamaño archivo', contador2,'bytes', / 'Cantidad de registros procesados', contador1, 'Errores'.
+bandera = 'X'.
+else.
+WRITE: / 'Errores'.
+ENDIF.
+ENDFORM. "top_of_page1
+*----------------------------------------------------------------------*
+* Form top_of_page2
+*----------------------------------------------------------------------*
+* text
+*----------------------------------------------------------------------*
+FORM bajas. "#EC CALLED
+SKIP 1.
+if bandera is INITIAL.
+WRITE: /'Usuario', sy-uname,/'Nombre de Archivo', p_path, / 'tamaño archivo', contador2,'bytes', / 'Cantidad de registros procesados', contador1, 'Baja'.
+bandera = 'X'.
+else.
+WRITE: / 'Baja'.
+ENDIF.
+ENDFORM.
