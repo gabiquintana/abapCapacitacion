@@ -1,0 +1,9 @@
+0000000001|Proveedor XX1                      |Proveedor de materias primas xx1                  |
+0000000002|Proveedor XX2                      |Proveedor de materias primas xx2                  |
+0000000003|Proveedor XX3                      |Proveedor de materias primas xx3                  |
+0000000004|Proveedor XX4                      |Proveedor de materias primas xx4                  |
+0000000005|Proveedor XX5                      |Proveedor de materias primas xx5                  |
+0000000006|Proveedor XX6                      |Proveedor de materias primas xx6                  |
+0000000007|Proveedor XX7                      |Proveedor de materias primas xx7                  |
+0000000008|Proveedor XX8                      |Proveedor de materias primas xx8                  |
+0000000009|Proveedor XX9                      |Proveedor de materias primas xx9                  |

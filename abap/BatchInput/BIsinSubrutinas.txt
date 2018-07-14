@@ -1,0 +1,242 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU57_CLIENTES
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zu57_clientes.
+TYPES: BEGIN OF ty_log,
+        light TYPE icon_d,
+        agencynum TYPE stravelag-agencynum,
+        message TYPE bapiret2-message,
+END OF ty_log.
+
+TYPES: BEGIN OF ty_codigos,
+        kunnr(10) TYPE c,
+        razon(10) TYPE c,
+        observaciones(50) TYPE c,
+END OF ty_codigos.
+
+*Estructura con los datos del programa.
+DATA: gt_bdc_tab TYPE TABLE OF bdcdata,
+      gs_bdc_tab TYPE bdcdata.
+*Estructura con mensajes de error y otros
+DATA: gt_messtab TYPE TABLE OF bdcmsgcoll,
+      gs_messtab TYPE bdcmsgcoll.
+
+DATA: gt_log TYPE TABLE OF ty_log,
+      gs_log TYPE ty_log.
+
+*Defino la tabla interna y la working area de la estructura.
+DATA: gs_codigos TYPE ty_codigos,
+      gt_codigos TYPE TABLE OF ty_codigos.
+
+TYPE-POOLS: ICON.
+"DATA: gv_file TYPE rlgrap-filename.
+DATA: g_directory(30).
+PARAMETERS: p_file TYPE rlgrap-filename OBLIGATORY DEFAULT '/usr/sap/ccms/Carga_masiva_clientes.txt'.
+DATA: lv_data TYPE string.
+*Mueva la ruta completa al nombre del archivo
+"gv_file = '/usr/sap/ccms/spfli.txt'..
+
+*Abrir el archivo en el servidor de aplicaciones para leer los datos
+OPEN DATASET p_file FOR INPUT IN TEXT MODE ENCODING DEFAULT.
+IF sy-subrc NE 0.
+MESSAGE 'No se puede abrir el archivo' TYPE 'I'.
+ENDIF.
+DO.
+* Leer el archivo, si se encuentra un registro moverlo
+* a la estructura temporal, los demás salen del ciclo.
+READ DATASET p_file INTO lv_data.
+IF sy-subrc = 0.
+*Dividir los campos en unaestructura temporal a la correspondiente
+*workarea.
+SPLIT lv_data AT '|' INTO gs_codigos-kunnr
+gs_codigos-razon
+gs_codigos-observaciones.
+
+APPEND gs_codigos TO gt_codigos.
+CLEAR gs_codigos.
+ELSE.
+EXIT.
+ENDIF.
+ENDDO.
+*Cierra el archivo
+CLOSE DATASET p_file.
+
+
+
+*LLamamos a la funcion GUI_UPLOAD para traer el documento que tiene
+*los códigos que hay que modificar con los datos ordenados y de igual
+*longitud que la estructura interna ty_codigos
+*CALL FUNCTION 'GUI_UPLOAD'
+*  EXPORTING
+*    filename                = 'C:\test\codigos.txt'
+*    filetype                = 'ASC'
+*  TABLES
+*    data_tab                = gt_codigos
+*  EXCEPTIONS
+*    file_open_error         = 1
+*    file_read_error         = 2
+*    no_batch                = 3
+*    gui_refuse_filetransfer = 4
+*    invalid_type            = 5
+*    no_authority            = 6
+*    unknown_error           = 7
+*    bad_data_format         = 8
+*    header_not_allowed      = 9
+*    separator_not_allowed   = 10
+*    header_too_long         = 11
+*    unknown_dp_error        = 12
+*    access_denied           = 13
+*    dp_out_of_memory        = 14
+*    disk_full               = 15
+*    dp_timeout              = 16
+*    OTHERS                  = 17.
+*IF sy-subrc <> 0.
+*  MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+*  WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+*
+*ENDIF.
+*Aquí tenemos definidos los pasos que la transacción SM35 nos mostró
+*al ejecutar la transacción BC_GLOBAL_STRAV_EDIT. Estos pasos son
+*colocados dentro de un LOOP donde se lee la tabla importada por la
+*función anterior (gt_codigos) y es cargada en la working area
+*(gs_codigos), la cual se ha completando con los datos del txt para
+*luego ser traspasados al código como variables (y no hardcodeadas).
+
+LOOP AT gt_codigos INTO gs_codigos.
+  REFRESH: gt_bdc_tab, gt_messtab.
+*Este perform va cargando una tabla interna (gt_bdc_tab) dónde se
+*guardarán los datos generados por la SM35, para que, cuando es
+*invocada la transacción(BC_GLOBAL_STRAV_EDIT) acceda a dicha tabla
+*y simule el trabajo de un usuario.
+  PERFORM fill_bdc_tab USING:
+
+  'X' 'SAPMSVMA' '0100'   ,
+  ' ' 'BDC_CURSOR' 'VIEWNAME',
+  ' ' 'BDC_OKCODE' '=UPD',
+  ' ' 'VIEWNAME' 'ZU57_CLIENTES',
+  ' ' 'VIMDYNFLDS-LTD_DTA_NO' 'X',
+
+
+  'X' 'SAPLZU57_CLIENTES' '0001',
+  ' ' 'BDC_CURSOR' 'VIM_POSITION_INFO',
+  ' ' 'BDC_OKCODE' '=NEWL',
+
+  'X' 'SAPLZU57_CLIENTES' '0001',
+  ' ' 'BDC_CURSOR' 'ZU57_CLIENTES-OBSERVACIONES(01)',
+  ' ' 'BDC_OKCODE' '=SAVE',
+  ' ' 'ZU57_CLIENTES-KUNNR(01)' gs_codigos-kunnr,
+  ' ' 'ZU57_CLIENTES-RAZON(01)' gs_codigos-razon,
+  ' ' 'ZU57_CLIENTES-OBSERVACIONES(01)' gs_codigos-observaciones,
+
+  'X' 'SAPLZU57_CLIENTES' '0001'  ,
+  ' ' 'BDC_CURSOR' 'ZU57_CLIENTES-KUNNR(02)',
+  ' ' 'BDC_OKCODE' '=BACK',
+
+  'X' 'SAPLZU57_CLIENTES' '0001',
+  ' ' 'BDC_CURSOR' 'ZU57_CLIENTES-KUNNR(01)',
+  ' ' 'BDC_OKCODE' '=BACK',
+
+  'X' 'SAPMSVMA' '0100'  ,
+  ' ' 'BDC_CURSOR' '/EBACK',
+  ' ' 'BDC_OKCODE' 'VIEWNAME'  .
+
+*LLamamos a la transacción BC_GLOBAL_STRAV_EDIT para que se ejecute
+*de acuerdo*a los datos cargados anteriormente (en la tabla bdc_tab)
+*usando el:
+*Modo A: modo para ver paso a paso la ejecución automática que nos
+*creo el código de la Trx. SM35.
+*Modo N: ejecuta la transacción sin la necesidad de que el usuario
+*interactúe con la continuidad del mismo
+*Modo E: en este caso la transacción sólo requerirá intervención del
+*usuario si trae alguna excepción
+  CALL TRANSACTION 'SM30' USING gt_bdc_tab
+  MODE 'N'
+
+  MESSAGES INTO gt_messtab.
+  READ TABLE gt_messtab INTO gs_messtab WITH KEY msgtyp = 'E'.
+  IF sy-subrc NE 0.
+    gs_log-light     = icon_green_light.
+    gs_log-agencynum = gs_codigos-KUNNR.
+    gs_log-message   = 'SE CARGARON LOS ARCHIVOS.'.
+    APPEND gs_log TO gt_log.
+    CLEAR gs_log.
+  ELSE.
+    LOOP AT gt_messtab INTO gs_messtab.
+
+      CALL FUNCTION 'FORMAT_MESSAGE'
+        EXPORTING
+          id        = gs_messtab-msgid
+          lang      = sy-langu
+          no        = gs_messtab-msgnr
+          v1        = gs_messtab-msgv1
+          v2        = gs_messtab-msgv2
+          v3        = gs_messtab-msgv3
+          v4        = gs_messtab-msgv4
+        IMPORTING
+          msg       = gs_log-message
+        EXCEPTIONS
+          not_found = 1
+          OTHERS    = 2.
+    ENDLOOP.
+    gs_log-light     = icon_red_light.
+    gs_log-agencynum = gs_codigos-KUNNR.
+    APPEND gs_log TO gt_log.
+    CLEAR gs_log.
+  ENDIF.
+ENDLOOP.
+IF gt_log IS NOT INITIAL.
+  LOOP AT gt_log INTO gs_log.
+    WRITE:/ gs_log-light,
+    AT 8 gs_log-agencynum,
+    AT 20 gs_log-message.
+  ENDLOOP.
+ENDIF.
+*&------------------------------------------------------------------*
+*& Form FILL_BDC_TAB
+*&------------------------------------------------------------------*
+*Carga la tabla bdc_tab de acuerdo a los datos de la SM35
+FORM fill_bdc_tab USING dynbegin TYPE bdcdata-dynbegin
+
+name TYPE any
+value TYPE any.
+
+  IF dynbegin = 'X'.
+    CLEAR gs_bdc_tab.
+    MOVE: name TO gs_bdc_tab-program,
+    value TO gs_bdc_tab-dynpro,
+    'X' TO gs_bdc_tab-dynbegin.
+    APPEND gs_bdc_tab TO gt_bdc_tab.
+  ELSE.
+    CLEAR gs_bdc_tab.
+    MOVE: name TO gs_bdc_tab-fnam,
+    value TO gs_bdc_tab-fval.
+    APPEND gs_bdc_tab TO gt_bdc_tab.
+
+  ENDIF.
+ENDFORM. " FILL_BDC_TAB
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+*Set default directory
+g_directory = '/usr/sap/ccms/'.
+*F4 help for file name on SAP application server
+CALL FUNCTION '/SAPDMC/LSM_F4_SERVER_FILE'
+EXPORTING
+directory = g_directory
+IMPORTING
+serverfile = p_file
+EXCEPTIONS
+canceled_by_user = 1
+OTHERS = 2.
+IF sy-subrc <> 0.
+MESSAGE 'Error Message' TYPE 'I'.
+ENDIF.
+START-OF-SELECTION.
+WRITE:/ 'Filepath : ', p_file.
+*Fin del programa.
+
+"Luego de haber compilado y activado el programa, lo ejecutamos y veremos que la
+"transacción BC_GLOBAL_STRAV_EDIT es ejecutada automáticamente,

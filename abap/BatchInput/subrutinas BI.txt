@@ -1,0 +1,52 @@
+report ZU64_BI_EJEMPLO
+       no standard page heading line-size 255.
+
+include bdcrecx1.
+
+start-of-selection.
+
+perform open_group.
+
+perform bdc_dynpro      using 'SAPMSVMA' '0100'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'VIEWNAME'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=UPD'.
+perform bdc_field       using 'VIEWNAME'
+                              'ZU64_CLIENTES'.
+perform bdc_field       using 'VIMDYNFLDS-LTD_DTA_NO'
+                              'X'.
+perform bdc_dynpro      using 'SAPLZU64_CLIENTES' '0001'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'ZU64_CLIENTES-KUNNR(01)'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=NEWL'.
+perform bdc_dynpro      using 'SAPLZU64_CLIENTES' '0001'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'ZU64_CLIENTES-RAZON(01)'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=SAVE'.
+perform bdc_field       using 'ZU64_CLIENTES-KUNNR(01)'
+                              '1234'.
+perform bdc_field       using 'ZU64_CLIENTES-OBSERVACIONES(01)'
+                              'aaaa'.
+perform bdc_field       using 'ZU64_CLIENTES-RAZON(01)'
+                              'bbbb'.
+perform bdc_dynpro      using 'SAPLZU64_CLIENTES' '0001'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'ZU64_CLIENTES-KUNNR(02)'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=BACK'.
+perform bdc_dynpro      using 'SAPLZU64_CLIENTES' '0001'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'ZU64_CLIENTES-KUNNR(02)'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=BACK'.
+perform bdc_dynpro      using 'SAPMSVMA' '0100'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '/EBACK'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'VIEWNAME'.
+perform bdc_transaction using 'SM30'.
+
+perform close_group.

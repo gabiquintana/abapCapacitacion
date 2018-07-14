@@ -1,0 +1,24 @@
+                                        	0000	T	SM30                                                                                                                                	BS AA X   F
+SAPMSVMA                                	0100	X	                                                                                                                                    	
+                                        	0000	 	BDC_CURSOR                                                                                                                          	VIEWNAME
+                                        	0000	 	BDC_OKCODE                                                                                                                          	=UPD
+                                        	0000	 	VIEWNAME                                                                                                                            	ZU64_CLIENTES
+                                        	0000	 	VIMDYNFLDS-LTD_DTA_NO                                                                                                               	X
+SAPLZU64_CLIENTES                       	0001	X	                                                                                                                                    	
+                                        	0000	 	BDC_CURSOR                                                                                                                          	ZU64_CLIENTES-KUNNR(01)
+                                        	0000	 	BDC_OKCODE                                                                                                                          	=NEWL
+SAPLZU64_CLIENTES                       	0001	X	                                                                                                                                    	
+                                        	0000	 	BDC_CURSOR                                                                                                                          	ZU64_CLIENTES-RAZON(01)
+                                        	0000	 	BDC_OKCODE                                                                                                                          	=SAVE
+                                        	0000	 	ZU64_CLIENTES-KUNNR(01)                                                                                                             	1234
+                                        	0000	 	ZU64_CLIENTES-OBSERVACIONES(01)                                                                                                     	aaaa
+                                        	0000	 	ZU64_CLIENTES-RAZON(01)                                                                                                             	bbbb
+SAPLZU64_CLIENTES                       	0001	X	                                                                                                                                    	
+                                        	0000	 	BDC_CURSOR                                                                                                                          	ZU64_CLIENTES-KUNNR(02)
+                                        	0000	 	BDC_OKCODE                                                                                                                          	=BACK
+SAPLZU64_CLIENTES                       	0001	X	                                                                                                                                    	
+                                        	0000	 	BDC_CURSOR                                                                                                                          	ZU64_CLIENTES-KUNNR(02)
+                                        	0000	 	BDC_OKCODE                                                                                                                          	=BACK
+SAPMSVMA                                	0100	X	                                                                                                                                    	
+                                        	0000	 	BDC_OKCODE                                                                                                                          	/EBACK
+                                        	0000	 	BDC_CURSOR                                                                                                                          	VIEWNAME

@@ -1,0 +1,91 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_BI_CLIENTES
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zu64_bi_clientes.
+TABLES: zu64_clientes.
+DATA: g_directory(30).
+*---------------------------------------------------------------------
+* SELECTION-SCREEN
+*---------------------------------------------------------------------
+PARAMETERS: p_file TYPE rlgrap-filename OBLIGATORY.
+
+DATA: gt_clientes TYPE TABLE OF zu64_clientes,
+gs_clientes TYPE zu64_clientes.
+*DATA: gv_file TYPE rlgrap-filename.
+
+START-OF-SELECTION.
+  PERFORM read_file.
+  PERFORM display_data.
+
+
+END-OF-SELECTION.
+*&---------------------------------------------------------------------*
+*&      Form  read_file
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM read_file.
+
+  DATA: lv_data TYPE string.
+*Mueva la ruta completa al nombre del archivo
+  p_file = '/usr/sap/ccms/Carga_masiva_clientes.txt'.
+*Abrir el archivo en el servidor de aplicaciones para leer los datos
+  OPEN DATASET p_file FOR INPUT IN TEXT MODE ENCODING DEFAULT.
+  IF sy-subrc NE 0.
+    MESSAGE 'No se puede abrir el archivo' TYPE 'I'.
+  ENDIF.
+  DO.
+* Leer el archivo, si se encuentra un registro moverlo
+* a la estructura temporal, los demás salen del ciclo.
+    READ DATASET p_file INTO lv_data.
+    IF sy-subrc = 0.
+*Dividir los campos en unaestructura temporal a la correspondiente
+*workarea.
+      SPLIT lv_data AT '|' INTO gs_clientes-kunnr
+      gs_clientes-razon
+      gs_clientes-observaciones.
+      APPEND gs_clientes TO gt_clientes.
+      CLEAR gs_clientes.
+    ELSE.
+      EXIT.
+    ENDIF.
+  ENDDO.
+*Cierra el archivo
+  CLOSE DATASET p_file.
+ENDFORM.                    "read_file
+*&---------------------------------------------------------------------*
+*&      Form  display_data
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM display_data.
+
+  LOOP AT gt_clientes INTO gs_clientes.
+    WRITE:/ gs_clientes-kunnr,
+    gs_clientes-razon,
+    gs_clientes-observaciones.
+    CLEAR: gs_clientes.
+  ENDLOOP.
+ENDFORM.                   "display_data
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+*Set default directory
+g_directory = '/usr/sap/ccms/'.
+*F4 help for file name on SAP application server
+CALL FUNCTION '/SAPDMC/LSM_F4_SERVER_FILE'
+EXPORTING
+directory = g_directory
+IMPORTING
+serverfile = p_file
+EXCEPTIONS
+canceled_by_user = 1
+OTHERS = 2.
+IF sy-subrc <> 0.
+MESSAGE 'Error Message' TYPE 'I'.
+ENDIF.
+START-OF-SELECTION.
+WRITE:/ 'Filepath : ', p_file.

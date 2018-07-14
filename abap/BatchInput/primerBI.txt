@@ -1,0 +1,243 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_BI_CLIENTES
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zu64_bi_clientes.
+TABLES: zu64_clientes.
+"include bdcrecx1. es la que tiene todas las subrutinas del batch input
+DATA: g_directory(30).
+*Estructura interna para almacenar el AGENCYNUM (clave primaria de la
+*tabla) y el POSTCODE (campo a modificar)como los datos se reciben
+*desde un txt, todos los campos de la estructura son de tipo Char
+TYPES: BEGIN OF ty_codigos,
+nro(8) TYPE c,
+codigo(10) TYPE c,
+END OF ty_codigos,
+BEGIN OF ty_log,
+light TYPE icon_d,
+agencynum TYPE stravelag-agencynum,
+message TYPE bapiret2-message,
+END OF ty_log.
+
+DATA: gt_bdc_tab TYPE TABLE OF bdcdata,
+gs_bdc_tab TYPE bdcdata.
+*Estructura con mensajes de error y otros
+DATA: gt_messtab TYPE TABLE OF bdcmsgcoll,
+gs_messtab TYPE bdcmsgcoll.
+DATA: gt_log TYPE TABLE OF ty_log,
+gs_log TYPE ty_log.
+*Defino la tabla interna y la working area de la estructura.
+DATA: gs_codigos TYPE ty_codigos,
+gt_codigos TYPE TABLE OF ty_codigos.
+*---------------------------------------------------------------------
+* SELECTION-SCREEN
+*---------------------------------------------------------------------
+PARAMETERS: p_file TYPE rlgrap-filename OBLIGATORY DEFAULT '/usr/sap/ccms/Carga_masiva_clientes.txt'.
+
+DATA: gt_clientes TYPE TABLE OF zu64_clientes,
+gs_clientes TYPE zu64_clientes.
+*DATA: gv_file TYPE rlgrap-filename.
+
+START-OF-SELECTION.
+  PERFORM read_file."tomo los datos del servidor a mi tabla interna"
+  PERFORM batchinput. "lleno la transaccion"
+  PERFORM display_data. "muestro datos"
+
+
+END-OF-SELECTION.
+*&---------------------------------------------------------------------*
+*&      Form  read_file
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM read_file.
+
+  DATA: lv_data TYPE string.
+*Mueva la ruta completa al nombre del archivo
+*Abrir el archivo en el servidor de aplicaciones para leer los datos
+  OPEN DATASET p_file FOR INPUT IN TEXT MODE ENCODING DEFAULT.
+  IF sy-subrc NE 0.
+    MESSAGE 'No se puede abrir el archivo' TYPE 'I'.
+  ENDIF.
+  DO.
+* Leer el archivo, si se encuentra un registro moverlo
+* a la estructura temporal, los demás salen del ciclo.
+    READ DATASET p_file INTO lv_data.
+    IF sy-subrc = 0.
+*Dividir los campos en unaestructura temporal a la correspondiente
+*workarea.
+      SPLIT lv_data AT '|' INTO gs_clientes-kunnr
+      gs_clientes-razon
+      gs_clientes-observaciones.
+      APPEND gs_clientes TO gt_clientes.
+      CLEAR gs_clientes.
+    ELSE.
+      EXIT.
+    ENDIF.
+  ENDDO.
+*Cierra el archivo
+  CLOSE DATASET p_file.
+ENDFORM.                    "read_file
+*&---------------------------------------------------------------------*
+*&      Form  display_data
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM display_data.
+
+  LOOP AT gt_clientes INTO gs_clientes.
+    WRITE:/ gs_clientes-kunnr,
+    gs_clientes-razon,
+    gs_clientes-observaciones.
+    CLEAR: gs_clientes.
+  ENDLOOP.
+ENDFORM.                   "display_data
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+*Set default directory
+  g_directory = '/usr/sap/ccms/'.
+*F4 help for file name on SAP application server
+  CALL FUNCTION '/SAPDMC/LSM_F4_SERVER_FILE'
+    EXPORTING
+      directory        = g_directory
+    IMPORTING
+      serverfile       = p_file
+    EXCEPTIONS
+      canceled_by_user = 1
+      OTHERS           = 2.
+  IF sy-subrc <> 0.
+    MESSAGE 'Error Message' TYPE 'I'.
+  ENDIF.
+
+START-OF-SELECTION.
+  WRITE:/ 'Filepath : ', p_file.
+*&---------------------------------------------------------------------*
+*&      Form  batchinput
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM batchinput.
+  LOOP AT gt_clientes INTO gs_clientes.
+    REFRESH: gt_bdc_tab, gt_messtab.
+
+    "perform open_group.
+
+    PERFORM bdc_dynpro      USING 'SAPMSVMA' '0100'.
+*perform bdc_field       using 'BDC_CURSOR'
+*                              'VIEWNAME'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=UPD'.
+    PERFORM bdc_field       USING 'VIEWNAME'
+                                  'ZU64_CLIENTES'.
+    PERFORM bdc_field       USING 'VIMDYNFLDS-LTD_DTA_NO'
+                                  'X'.
+    PERFORM bdc_dynpro      USING 'SAPLZU64_CLIENTES' '0001'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'ZU64_CLIENTES-KUNNR(01)'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=NEWL'.
+    PERFORM bdc_dynpro      USING 'SAPLZU64_CLIENTES' '0001'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'ZU64_CLIENTES-RAZON(01)'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=SAVE'.
+    PERFORM bdc_field       USING 'ZU64_CLIENTES-KUNNR(01)'
+                                  gs_clientes-kunnr.
+    PERFORM bdc_field       USING 'ZU64_CLIENTES-OBSERVACIONES(01)'
+                                  gs_clientes-observaciones.
+    PERFORM bdc_field       USING 'ZU64_CLIENTES-RAZON(01)'
+                                  gs_clientes-razon.
+    PERFORM bdc_dynpro      USING 'SAPLZU64_CLIENTES' '0001'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'ZU64_CLIENTES-KUNNR(02)'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=BACK'.
+    PERFORM bdc_dynpro      USING 'SAPLZU64_CLIENTES' '0001'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'ZU64_CLIENTES-KUNNR(02)'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=BACK'.
+    PERFORM bdc_dynpro      USING 'SAPMSVMA' '0100'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '/EBACK'.
+    "perform bdc_field       using 'BDC_CURSOR'
+    "                             'VIEWNAME'.
+    "perform bdc_transaction using 'SM30'.
+
+    "perform close_group.
+    CALL TRANSACTION 'SM30' USING gt_bdc_tab
+     MODE 'N'
+    MESSAGES INTO gt_messtab.
+    READ TABLE gt_messtab INTO gs_messtab WITH KEY msgtyp = 'E'.
+    IF sy-subrc NE 0.
+*gs_log-light = icon_green_light.
+      gs_log-agencynum = gs_codigos-nro.
+      gs_log-message = 'La modificación se realizó con éxito.'.
+      APPEND gs_log TO gt_log.
+      CLEAR gs_log.
+    ELSE.
+      LOOP AT gt_messtab INTO gs_messtab.
+        CALL FUNCTION 'FORMAT_MESSAGE'
+          EXPORTING
+            id        = gs_messtab-msgid
+            lang      = sy-langu
+            no        = gs_messtab-msgnr
+            v1        = gs_messtab-msgv1
+            v2        = gs_messtab-msgv2
+            v3        = gs_messtab-msgv3
+            v4        = gs_messtab-msgv4
+          IMPORTING
+            msg       = gs_log-message
+          EXCEPTIONS
+            not_found = 1
+            OTHERS    = 2.
+      ENDLOOP.
+*gs_log-light = icon_red_light.
+      gs_log-agencynum = gs_clientes-kunnr.
+      APPEND gs_log TO gt_log.
+      CLEAR gs_log.
+    ENDIF.
+  ENDLOOP.
+  IF gt_log IS NOT INITIAL.
+    LOOP AT gt_log INTO gs_log.
+      WRITE:/ gs_log-light,
+      AT 8 gs_log-agencynum,
+      AT 20 gs_log-message.
+    ENDLOOP.
+  ENDIF.
+ENDFORM.                    "batchinput
+*&---------------------------------------------------------------------*
+*&      Form  BDC_DYNPRO
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*      -->PROGRAM    text
+*      -->DYNPRO     text
+*----------------------------------------------------------------------*
+FORM bdc_dynpro USING program dynpro.
+  CLEAR gs_bdc_tab.
+  gs_bdc_tab-program  = program.
+  gs_bdc_tab-dynpro   = dynpro.
+  gs_bdc_tab-dynbegin = 'X'.
+  APPEND gs_bdc_tab TO gt_bdc_tab.
+ENDFORM.                    "BDC_DYNPRO
+*&---------------------------------------------------------------------*
+*&      Form  BDC_FIELD
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*      -->FNAM       text
+*      -->FVAL       text
+*----------------------------------------------------------------------*
+FORM bdc_field USING fnam fval.
+  IF fval IS NOT INITIAL.
+    CLEAR gs_bdc_tab.
+    gs_bdc_tab-fnam = fnam.
+    gs_bdc_tab-fval = fval.
+    APPEND gs_bdc_tab TO gt_bdc_tab.
+  ENDIF.
+ENDFORM.                    "BDC_FIELD
