@@ -1,0 +1,96 @@
+FUNCTION zu62_funcion_vuelos.
+*"----------------------------------------------------------------------
+*"*"Local Interface:
+*"  IMPORTING
+*"     REFERENCE(CARRID_F) TYPE  S_CARR_ID
+*"  TABLES
+*"      TABLACONSULTA_62 STRUCTURE  ZU62_VUELOS_FUN
+*"  EXCEPTIONS
+*"      NOT_FOUND
+*"----------------------------------------------------------------------
+  TYPES: BEGIN OF ts_scarr,
+         carrid TYPE scarr-carrid,
+         carrname TYPE scarr-carrname,
+    END OF ts_scarr.
+
+  TYPES: BEGIN OF ts_spfli,
+    carrid TYPE spfli-carrid,
+    connid TYPE spfli-connid,
+    cityfrom TYPE spfli-cityfrom,
+    cityto TYPE spfli-cityto,
+    END OF ts_spfli.
+
+  TYPES: BEGIN OF ts_sflight,
+         carrid TYPE sflight-carrid,
+        connid TYPE sflight-connid,
+        fldate TYPE sflight-fldate,
+        currency TYPE sflight-currency,
+        price TYPE sflight-price,
+    END OF ts_sflight.
+
+  DATA: gt_scarr TYPE TABLE OF ts_scarr,
+        gt_spfli TYPE TABLE OF ts_spfli,
+        gt_sflight TYPE TABLE OF ts_sflight,
+        gt_sflight_aux TYPE TABLE OF ts_sflight,
+        gs_scarr TYPE ts_scarr,
+        gs_spfli TYPE ts_spfli,
+        gs_sflight TYPE ts_sflight,
+        gs_zu62_vuelos_fun TYPE zu62_vuelos_fun.
+
+  SELECT SINGLE carrid carrname FROM scarr INTO gs_scarr
+    WHERE carrid = carrid_f.
+APPEND GS_SCARR TO GT_SCARR.
+
+  IF sy-subrc = 0.
+    SELECT carrid connid fldate currency price FROM sflight INTO TABLE gt_sflight
+  WHERE carrid = carrid_f.
+
+
+    IF sy-subrc = 0.
+      gt_sflight_aux[] = gt_sflight[].
+      SORT gt_sflight_aux BY carrid connid.
+      DELETE ADJACENT DUPLICATES FROM gt_sflight_aux COMPARING carrid connid.
+
+      SELECT carrid connid cityfrom cityto FROM spfli INTO TABLE gt_spfli
+        FOR ALL ENTRIES IN gt_sflight_aux
+        WHERE carrid = gt_sflight_aux-carrid AND connid = gt_sflight_aux-connid.
+
+    ENDIF.
+  ENDIF.
+
+  IF gt_sflight IS NOT INITIAL.
+    SORT gt_spfli BY carrid connid.
+    SORT gt_scarr BY carrid.
+
+    LOOP AT gt_sflight INTO gs_sflight.
+      READ TABLE gt_scarr INTO gs_scarr
+      WITH KEY carrid = gs_sflight-carrid
+     BINARY SEARCH.
+
+      IF sy-subrc = 0.
+        READ TABLE gt_spfli INTO gs_spfli
+        WITH KEY carrid = gs_sflight-carrid connid = gs_sflight-connid
+      BINARY SEARCH.
+
+        IF sy-subrc = 0.
+          gs_zu62_vuelos_fun-carrname = gs_scarr-carrname.
+          gs_zu62_vuelos_fun-connid = gs_sflight-connid.
+          gs_zu62_vuelos_fun-fldate = gs_sflight-fldate.
+          gs_zu62_vuelos_fun-cityfrom = gs_spfli-cityfrom.
+          gs_zu62_vuelos_fun-cityto = gs_spfli-cityto.
+          gs_zu62_vuelos_fun-price = gs_sflight-price.
+
+          APPEND gs_zu62_vuelos_fun TO tablaconsulta_62.
+
+        ENDIF.
+      ENDIF.
+    ENDLOOP.
+  ENDIF.
+
+
+
+
+
+
+
+ENDFUNCTION.

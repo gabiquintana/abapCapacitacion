@@ -1,0 +1,55 @@
+REPORT ybapis_vuelos.
+
+DATA: lv_customer    TYPE bapiscudat-customerid,
+      ls_scustom     TYPE scustom,
+      ls_custom_data TYPE bapiscunew,
+      ls_custom_x    TYPE bapiscunex.
+
+DATA: lt_return TYPE TABLE OF bapiret2,
+      ls_return LIKE LINE OF lt_return.
+
+PARAMETER: p_id TYPE scustom-id OBLIGATORY.
+
+SELECT SINGLE * FROM scustom
+  INTO ls_scustom
+ WHERE id = '00000226'.
+
+IF sy-subrc IS INITIAL.
+
+  lv_customer = ls_scustom-id.
+*  ls_custom_data-custname = ls_scustom-name.
+*  MOVE-CORRESPONDING ls_scustom TO ls_custom_data.
+  ls_custom_data-postcode = '50998'.
+  ls_custom_x-postcode = 'X'.
+
+  CALL FUNCTION 'BAPI_FLCUST_CHANGE'
+    EXPORTING
+      customernumber  = lv_customer
+      customer_data   = ls_custom_data
+      customer_data_x = ls_custom_x
+    TABLES
+*     EXTENSION_IN    =
+*     EXTENSION_OUT   =
+      return          = lt_return.
+
+  IF sy-subrc IS INITIAL.
+
+    READ TABLE lt_return INTO ls_return WITH KEY type = 'E'.
+    IF sy-subrc IS NOT INITIAL.
+
+      CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'.
+*     EXPORTING
+*       WAIT          =
+*     IMPORTING
+*       RETURN        =
+
+      MESSAGE s010(ad) WITH 'Se actualizó correctamente, verifique datos'.
+    ELSE.
+
+      MESSAGE e010(ad) WITH 'Error al actualizar customer'.
+
+    ENDIF.
+
+  ENDIF.
+
+ENDIF.

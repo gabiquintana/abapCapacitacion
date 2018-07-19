@@ -1,0 +1,35 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_PROG_MF
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  ZU64_PROG_MF.
+PARAMETERS: val1 type ERFMG,
+      val2 TYPE ERFMG,
+      operador TYPE c.
+DATA:  descripcion1 TYPE c LENGTH 20,
+      itab1 TYPE ZU64_OPERACIONES.
+
+CALL FUNCTION 'ZU64_FUNCION_MAT'
+  EXPORTING
+    valor1            = val1
+    valor2            = val2
+    operador          = operador
+ IMPORTING
+   DESCRIPCION       = descripcion1
+  ITAB              = itab1
+ EXCEPTIONS
+   DIV_CERO          = 1
+   NOT_FOUND         = 2
+   OTHERS            = 3
+          .
+IF sy-subrc = 0.
+ WRITE:/ 'Descripcion: ',descripcion1, /'Suma: ',itab1-suma,/'resta', itab1-resta, /'division', itab1-div,/'multiplicacion', itab1-multi.
+ELSEIF sy-subrc = 1.
+  WRITE:/ 'No se permite division por cero'.
+  ELSEIF sy-subrc = 2.
+    WRITE:/ 'Operador no encontrado'.
+ENDIF.

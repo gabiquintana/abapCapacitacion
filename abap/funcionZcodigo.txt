@@ -1,0 +1,42 @@
+FUNCTION ZU64_FUNCION_MAT.
+*"----------------------------------------------------------------------
+*"*"Local Interface:
+*"  IMPORTING
+*"     REFERENCE(VALOR1) TYPE  ERFMG
+*"     REFERENCE(VALOR2) TYPE  ERFMG
+*"     REFERENCE(OPERADOR) TYPE  CHAR1
+*"  EXPORTING
+*"     REFERENCE(DESCRIPCION) TYPE  CHAR20
+*"     REFERENCE(ITAB) TYPE  ZU64_OPERACIONES
+*"  EXCEPTIONS
+*"      DIV_CERO
+*"      NOT_FOUND
+*"----------------------------------------------------------------------
+CASE operador.
+WHEN '+'.
+  descripcion = 'suma'.
+
+WHEN '-'.
+  descripcion = 'resta'.
+
+WHEN '*'.
+  descripcion = 'multiplicacion'.
+
+WHEN '/'.
+  descripcion = 'division'.
+  if valor2 = 0.
+    RAISE div_cero.
+    else.
+
+  ENDIF.
+  WHEN OTHERS.
+    RAISE not_found.
+
+endcase.
+ itab-suma = valor1 + valor2.
+ itab-resta = valor1 - valor2.
+  itab-multi = valor1 * valor2.
+   if valor2 <> 0.
+  itab-div = valor1 / valor2.
+  ENDIF.
+ENDFUNCTION.
