@@ -1,0 +1,10 @@
+http://saptechnical.com/Tutorials/ABAP/Checkbox/page1.htm --> Muy buenos ejemplos de Module Pool y todo ABAP
+
+http://sapabap-4.blogspot.com/2013/04/check-boxes-and-push-buttons.html --> Muy buena pagina de Module Pool y ABAP 
+
+https://saptechblogspot.blogspot.com/2016/09/module-pool-programming-using-se38.html
+
+Ejemplo de Calculador con Module Pool
+
+https://www.youtube.com/watch?v=wDNEsNZAWW8
+
