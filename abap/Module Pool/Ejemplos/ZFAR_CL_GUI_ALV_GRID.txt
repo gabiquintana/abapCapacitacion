@@ -1,0 +1,139 @@
+REPORT zfar_cl_gui_alv_grid.
+
+DATA: g_alv   TYPE REF TO cl_gui_alv_grid,
+      g_cust  TYPE REF TO cl_gui_custom_container,
+      gt_kna1 TYPE TABLE OF kna1,
+      gt_fcat TYPE lvc_t_fcat,
+      gs_fcat TYPE lvc_s_fcat,
+      okcode  TYPE sy-ucomm.
+
+START-OF-SELECTION.
+
+  SET SCREEN 0100.
+
+END-OF-SELECTION.
+
+
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_0100  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE status_0100 OUTPUT.
+
+  SET PF-STATUS 'STAT1'.
+
+  IF g_cust IS INITIAL.
+
+    CREATE OBJECT g_cust
+      EXPORTING
+        container_name              = 'CUSTCONT'
+      EXCEPTIONS
+        cntl_error                  = 1
+        cntl_system_error           = 2
+        create_error                = 3
+        lifetime_error              = 4
+        lifetime_dynpro_dynpro_link = 5
+        OTHERS                      = 6.
+
+    IF sy-subrc <> 0.
+      MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+                 WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+    ENDIF.
+
+    CREATE OBJECT g_alv
+      EXPORTING
+        i_parent          = g_cust
+      EXCEPTIONS
+        error_cntl_create = 1
+        error_cntl_init   = 2
+        error_cntl_link   = 3
+        error_dp_create   = 4
+        OTHERS            = 5.
+
+    IF sy-subrc <> 0.
+      MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+                 WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+    ENDIF.
+
+    PERFORM load_data.
+    PERFORM prepare_fcat.
+
+    CALL METHOD g_alv->set_table_for_first_display
+      CHANGING
+        it_outtab                     = gt_kna1
+        it_fieldcatalog               = gt_fcat
+      EXCEPTIONS
+        invalid_parameter_combination = 1
+        program_error                 = 2
+        too_many_lines                = 3
+        OTHERS                        = 4.
+
+    IF sy-subrc <> 0.
+      MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+                 WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+    ENDIF.
+
+  ENDIF.
+
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Form  LOAD_DATA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM load_data.
+
+  SELECT * FROM kna1
+    INTO CORRESPONDING FIELDS OF TABLE gt_kna1
+      UP TO 10 ROWS.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*&      Form  PREPARE_FCAT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM prepare_fcat.
+
+  DEFINE add_fcat.
+
+    CLEAR gs_fcat.
+
+    gs_fcat-col_pos   = &1.
+    gs_fcat-fieldname = &2.
+    gs_fcat-coltext   = &3.
+    gs_fcat-outputlen = &4.
+
+    APPEND gs_fcat TO gt_fcat.
+
+  END-OF-DEFINITION.
+
+  add_fcat:
+     1 'KUNNR' 'Customer No.' 15,
+     2 'LAND1' 'Country'      5,
+     3 'NAME1' 'Name'         30,
+     4 'ORT01' 'City'         20.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0100 INPUT.
+
+  CASE okcode.
+    WHEN 'BACK' OR 'CANCEL'.
+      LEAVE TO SCREEN 0.
+    WHEN 'EXIT'.
+      LEAVE PROGRAM.
+  ENDCASE.
+
+ENDMODULE.
