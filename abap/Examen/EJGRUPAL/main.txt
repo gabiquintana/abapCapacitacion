@@ -1,0 +1,21 @@
+REPORT z_alv_jera.
+
+INCLUDE zTOP.
+INCLUDE zPANTALLA.
+INCLUDE zFUNCIONES.
+
+INITIALIZATION.
+MOVE: 'I' TO s_price-sign,
+      'BT' TO s_price-option,
+      300 TO s_price-low,
+      500 TO s_price-high.
+APPEND s_price.
+
+START-OF-SELECTION.
+
+  PERFORM cargarDatos.
+  PERFORM armarFieldcat.
+  PERFORM setearLayout.
+  PERFORM displayALV.
+
+END-OF-SELECTION.

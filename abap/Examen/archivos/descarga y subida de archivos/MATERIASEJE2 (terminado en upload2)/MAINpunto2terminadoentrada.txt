@@ -1,0 +1,31 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_UPLOAD_FILE_2
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  ZU64_UPLOAD_FILE_2.
+INCLUDE zstructTOP. "TOP"
+INCLUDE zstructSCREEN.
+INCLUDE zstructFORM.
+*PARAMETERS: p_path TYPE ibipparms-path OBLIGATORY.
+"DATA: gv_filename TYPE string.
+INITIALIZATION.
+DELETE FROM ZU64_MATERIAS. "borra todos los datos de la tabla z zu64_materias"
+START-OF-SELECTION.
+PERFORM upload.
+PERFORM CARGAR_TABLAS_INTERNAS.
+PERFORM ALVS.
+END-OF-SELECTION.
+
+at SELECTION-SCREEN on VALUE-REQUEST FOR p_path.
+  CALL FUNCTION 'F4_FILENAME'
+* EXPORTING
+* PROGRAM_NAME =
+* DYNPRO_NUMBER =
+* FIELD_NAME =
+IMPORTING
+file_name = p_path.
+gv_filename = p_path.

@@ -1,0 +1,105 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_ALV_LIST
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zu64_alv_list.
+TABLES: spfli, scarr.
+
+TYPE-POOLS slis.             "para usar alv"
+
+SELECT-OPTIONS: codaereo FOR  scarr-carrid.
+TYPES: BEGIN OF ts_spfli,
+  carrid TYPE spfli-carrid,
+  connid TYPE spfli-connid,
+  airpfrom TYPE spfli-airpfrom, "tabla interna spfli"
+  airpto TYPE spfli-airpto,
+  END OF ts_spfli.
+
+TYPES: BEGIN OF ts_scarr,   "tabla interna scarr"
+  carrid TYPE scarr-carrid,
+  carrname TYPE scarr-carrname,
+  END OF ts_scarr.
+
+
+TYPES: BEGIN OF st_relacion,   "hago la estructura, para que luego la tabla tome el tipo de la estructura"
+  carrid TYPE spfli-carrid,
+  connid TYPE spfli-connid,  "tabla final donde se appendeara todo"
+  airpfrom TYPE spfli-airpfrom,
+  airpto TYPE spfli-airpto,
+  carrname TYPE scarr-carrname,
+  END OF st_relacion.
+
+DATA: wa_relacion TYPE st_relacion, "la word area toma el tipo de la structura"
+      it_relacion TYPE TABLE OF st_relacion,
+      wa_scarr TYPE ts_scarr,
+      it_scarr TYPE TABLE OF ts_scarr,
+      wa_spfli TYPE ts_spfli,
+      it_spfli TYPE TABLE OF ts_spfli,
+      gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv, "gs y gt para cread el fieldcat con tipos de datos para el alv"
+      repid TYPE sy-repid,
+      gs_layout TYPE slis_layout_alv. "layout para poder imprimir mas claro, ej: que se acomode al texto y no se corte"
+
+repid = sy-repid.
+gs_layout-colwidth_optimize = 'X'. "para que se ajuste al texto"
+gs_layout-zebra = 'X'. "cambia color entre filas para que no salga todo igual"
+SELECT spfli~carrid spfli~connid spfli~airpfrom spfli~airpto FROM spfli INTO TABLE it_spfli
+  WHERE spfli~carrid IN codaereo.
+IF sy-subrc = 0.
+  SELECT scarr~carrid scarr~carrname
+    FROM scarr INTO TABLE it_scarr FOR ALL ENTRIES IN it_spfli WHERE scarr~carrid = it_spfli-carrid .
+  IF sy-subrc = 0.
+    LOOP AT it_spfli INTO wa_spfli.
+      READ TABLE it_scarr INTO wa_scarr WITH KEY carrid = wa_spfli-carrid.
+      wa_relacion-carrid = wa_scarr-carrid.
+      wa_relacion-carrname = wa_scarr-carrname.
+      wa_relacion-connid = wa_spfli-connid.
+      wa_relacion-airpfrom = wa_spfli-airpfrom.
+      wa_relacion-airpto = wa_spfli-airpto.
+      APPEND wa_relacion TO it_relacion.
+    ENDLOOP.
+  ENDIF.
+
+  "select para pasar los datos joineados a mi tabla interna" "que matchen los codaereos"
+  IF sy-subrc = 0.
+
+
+    gs_fieldcat-fieldname = 'CARRID'.
+    gs_fieldcat-seltext_s = 'Carrid'.
+    APPEND gs_fieldcat TO gt_fieldcat.
+
+    "los tipos no appendiados no son mostrados"
+    "el orden que appendeo es el orden que se van a mostrar los datos"
+    gs_fieldcat-fieldname = 'CONNID'.
+    gs_fieldcat-seltext_s = 'Connid'.
+    APPEND gs_fieldcat TO gt_fieldcat.
+
+
+    gs_fieldcat-fieldname = 'AIRPFROM'.
+    gs_fieldcat-seltext_s = 'DESDE'.
+    APPEND gs_fieldcat TO gt_fieldcat.
+
+
+    gs_fieldcat-fieldname = 'AIRPTO'.
+    gs_fieldcat-seltext_s = 'HASTA'.
+    APPEND gs_fieldcat TO gt_fieldcat.
+
+    gs_fieldcat-fieldname = 'CARRNAME'.
+    gs_fieldcat-seltext_s = 'AEROLINEA'.
+    gs_fieldcat-no_out = 'X'. "sacas un campo programado x defecto pero se puede volver a poner desde visualizacion"
+    APPEND gs_fieldcat TO gt_fieldcat.
+
+    CALL FUNCTION 'REUSE_ALV_LIST_DISPLAY'
+      EXPORTING
+        i_callback_program = repid
+        it_fieldcat        = gt_fieldcat "tipos de datos de mi tabla interna"
+        is_layout          = gs_layout  "formato de diseño"
+        i_save             = 'A' "para que el usuario edite el layout y pueda guardarlo"
+      TABLES
+        t_outtab           = it_relacion. "le digo cual tabla interna tomar datos"
+  ENDIF.
+ENDIF.

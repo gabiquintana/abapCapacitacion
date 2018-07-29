@@ -1,0 +1,88 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU52_ALV_GRID_2_TOP
+*&---------------------------------------------------------------------*
+
+TABLES: sbook, stravelag, scustom, spfli.
+TYPE-POOLS: slis.
+
+TYPES: BEGIN OF ts_sbook,
+  carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  bookid TYPE sbook-bookid,
+  customid TYPE sbook-customid,
+  smoker TYPE sbook-smoker,
+  agency TYPE sbook-agencynum,
+  END OF ts_sbook,
+  tt_sbook TYPE ts_sbook,
+
+  BEGIN OF ts_stravelag,
+    agency TYPE stravelag-agencynum,
+    street TYPE stravelag-street,
+    city TYPE stravelag-city,
+    country TYPE stravelag-country,
+    telephone TYPE stravelag-telephone,
+    END OF ts_stravelag,
+    tt_stravelag TYPE ts_stravelag,
+
+    BEGIN OF ts_scustom,
+      id TYPE scustom-id,
+      name TYPE scustom-name,
+      telephone TYPE scustom-telephone,
+      END OF ts_scustom,
+      tt_scustom TYPE ts_scustom,
+
+      BEGIN OF ts_spfli,
+        carrid TYPE spfli-carrid,
+        connid TYPE spfli-connid,
+        cityfrom TYPE spfli-cityfrom,
+        cityto TYPE spfli-cityto,
+        END OF ts_spfli,
+        tt_spfli TYPE ts_spfli,
+
+        BEGIN OF ts_final,
+         carrid TYPE sbook-carrid,
+         connid TYPE sbook-connid,
+         fldate TYPE sbook-fldate,
+         bookid TYPE sbook-bookid,
+         customid TYPE sbook-customid,
+         smoker TYPE sbook-smoker,
+         agency TYPE sbook-agencynum,
+         street TYPE stravelag-street,
+         city TYPE stravelag-city,
+         country TYPE stravelag-country,
+         telephone TYPE stravelag-telephone,
+         id TYPE scustom-id,
+         name TYPE scustom-name,
+         cityfrom TYPE spfli-cityfrom,
+         cityto TYPE spfli-cityto,
+        END OF ts_final,
+         tt_final TYPE ts_final.
+
+
+DATA: gt_sbook TYPE TABLE OF tt_sbook,
+      gs_sbook TYPE ts_sbook,
+      gt_stravel TYPE TABLE OF tt_stravelag,
+      gs_stravel TYPE ts_stravelag,
+      gt_scustom TYPE TABLE OF tt_scustom,
+      gs_scustom TYPE ts_scustom,
+      gt_spfli TYPE TABLE OF tt_spfli,
+      gs_spfli TYPE ts_spfli,
+      gt_final TYPE TABLE OF tt_final,
+      gs_final TYPE ts_final.
+
+DATA var TYPE sy-tabix.
+
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv,
+      gt_sortcat TYPE slis_t_sortinfo_alv.
+
+DATA: gt_events TYPE slis_t_event,
+      gs_events LIKE LINE OF gt_events.
+
+DATA: gt_heading TYPE slis_t_listheader,
+      gs_heading LIKE LINE OF gt_heading.
+
+DATA v_pos TYPE i.
+
+DATA: ls_sort TYPE slis_sortinfo_alv.

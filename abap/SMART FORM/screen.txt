@@ -1,0 +1,24 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZACN_IS_DOMINGUEZ_SCR
+*&---------------------------------------------------------------------*
+
+TABLES: ZACN_DOMINGUEZ.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
+
+PARAMETERS p_depo type ZDEPOSITO_DOMINGUEZ OBLIGATORY. """ Parametro que de no ser ingresado no seguira con la ejecucion.
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+SELECTION-SCREEN BEGIN OF BLOCK b2 WITH FRAME TITLE text-002.
+
+select-OPTIONS s_pate for ZACN_DOMINGUEZ-PATENTE. """ Select options
+
+SELECTION-SCREEN END OF BLOCK b2.
+
+SELECTION-SCREEN BEGIN OF BLOCK b3 WITH FRAME TITLE text-003.
+
+PARAMETERS: RB_FORM type char1 RADIOBUTTON GROUP g1, """ Radio buttons del mismo grupo para que sean mutuamente excluyentes.
+            RB_ALV type char1 RADIOBUTTON GROUP g1.
+
+SELECTION-SCREEN END OF BLOCK b3.

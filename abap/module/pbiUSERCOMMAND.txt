@@ -1,0 +1,95 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_MP_I01
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+module USER_COMMAND_0100 input.
+CASE okcode.
+  WHEN 'ALCLI'.
+    SET SCREEN 0200.
+  WHEN 'MODCLI'.
+    SET SCREEN 0300.
+  WHEN 'BAJACLI'.
+    SET SCREEN 0400.
+  WHEN 'BACK' or 'EXIT' or 'CANCEL'.
+    leave PROGRAM.
+ENDCASE.
+endmodule.                 " USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0200  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+module USER_COMMAND_0200 input.
+CASE okcode.
+  WHEN 'INSERT'.
+
+    MOVE-CORRESPONDING zu64_clientes to gs_clientes.
+    gs_clientes-mandt = sy-mandt.
+    INSERT zu64_clientes FROM gs_clientes.
+    MESSAGE 'La alta se ha realizado con exito' TYPE 'S'.
+  WHEN 'CLEAR'.
+    CLEAR: zu64_clientes.
+  WHEN 'BACK'.
+    SET SCREEN 0100.
+ENDCASE.
+endmodule.                 " USER_COMMAND_0200  INPUT
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0300  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+module USER_COMMAND_0300 input.
+DATA: gs_clientes2 type zu64_clientes,
+      gt_clientes2 TYPE TABLE OF zu64_clientes.
+CASE okcode.
+  WHEN 'ACTUALIZAR'.
+
+    MOVE-CORRESPONDING zu64_clientes to gs_clientes.
+    gs_clientes-mandt = sy-mandt.
+    SELECT SINGLE * FROM zu64_clientes INTO gs_clientes2 WHERE kunnr = gs_clientes-kunnr.
+    if sy-subrc = 0.
+    UPDATE zu64_clientes FROM gs_clientes.
+    MESSAGE 'La modificación se ha realizado con exito' TYPE 'S'.
+    else.
+      MESSAGE 'NO SE ENCONTRO EL NUMERO DE CLIENTE A MODIFICAR' TYPE 'I'.
+    ENDIF.
+    WHEN 'BUSCAR'.
+      SELECT SINGLE * FROM zu64_clientes INTO gs_clientes2 WHERE kunnr = zu64_clientes-kunnr.
+        IF sy-subrc = 0.
+            MOVE-CORRESPONDING gs_clientes2 TO zu64_clientes.
+        ENDIF.
+  WHEN 'CLEAR'.
+    CLEAR: zu64_clientes.
+  WHEN 'BACK'.
+    SET SCREEN 0100.
+ENDCASE.
+endmodule.                 " USER_COMMAND_0300  INPUT
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0400  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+module USER_COMMAND_0400 input.
+
+CASE okcode.
+WHEN 'BAJA'.
+
+    MOVE-CORRESPONDING zu64_clientes to gs_clientes.
+    gs_clientes-mandt = sy-mandt.
+    SELECT SINGLE * FROM zu64_clientes INTO gs_clientes2 WHERE kunnr = gs_clientes-kunnr.
+    if sy-subrc = 0.
+    delete zu64_clientes FROM gs_clientes.
+    MESSAGE 'La baja se ha realizado con exito' TYPE 'S'.
+    else.
+      MESSAGE 'NO SE ENCONTRO EL NUMERO DE CLIENTE A DAR DE BAJA' TYPE 'I'.
+    ENDIF.
+  WHEN 'CLEAR'.
+    CLEAR: zu64_clientes.
+  WHEN 'BACK'.
+    SET SCREEN 0100.
+ENDCASE.
+endmodule.                 " USER_COMMAND_0400  INPUT

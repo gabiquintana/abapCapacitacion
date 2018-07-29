@@ -1,0 +1,63 @@
+*&--.-------------------------------------------------------------------*
+*& Report  ZREPORTE_GABRIELALV
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  ZREPORTE_GABRIELALV.
+
+TABLES: spfli.
+
+TYPE-POOLS slis. "se declara porque tiene definidas todas las estructuras de las funciones alv"
+
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv, "TYPE definido en SLIS, declaro la tabla interna para el fieldcat"
+      gs_fieldcat TYPE slis_fieldcat_alv. "wa para ir appendiando en la it, en el fieldcat se declaran los tipos de mi ALV'
+
+DATA: gt_spfli TYPE TABLE OF spfli,
+      gs_spfli TYPE spfli,
+      repid TYPE sy-repid.
+
+repid = sy-repid. "se usa para informar de que programa se llama a la funcion alv en callbackprogram"
+
+CLEAR gs_spfli. "saco basura de la gs y la gt"
+REFRESH gt_spfli.
+
+SELECT * FROM spfli 
+INTO TABLE gt_spfli
+UP TO 15 ROWS. "para traer los primeros 15 registros nomas"
+
+  gs_fieldcat-fieldname = 'MANDT'. "nombre del campo a extraer"
+  gs_fieldcat-seltext_S = 'MAN'. "short name que se mostrara"
+  "gs_fieldcat-ref_tabname = 'SPFLI'. sirve para especificar que tabla de la base de datos que hace referencia"
+  APPEND gs_fieldcat to gt_fieldcat. "agrego registro a la gt fieldcat"
+
+  gs_fieldcat-fieldname = 'CARRID'.
+  gs_fieldcat-seltext_S = 'CARR'.
+  APPEND gs_fieldcat to gt_fieldcat.
+
+  gs_fieldcat-fieldname = 'AIRPFROM'.
+  gs_fieldcat-seltext_S = 'DESDE'.
+  APPEND gs_fieldcat to gt_fieldcat.
+
+  gs_fieldcat-fieldname = 'AIRPTO'.
+  gs_fieldcat-seltext_S = 'HACIA'.
+  APPEND gs_fieldcat to gt_fieldcat.
+
+
+CALL FUNCTION 'REUSE_ALV_LIST_DISPLAY'
+
+  EXPORTING
+
+    i_callback_program = repid "le digo a la funcion de que programa estoy llamando a la funcion"
+    it_fieldcat = gt_fieldcat "le digo de que tabla interna va a tomar los tipos de datos(fieldcat) y otras especificaciones"
+
+  TABLES
+    t_outtab = gt_spfli "le digo de que tabla interna va a tomar los datos"
+
+  EXCEPTIONS
+
+    program_error = 1
+    OTHERS = 2.
+	

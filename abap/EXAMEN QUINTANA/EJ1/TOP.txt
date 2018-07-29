@@ -1,0 +1,45 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_REPORTE1_TOP
+*&---------------------------------------------------------------------*
+TABLES: sbook, scustom.
+TYPE-POOLS: slis.
+TYPES: BEGIN OF ts_sbook,
+  carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  bookid TYPE sbook-bookid,
+  customid TYPE sbook-customid,
+END OF ts_sbook.
+
+TYPES: BEGIN OF ts_scustom,
+  id TYPE scustom-id,
+  name TYPE scustom-name,
+  street TYPE scustom-street,
+  postcode TYPE scustom-postcode,
+  city TYPE scustom-city,
+  country TYPE scustom-country,
+END OF ts_scustom.
+
+TYPES: BEGIN OF ts_final,
+   carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  bookid TYPE sbook-bookid,
+  customid TYPE sbook-customid,
+  name TYPE scustom-name,
+  street TYPE scustom-street,
+  postcode TYPE scustom-postcode,
+  city TYPE scustom-city,
+  country TYPE scustom-country,
+  END OF ts_final.
+
+DATA: gs_sbook TYPE ts_sbook,
+      gt_sbook TYPE TABLE OF ts_sbook,
+      gs_scustom TYPE ts_scustom,
+      gt_scustom TYPE TABLE OF ts_scustom,
+      gs_final TYPE ts_final,
+      gt_final TYPE TABLE OF ts_final.
+
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv,
+      gs_layout   TYPE slis_layout_alv.

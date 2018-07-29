@@ -1,0 +1,78 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_MP_O01
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_0200  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+module STATUS_0200 output.
+ SET PF-STATUS 'ZSTATUS_0100'.
+*  SET TITLEBAR 'xxx'.
+
+clear gs_clientes.
+if okcode ne 'CLEAR'.
+SELECT * UP TO 1 ROWS FROM zu64_clientes
+  into TABLE gt_clientes
+  ORDER BY kunnr DESCENDING.
+
+  if sy-subrc is INITIAL.
+    READ TABLE gt_clientes into gs_clientes INDEX 1.
+    MOVE-CORRESPONDING gs_clientes to zu64_clientes.
+    ENDIF.
+    endif.
+
+
+
+
+endmodule.                 " STATUS_0200  OUTPUT
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_0100  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+module STATUS_0100 output.
+ SET PF-STATUS 'ZSTATUS_0100'.
+*  SET TITLEBAR 'xxx'.
+
+endmodule.                 " STATUS_0100  OUTPUT
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_0300  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+module STATUS_0300 output.
+ SET PF-STATUS 'ZSTATUS_0100'.
+*  SET TITLEBAR 'xxx'.
+clear gs_clientes.
+if okcode ne 'CLEAR'.
+SELECT * UP TO 1 ROWS FROM zu64_clientes
+  into TABLE gt_clientes
+  ORDER BY kunnr DESCENDING.
+
+  if sy-subrc is INITIAL.
+    READ TABLE gt_clientes into gs_clientes INDEX 1.
+    MOVE-CORRESPONDING gs_clientes to zu64_clientes.
+    ENDIF.
+    endif.
+endmodule.                 " STATUS_0300  OUTPUT
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_0400  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+module STATUS_0400 output.
+ SET PF-STATUS 'ZSTATUS_0100'.
+*  SET TITLEBAR 'xxx'.
+clear gs_clientes.
+if okcode ne 'CLEAR'.
+SELECT * UP TO 1 ROWS FROM zu64_clientes
+  into TABLE gt_clientes
+  ORDER BY kunnr DESCENDING.
+
+  if sy-subrc is INITIAL.
+    READ TABLE gt_clientes into gs_clientes INDEX 1.
+    MOVE-CORRESPONDING gs_clientes to zu64_clientes.
+    ENDIF.
+    endif.
+endmodule.                 " STATUS_0400  OUTPUT

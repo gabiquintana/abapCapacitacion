@@ -1,0 +1,113 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZTOP
+*&---------------------------------------------------------------------*
+
+TABLES: scarr, spfli, sflight, scustom, sbook, saplane.
+TYPE-POOLS: slis.
+
+TYPES: BEGIN OF ts_scarr,
+  carrid TYPE scarr-carrid,
+  carrname TYPE scarr-carrname,
+  currcode TYPE scarr-currcode,
+  url TYPE scarr-url,
+END OF ts_scarr.
+
+TYPES: BEGIN OF ts_spfli,
+  carrid TYPE spfli-carrid,
+  connid TYPE spfli-connid,
+  countryfr TYPE spfli-countryfr,
+  cityfrom TYPE spfli-cityfrom,
+  airpfrom TYPE spfli-airpfrom,
+  countryto TYPE spfli-countryto,
+  cityto TYPE spfli-cityto,
+  airpto TYPE spfli-airpto,
+  fltime TYPE spfli-fltime,
+END OF ts_spfli.
+
+TYPES: BEGIN OF ts_sbook,
+  carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  bookid TYPE sbook-bookid,
+  customid TYPE sbook-customid,
+*  custtype TYPE sbook-custtype,
+*  smoker TYPE sbook-smoker,
+*  luggweight TYPE sbook-luggweight,
+*  wunit TYPE sbook-wunit,
+END OF ts_sbook.
+
+TYPES: BEGIN OF ts_saplane,
+  planetype TYPE saplane-planetype,
+  seatsmax TYPE saplane-seatsmax,
+  consum TYPE saplane-consum,
+END OF ts_saplane.
+
+TYPES: BEGIN OF ts_scustom,
+  id TYPE scustom-id,
+  name TYPE scustom-name,
+*  form TYPE scustom-form,
+*  street TYPE scustom-street,
+*  postbox TYPE scustom-postbox,
+*  postcode TYPE scustom-postcode,
+END OF ts_scustom.
+
+TYPES: BEGIN OF ts_sflight,
+  carrid TYPE sflight-carrid,
+  connid TYPE sflight-connid,
+  fldate TYPE sflight-fldate,
+  price TYPE sflight-price,
+*  currency TYPE sflight-currency,
+*  planetype TYPE sflight-planetype,
+*  seatsmax TYPE sflight-seatsmax,
+*  seatsocc TYPE sflight-seatsocc,
+END OF ts_sflight.
+
+TYPES: BEGIN OF ts_final,
+  carrid TYPE scarr-carrid,
+  carrname TYPE scarr-carrname,
+  "currcode TYPE scarr-currcode,
+  url TYPE scarr-url,
+  expand,
+END OF ts_final.
+
+TYPES: BEGIN OF ts_final2,
+  carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  bookid TYPE sbook-bookid,
+  customid TYPE sbook-customid,
+  name TYPE scustom-name,
+  price TYPE sflight-price,
+END OF ts_final2.
+
+DATA: gs_sflight TYPE ts_sflight,
+      gt_sflight TYPE TABLE OF ts_sflight,
+      gs_scustom TYPE ts_scustom,
+      gt_scustom TYPE TABLE OF ts_scustom,
+      gs_sbook TYPE ts_sbook,
+      gt_sbook TYPE TABLE OF ts_sbook,
+      gs_scarr TYPE ts_scarr,
+      gt_scarr TYPE TABLE OF ts_scarr,
+      gs_spfli TYPE ts_spfli,
+      gt_spfli TYPE TABLE OF ts_spfli,
+      gs_saplane TYPE ts_saplane,
+      gt_saplane TYPE TABLE OF ts_saplane.
+
+DATA: gs_final TYPE ts_final,
+      gt_final TYPE TABLE OF ts_final,
+      gs_final2 TYPE ts_final2,
+      gt_final2 TYPE TABLE OF ts_final2.
+
+
+* FIELDCAT -------------------------------------------------
+
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv,
+      gt_fieldcat2 TYPE slis_t_fieldcat_alv,
+      gs_fieldcat2 TYPE slis_fieldcat_alv,
+      gs_key TYPE slis_keyinfo_alv.
+"gt_sortcat TYPE slis_t_sortinfo_alv.
+
+DATA: ls_sort TYPE slis_sortinfo_alv,
+      gt_sortcat TYPE slis_t_sortinfo_alv,
+      ls_layout TYPE slis_layout_alv.

@@ -1,0 +1,452 @@
+REPORT  zu62_clase_select.
+
+"LISTAR POR PANTALLA UNA LISTA DE RESERVAS DE VUELOS (SBOOK) CUYAS RESERVAS SEAN ASIENTO RESERVADOS POR FUMADORES (SMOKERS),
+"EL LISTADO DEBE CONTENER ESTOS CAMPOS: carrid, connid, fldate, order_date, name y street
+TABLES: sbook, scustom, sflight.
+TYPE-POOLS: slis.
+
+TYPE-POOLS: truxs.
+
+DATA: gt_spfli TYPE TABLE OF spfli,
+gs_spfli TYPE spfli.
+DATA: gv_filename TYPE string,
+      gv_filetype TYPE char10 VALUE 'ASC'.
+DATA: gt_text TYPE truxs_t_text_data,
+      gs_text LIKE LINE OF gt_text.
+
+DATA: lv_price TYPE char15.
+
+TYPES: BEGIN OF ts_final,
+  carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  order_date TYPE sbook-order_date,
+  name TYPE scustom-name,
+  street TYPE scustom-street,
+  price TYPE sflight-price,
+END OF ts_final.
+
+TYPES: BEGIN OF ts_sbook,
+  carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  order_date TYPE sbook-order_date,
+  customid TYPE sbook-customid,
+END OF ts_sbook.
+
+TYPES: BEGIN OF ts_scustom,
+  id TYPE scustom-id,
+  name TYPE scustom-name,
+  street TYPE scustom-street,
+END OF ts_scustom.
+
+TYPES: BEGIN OF ts_sflight,
+  carrid TYPE sflight-carrid,
+  connid TYPE sflight-connid,
+  fldate TYPE sflight-fldate,
+  price TYPE sflight-price,
+END OF ts_sflight.
+
+TYPES: BEGIN OF ts_scarr,
+       carrid TYPE scarr-carrid,
+       carrname TYPE scarr-carrname,
+       expand,
+END OF ts_scarr.
+
+DATA: gs_sbook TYPE ts_sbook,
+      gt_sbook TYPE TABLE OF ts_sbook,
+      gs_scustom TYPE ts_scustom,
+      gt_scustom TYPE TABLE OF ts_scustom,
+      gs_final TYPE ts_final,
+      gt_final TYPE TABLE OF ts_final,
+      gs_final2 TYPE ts_final,
+      gt_final2 TYPE TABLE OF ts_final,
+      gs_sflight TYPE ts_sflight,
+      gt_sflight TYPE TABLE OF ts_sflight,
+      gt_scarr TYPE TABLE OF ts_scarr,
+      gs_scarr TYPE ts_scarr.
+
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv,
+      gt_fieldcat2 TYPE slis_t_fieldcat_alv,
+      gs_fieldcat2 TYPE slis_fieldcat_alv,
+      gs_key TYPE slis_keyinfo_alv.
+"gt_sortcat TYPE slis_t_sortinfo_alv.
+
+DATA : gt_exclude TYPE slis_t_extab,
+         gs_exclude TYPE slis_extab.
+
+SELECT-OPTIONS: p_price FOR sflight-price.
+
+SELECT carrid connid fldate price
+  FROM sflight INTO TABLE gt_sflight
+  WHERE price IN p_price.
+
+SORT gt_sflight.
+
+SELECT carrid connid fldate order_date customid
+  FROM sbook INTO TABLE gt_sbook
+  FOR ALL ENTRIES IN gt_sflight
+  WHERE carrid = gt_sflight-carrid AND connid = gt_sflight-connid AND fldate = gt_sflight-fldate AND smoker = 'X'.
+
+SORT gt_sbook.
+
+SELECT id name street
+  FROM scustom INTO TABLE gt_scustom
+  FOR ALL ENTRIES IN gt_sbook
+  WHERE id = gt_sbook-customid.
+
+SORT gt_scustom.
+
+SELECT carrid carrname
+  FROM scarr INTO TABLE gt_scarr
+  FOR ALL ENTRIES IN gt_sbook
+  WHERE carrid = gt_sbook-carrid.
+
+SORT gt_scarr.
+
+LOOP AT gt_sbook INTO gs_sbook.
+
+  READ TABLE gt_scustom INTO gs_scustom
+  WITH KEY id = gs_sbook-customid BINARY SEARCH.
+
+  READ TABLE gt_sflight INTO gs_sflight
+  WITH KEY carrid = gs_sbook-carrid connid = gs_sbook-connid fldate = gs_sbook-fldate BINARY SEARCH.
+
+  IF sy-subrc = 0.
+    gs_final-carrid = gs_sbook-carrid.
+    gs_final-connid = gs_sbook-connid.
+    gs_final-fldate = gs_sbook-fldate.
+    gs_final-order_date = gs_sbook-order_date.
+    gs_final-name = gs_scustom-name.
+    gs_final-street = gs_scustom-street.
+    gs_final-price = gs_sflight-price.
+    APPEND gs_final TO gt_final.
+  ENDIF.
+
+ENDLOOP.
+
+gs_fieldcat-fieldname = 'CARRID'.
+gs_fieldcat-seltext_s = 'CARRID'.
+gs_fieldcat-tabname = 'GT_FINAL'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'CONNID'.
+gs_fieldcat-seltext_s = 'CONNID'.
+gs_fieldcat-tabname = 'GT_FINAL'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'FLDATE'.
+gs_fieldcat-seltext_s = 'FLDATE'.
+gs_fieldcat-tabname = 'GT_FINAL'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'ORDER_DATE'.
+gs_fieldcat-seltext_s = 'ORDERDATE'.
+gs_fieldcat-tabname = 'GT_FINAL'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'NAME'.
+gs_fieldcat-seltext_s = 'NAME'.
+gs_fieldcat-tabname = 'GT_FINAL'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'STREET'.
+gs_fieldcat-seltext_s = 'STREET'.
+gs_fieldcat-tabname = 'GT_FINAL'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'PRICE'.
+gs_fieldcat-seltext_s = 'PRICE'.
+gs_fieldcat-tabname = 'GT_FINAL'(001).
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'CARRID'.
+gs_fieldcat-seltext_s = 'CARRID'.
+gs_fieldcat-tabname = 'GT_SCARR'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'CARRNAME'.
+gs_fieldcat-seltext_s = 'CARRNAME'.
+gs_fieldcat-tabname = 'GT_SCARR'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+DATA: ls_sort TYPE slis_sortinfo_alv,
+      gt_sortcat TYPE slis_t_sortinfo_alv,
+      ls_layout TYPE slis_layout_alv.
+
+ls_sort-fieldname = 'CARRID'.
+*  ls_sort-spos      = 1.
+*  ls_sort-up        = 'X'.
+ls_sort-expa      = 'X'.
+APPEND ls_sort TO gt_sortcat.
+
+ls_layout-colwidth_optimize = 'X'.
+ls_layout-zebra = 'X'.
+ls_layout-window_titlebar   = 'Hierarchical PO Header & Item Display'.
+ls_layout-expand_fieldname = 'EXPAND'.
+
+gs_key-header01 = 'CARRID'.
+gs_key-item01 = 'CARRID'.
+
+CALL FUNCTION 'REUSE_ALV_HIERSEQ_LIST_DISPLAY'
+  EXPORTING
+    i_callback_program       = sy-repid
+    i_callback_user_command  = 'USERCOMMAND'
+    i_callback_pf_status_set = 'MI_STANDARD'
+    it_excluding             = gt_exclude
+    it_sort                  = gt_sortcat
+    is_layout                = ls_layout
+    it_fieldcat              = gt_fieldcat
+    i_tabname_header         = 'GT_SCARR'
+    i_tabname_item           = 'GT_FINAL'
+    i_save                   = 'A'
+    is_keyinfo               = gs_key
+  TABLES
+    t_outtab_header          = gt_scarr
+    t_outtab_item            = gt_final
+  EXCEPTIONS
+    program_error            = 1
+    OTHERS                   = 2.
+
+*&---------------------------------------------------------------------*
+*&      Form  USERCOMMAND
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*      -->R_UCOM       text
+*      -->RS_SELFIELD  text
+*----------------------------------------------------------------------*
+FORM usercommand USING r_ucom TYPE sy-ucomm
+                       rs_selfield TYPE slis_selfield.
+  CASE r_ucom.
+
+    WHEN '&IC1'.
+      IF rs_selfield-sel_tab_field CS 'CARRID'.
+
+        READ TABLE gt_final INTO gs_final INDEX rs_selfield-tabindex.
+
+        SET PARAMETER ID 'CAR' FIELD gs_final-carrid.
+        SET PARAMETER ID 'CON' FIELD gs_final-connid.
+        SET PARAMETER ID 'DAY' FIELD gs_final-fldate.
+
+        CALL TRANSACTION 'BC_GLOBAL_SFLGH_EDIT' AND SKIP FIRST SCREEN.
+
+        IF sy-subrc IS INITIAL.
+
+          SELECT SINGLE *
+            FROM sflight
+            WHERE carrid = gs_final-carrid AND connid = gs_final-connid
+                                           AND fldate = gs_final-fldate.
+
+          IF sy-subrc = 0.
+            IF gs_final-price <> sflight-price.
+
+              gs_final-price = sflight-price.
+              MODIFY gt_final FROM gs_final INDEX rs_selfield-tabindex.
+              rs_selfield-refresh = 'X'.                    "ME23N
+
+            ENDIF.
+          ENDIF.
+
+        ENDIF.
+
+      ENDIF.
+    WHEN '&BT1'.
+      PERFORM bajar.
+    WHEN '&BT2'.
+      PERFORM subir.
+  ENDCASE.
+
+ENDFORM.                    "USERCOMMAND
+
+*&---------------------------------------------------------------------*
+*&      Form  mi_standard
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*      -->RT_EXTAB   text
+*----------------------------------------------------------------------*
+FORM mi_standard USING rt_extab TYPE slis_t_extab.
+
+  gs_exclude-fcode = '&NFO'.
+  APPEND gs_exclude TO gt_exclude.
+  gs_exclude-fcode = '&CRB'.
+  APPEND gs_exclude TO gt_exclude.
+  gs_exclude-fcode = '&CRL'.
+  APPEND gs_exclude TO gt_exclude.
+  gs_exclude-fcode = '&CRR'.
+  APPEND gs_exclude TO gt_exclude.
+  gs_exclude-fcode = '&CRE'.
+  APPEND gs_exclude TO gt_exclude.
+
+  SET PF-STATUS 'STANDARD' EXCLUDING gt_exclude.
+ENDFORM. "mi_standard
+
+*&---------------------------------------------------------------------*
+*&      Form  bajar
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM bajar.
+
+  IF NOT gt_final IS INITIAL.
+
+    LOOP AT gt_final INTO gs_final.
+      WRITE: gs_final-price TO lv_price.
+
+      CONCATENATE gs_final-carrid
+                  gs_final-connid
+                  gs_final-fldate
+                  gs_final-order_date
+                  gs_final-name
+                  gs_final-street
+                  lv_price
+      INTO gs_text
+      SEPARATED BY ';'.
+      APPEND gs_text TO gt_text.
+    ENDLOOP.
+
+    PERFORM save_file.
+  ELSE.
+    MESSAGE 'No se encontraron datos' TYPE 'I'.
+  ENDIF.
+ENDFORM.                    "bajar
+
+*&---------------------------------------------------------------------*
+*&      Form  subir
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM subir.
+  gv_filename = 'C:\test\data.txt'.
+
+*Upload the data from a file in SAP presentation server to internal
+*table
+  CALL FUNCTION 'GUI_UPLOAD'
+    EXPORTING
+      filename            = gv_filename
+      filetype            = gv_filetype
+      has_field_separator = 'X'
+    TABLES
+      data_tab            = gt_text.
+  DATA: lv_num TYPE p DECIMALS 2.
+  LOOP AT gt_text INTO gs_text.
+    SPLIT gs_text AT ';' INTO gs_final2-carrid
+                              gs_final2-connid
+                              gs_final2-fldate
+                              gs_final2-order_date
+                              gs_final2-name
+                              gs_final2-street
+                              lv_price.
+
+    CALL FUNCTION 'HRCM_STRING_TO_AMOUNT_CONVERT'
+      EXPORTING
+        string              = lv_price
+        decimal_separator   = ','
+        thousands_separator = '.'
+      IMPORTING
+        betrg               = lv_num.
+
+    gs_final2-price = lv_num.
+
+    READ TABLE gt_final INTO gs_final WITH KEY carrid = gs_final2-carrid connid = gs_final2-connid fldate = gs_final2-fldate order_date = gs_final2-order_date name = gs_final2-name.
+    IF gs_final2-street <> gs_final-street." OR gs_final2-price <> gs_final-price.
+      APPEND gs_final2 TO gt_final2.
+    ENDIF.
+
+  ENDLOOP.
+
+  PERFORM mostrarlosubido.
+
+ENDFORM. " read_file
+
+*&---------------------------------------------------------------------*
+*&      Form  save_file
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM save_file.
+*Move complete file path to file name
+  gv_filename = 'C:\test\data.txt'.
+
+
+*Download the internal table data into a file in PC Local
+  CALL FUNCTION 'GUI_DOWNLOAD'
+    EXPORTING
+      filename              = gv_filename
+      filetype              = 'ASC'
+      write_field_separator = 'X'
+    TABLES
+      data_tab              = gt_text.
+ENDFORM. " save_file
+
+*&---------------------------------------------------------------------*
+*&      Form  mostrarLoSubido
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM mostrarlosubido.
+
+  DATA: gt_fieldcat3 TYPE slis_t_fieldcat_alv,
+        gs_fieldcat3 TYPE slis_fieldcat_alv.
+
+  gs_fieldcat3-fieldname = 'CARRID'.
+  gs_fieldcat3-ref_tabname = 'SBOOK'.
+  gs_fieldcat3-just = 'L'.
+  APPEND gs_fieldcat3 TO gt_fieldcat3.
+
+  gs_fieldcat3-fieldname = 'CONNID'.
+  gs_fieldcat3-ref_tabname = 'SBOOK'.
+  gs_fieldcat3-just = 'L'.
+  APPEND gs_fieldcat3 TO gt_fieldcat3.
+
+  gs_fieldcat3-fieldname = 'FLDATE'.
+  gs_fieldcat3-ref_tabname = 'SBOOK'.
+  gs_fieldcat3-just = 'L'.
+  APPEND gs_fieldcat3 TO gt_fieldcat3.
+
+  gs_fieldcat3-fieldname = 'ORDER_DATE'.
+  gs_fieldcat3-ref_tabname = 'SBOOK'.
+  gs_fieldcat3-just = 'L'.
+  APPEND gs_fieldcat3 TO gt_fieldcat3.
+
+  gs_fieldcat3-fieldname = 'NAME'.
+  gs_fieldcat3-tabname = 'SCUSTOM'.
+  gs_fieldcat3-just = 'L'.
+  APPEND gs_fieldcat3 TO gt_fieldcat3.
+
+  gs_fieldcat3-fieldname = 'STREET'.
+  gs_fieldcat3-tabname = 'SCUSTOM'.
+  gs_fieldcat3-just = 'L'.
+  APPEND gs_fieldcat3 TO gt_fieldcat3.
+
+  gs_fieldcat3-fieldname = 'PRICE'.
+  gs_fieldcat3-tabname = 'SFLIGHT'.
+  gs_fieldcat3-just = 'L'.
+  APPEND gs_fieldcat3 TO gt_fieldcat3.
+
+  DATA: ls_layout TYPE slis_layout_alv.
+  ls_layout-colwidth_optimize = 'X'.
+  ls_layout-zebra = 'X'.
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      i_callback_program = sy-repid
+      is_layout          = ls_layout
+      it_fieldcat        = gt_fieldcat3
+    TABLES
+      t_outtab           = gt_final2.
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+ENDFORM.                    "mostrarLoSubido

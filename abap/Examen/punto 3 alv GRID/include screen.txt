@@ -1,0 +1,8 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU52_ALV_GRID_2_SCREEN
+*&---------------------------------------------------------------------*
+
+SELECT-OPTIONS: s_carrid FOR sbook-carrid,
+                s_connid FOR sbook-connid,
+                s_fldate FOR sbook-fldate,
+                s_agency FOR sbook-agencynum.

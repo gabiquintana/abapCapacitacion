@@ -1,0 +1,122 @@
+*&---------------------------------------------------------------------*
+*& Report  YREPORTE_ALV_EJ3
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+REPORT yreporte_alv_ej3.
+
+TABLES: sflight.
+
+TYPE-POOLS: slis.
+
+TYPES: BEGIN OF gs_sflight,
+        carrid   TYPE sflight-carrid,
+        connid   TYPE sflight-connid,
+        fldate   TYPE sflight-fldate,
+        price    TYPE sflight-price,
+        currency TYPE sflight-currency,
+      END OF gs_sflight.
+
+DATA: gt_sflight  TYPE TABLE OF gs_sflight,
+      gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv,
+      gt_sort     TYPE slis_t_sortinfo_alv,
+      gs_sort     TYPE slis_sortinfo_alv.
+
+START-OF-SELECTION.
+
+  SELECT * FROM sflight INTO CORRESPONDING FIELDS OF TABLE gt_sflight.
+
+  PERFORM f_cargar_fieldcat.
+  PERFORM f_cargar_sort.
+  PERFORM f_mostrar_alv.
+
+END-OF-SELECTION.
+
+*&---------------------------------------------------------------------*
+*&      Form  f_cargar_fieldcat
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_cargar_fieldcat.
+
+  gs_fieldcat-col_pos   = 1.
+  gs_fieldcat-fieldname = 'CARRID'.
+  gs_fieldcat-tabname   = 'GT_SFLIGHT'.
+  gs_fieldcat-seltext_m = ' Carrid '.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+  gs_fieldcat-col_pos   = 2.
+  gs_fieldcat-fieldname = 'CONNID'.
+  gs_fieldcat-tabname   = 'GT_SFLIGHT'.
+  gs_fieldcat-seltext_m = ' Connid '.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+  gs_fieldcat-col_pos   = 3.
+  gs_fieldcat-fieldname = 'FLDATE'.
+  gs_fieldcat-tabname   = 'GT_SFLIGHT'.
+  gs_fieldcat-seltext_m = ' Date '.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+  gs_fieldcat-col_pos   = 4.
+  gs_fieldcat-fieldname = 'PRICE'.
+  gs_fieldcat-tabname   = 'GT_SFLIGHT'.
+  gs_fieldcat-seltext_m = ' Price '.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+  gs_fieldcat-col_pos   = 5.
+  gs_fieldcat-fieldname = 'CURRENCY'.
+  gs_fieldcat-tabname   = 'GT_SFLIGHT'.
+  gs_fieldcat-seltext_m = ' Currency '.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+ENDFORM.                    "f_cargar_fieldcat
+
+*&---------------------------------------------------------------------*
+*&      Form  f_cargar_sort
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_cargar_sort.
+
+  gs_sort-spos      = 01.
+  gs_sort-fieldname = 'CARRID'.
+  gs_sort-up        =  'X'.
+  gs_sort-subtot    = 'X'.
+  APPEND gs_sort TO gt_sort.
+
+  gs_sort-spos      = 02.
+  gs_sort-fieldname = 'CONNID'.
+  gs_sort-up        =  'X'.
+  gs_sort-subtot    = 'X'.
+  APPEND gs_sort TO gt_sort.
+
+ENDFORM.                    "f_cargar_sort
+
+*&---------------------------------------------------------------------*
+*&      Form  f_mostrar_alv
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_mostrar_alv.
+
+  DATA: ls_layout TYPE slis_layout_alv.
+
+  ls_layout-colwidth_optimize = 'X'.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      i_callback_program = sy-repid
+      is_layout          = ls_layout
+      it_fieldcat        = gt_fieldcat[]
+      it_sort            = gt_sort[]
+      i_save             = 'A'
+    TABLES
+      t_outtab           = gt_sflight
+    EXCEPTIONS
+      program_error      = 1
+      OTHERS             = 2.
+
+ENDFORM.                    "f_mostrar_alv

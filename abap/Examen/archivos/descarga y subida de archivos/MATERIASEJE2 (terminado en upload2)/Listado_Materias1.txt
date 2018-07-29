@@ -1,0 +1,8 @@
+100;Análisis Matemático I;4;A
+101;Arquitectura de Computadores;4;A
+102;Matemática Discreta;4;A
+103;Algoritmos y Estructuras de Datos;4;A
+104;Algebra Lineal y Geometría Analítica;4;A
+105;Ingeniería y Sociedad;4;A
+106;Química;4;A
+107;Sistemas y Organizaciones;4;A

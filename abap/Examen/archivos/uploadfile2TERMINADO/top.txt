@@ -1,0 +1,31 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZSTRUCTTOP
+*&---------------------------------------------------------------------*
+TYPE-POOLS: slis, truxs.
+
+DATA: gv_filetype TYPE char10 VALUE 'ASC',
+      gt_text TYPE truxs_t_text_data,
+      gs_text LIKE LINE OF gt_text.
+DATA: gv_filename TYPE string.
+DATA: contador1 TYPE i value 0,
+      contador2 TYPE i value 0,
+      contador3 TYPE i value 0,
+      contador4 TYPE i value 0,
+      bandera TYPE c.
+
+TYPES: BEGIN OF ts_errores,
+  codmat TYPE zu64_materias-codmat,
+  nombre TYPE zu64_materias-nombre,
+  horas TYPE zu64_materias-horas,
+  operacion TYPE c,
+  END OF ts_errores.
+
+DATA: gs_materias TYPE zu64_materias,
+      gt_materias TYPE TABLE OF zu64_materias,
+      gt_materiasA TYPE TABLE OF zu64_materias,
+      gt_materiasB TYPE TABLE OF zu64_materias,
+      gt_materiasM TYPE TABLE OF zu64_materias,
+      gt_errores TYPE TABLE OF ts_errores,
+      gs_errores TYPE ts_errores.
+     "gs_materiasZ TYPE zu64_materias,
+      "gt_materiasZ TYPE TABLE OF zu64_materias.

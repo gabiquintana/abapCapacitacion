@@ -1,0 +1,35 @@
+*&---------------------------------------------------------------------*
+*& Report  ZACN_IS_DOMINGUEZ
+*&
+*&---------------------------------------------------------------------*
+*&PROGRAM: ZACN_IS_DOMINGUEZ
+* TITLE: Ejercicio de ALV y Smartforms
+* TYPE: Executable program
+*
+* DESCRIPTION: Programa Principal
+*
+* USER       NAME                        DATE          DESCRIPTION          CTS NUMER
+* ======     =======================     =========     ==============       ============
+* user15     Juan Cruz Dominguez Lay     5/18/2018     Ejercicio ALV Y SF   objeto local
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  ZACN_IS_DOMINGUEZ.
+
+include:  ZACN_IS_DOMINGUEZ_TOP, """ Las declaraciones globales.
+          ZACN_IS_DOMINGUEZ_SCR, """ Todo acerca de la screen.
+          ZACN_IS_DOMINGUEZ_F01. """ El desarollo de los performs.
+
+START-OF-SELECTION.
+
+perform f_accesos.
+
+*break user15.
+
+end-of-SELECTION.
+
+perform llenar_tabla_final.
+
+perform f_salida.
+
+*break user15.

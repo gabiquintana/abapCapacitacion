@@ -1,0 +1,215 @@
+
+FORM CARGARDATOS.
+
+  SELECT carrid connid fldate bookid customid
+    FROM sbook INTO TABLE gt_sbook
+    WHERE fldate IN s_date.
+
+    IF sy-subrc NE 0.
+      MESSAGE: 'Error al traer los datos sbook' TYPE 'E'.
+    ENDIF.
+
+    SELECT carrid connid fldate price
+      FROM sflight INTO TABLE gt_sflight
+      FOR ALL ENTRIES IN gt_sbook
+      WHERE carrid = gt_sbook-carrid AND
+            connid = gt_sbook-connid AND
+            fldate = gt_sbook-fldate AND
+            price IN s_price.
+
+    IF sy-subrc NE 0.
+      MESSAGE: 'Error al traer los datos sflight' TYPE 'E'.
+    ENDIF.
+
+    SELECT id name
+      FROM scustom INTO TABLE gt_scustom
+      FOR ALL ENTRIES IN gt_sbook
+      WHERE id = gt_sbook-customid.
+
+    IF sy-subrc NE 0.
+      MESSAGE: 'Error al traer los datos scustom' TYPE 'E'.
+    ENDIF.
+
+    SELECT carrid carrname url
+      FROM scarr INTO TABLE gt_final
+      FOR ALL ENTRIES IN gt_sflight
+      WHERE carrid = gt_sflight-carrid.
+
+    IF sy-subrc NE 0.
+      MESSAGE: 'Error al traer los datos final' TYPE 'E'.
+    ENDIF.
+
+*Armar la tabla final 2
+    SORT gt_sbook by carrid connid fldate.
+    SORT gt_sflight by carrid connid fldate.
+    SORT gt_scustom by id.
+
+    LOOP AT gt_sbook INTO gs_sbook.
+      READ TABLE gt_sflight into gs_sflight WITH KEY carrid = gs_sbook-carrid connid = gs_sbook-connid fldate = gs_sbook-fldate
+      BINARY SEARCH.
+      IF sy-subrc EQ 0.
+        READ TABLE gt_scustom INTO gs_scustom WITH KEY id = gs_sbook-customid
+        BINARY SEARCH.
+        IF sy-subrc EQ 0.
+          gs_final2-carrid = gs_sbook-carrid.
+          gs_final2-connid = gs_sbook-connid.
+          gs_final2-fldate = gs_sbook-fldate.
+          gs_final2-bookid = gs_sbook-bookid.
+          gs_final2-customid = gs_sbook-customid.
+          gs_final2-name = gs_scustom-name.
+          gs_final2-price = gs_sflight-price.
+          APPEND gs_final2  TO gt_final2.
+
+        ENDIF.
+      ENDIF.
+    ENDLOOP.
+
+
+ENDFORM.
+
+
+FORM ARMARFIELDCAT .
+* Fieldcat cabecera
+  gs_fieldcat-fieldname = 'CARRID'.
+  gs_fieldcat-seltext_s = 'CARRID'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  gs_fieldcat-just = 'L'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+  gs_fieldcat-fieldname = 'CARRNAME'.
+  gs_fieldcat-seltext_s = 'CARRNAME'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  gs_fieldcat-just = 'L'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+  gs_fieldcat-fieldname = 'URL'.
+  gs_fieldcat-seltext_s = 'URL'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  gs_fieldcat-just = 'L'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+*Fieldcat detalle
+
+gs_fieldcat-fieldname = 'CARRID'.
+gs_fieldcat-seltext_s = 'CARRID'.
+gs_fieldcat-tabname = 'GT_FINAL2'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'CONNID'.
+gs_fieldcat-seltext_s = 'CONNID'.
+gs_fieldcat-tabname = 'GT_FINAL2'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'FLDATE'.
+gs_fieldcat-seltext_s = 'FLDATE'.
+gs_fieldcat-tabname = 'GT_FINAL2'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'BOOKID'.
+gs_fieldcat-seltext_s = 'BOOKID'.
+gs_fieldcat-tabname = 'GT_FINAL2'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'CUSTOMID'.
+gs_fieldcat-seltext_s = 'CUSTOMID'.
+gs_fieldcat-tabname = 'GT_FINAL2'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'NAME'.
+gs_fieldcat-seltext_s = 'NAME'.
+gs_fieldcat-tabname = 'GT_FINAL2'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'PRICE'.
+gs_fieldcat-seltext_s = 'PRICE'.
+gs_fieldcat-tabname = 'GT_FINAL2'.
+gs_fieldcat-just = 'L'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+ENDFORM.                    " ARMARFIELDCAT
+
+FORM SETEARLAYOUT .
+
+  ls_sort-fieldname = 'CARRID'.
+  ls_sort-expa      = 'X'.
+  APPEND ls_sort TO gt_sortcat.
+
+  ls_layout-colwidth_optimize = 'X'.
+  ls_layout-zebra = 'X'.
+  ls_layout-window_titlebar   = 'Vuelos ponele'.
+  ls_layout-expand_fieldname = 'EXPAND'.
+
+  gs_key-header01 = 'CARRID'.
+  gs_key-item01 = 'CARRID'.
+
+ENDFORM.                    " SETEARLAYOUT
+
+FORM DISPLAYALV .
+
+  CALL FUNCTION 'REUSE_ALV_HIERSEQ_LIST_DISPLAY'
+  EXPORTING
+    i_callback_program       = sy-repid
+    i_callback_user_command  = 'USERCOMMAND' " evento al tocar el campo (navegacion)
+*   i_callback_pf_status_set = 'MI_STANDARD' " se41 armar mi standar
+*    it_excluding             = gt_exclude
+    it_sort                  = gt_sortcat
+    is_layout                = ls_layout
+    it_fieldcat              = gt_fieldcat
+    i_tabname_header         = 'GT_FINAL'
+    i_tabname_item           = 'GT_FINAL2'
+    i_save                   = 'A'
+    is_keyinfo               = gs_key
+  TABLES
+    t_outtab_header          = gt_final
+    t_outtab_item            = gt_final2
+  EXCEPTIONS
+    program_error            = 1
+    OTHERS                   = 2.
+
+ENDFORM.                    " DISPLAYALV
+
+FORM USERCOMMAND USING r_ucom TYPE sy-ucomm
+                       rs_selfield TYPE slis_selfield.
+
+  IF r_ucom = '&IC1'.
+      IF rs_selfield-sel_tab_field CS 'CARRID'.
+
+        READ TABLE gt_final2 INTO gs_final2 INDEX rs_selfield-tabindex.
+
+        SET PARAMETER ID 'CAR' FIELD gs_final2-carrid.
+        SET PARAMETER ID 'CON' FIELD gs_final2-connid.
+        SET PARAMETER ID 'DAY' FIELD gs_final2-fldate.
+* Entrar en la transaccion, F8, pararte en cada campo y F1 para ver el nombre del PARAMETER.
+        CALL TRANSACTION 'BC_GLOBAL_SFLGH_EDIT' AND SKIP FIRST SCREEN.
+
+        IF sy-subrc IS INITIAL.
+
+          SELECT SINGLE *
+            FROM sflight
+            WHERE carrid = gs_final2-carrid AND connid = gs_final2-connid
+                                           AND fldate = gs_final2-fldate.
+
+          IF sy-subrc = 0.
+            IF gs_final2-price <> sflight-price.
+
+              gs_final2-price = sflight-price.
+              MODIFY gt_final2 FROM gs_final2 INDEX rs_selfield-tabindex.
+              rs_selfield-refresh = 'X'.                    "ME23N
+
+            ENDIF.
+          ENDIF.
+
+        ENDIF.
+
+      ENDIF.
+      ENDIF.
+
+
+
+ENDFORM.

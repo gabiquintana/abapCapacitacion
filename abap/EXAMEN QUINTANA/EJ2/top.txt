@@ -1,0 +1,56 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_REPORTE2_TOP
+*&---------------------------------------------------------------------*
+TABLES: smenu, smealt.
+TYPE-POOLS: slis.
+
+TYPES: BEGIN OF ts_smenu,
+  carrid TYPE smenu-carrid,
+  menunumber TYPE smenu-menunumber,
+  starter TYPE smenu-starter,
+  maincourse TYPE smenu-maincourse,
+  dessert TYPE smenu-dessert,
+  END OF ts_smenu.
+
+  TYPES: BEGIN OF ts_smealt,
+  carrid TYPE smealt-carrid,
+  mealnumber TYPE smealt-mealnumber,
+  sprache TYPE smealt-sprache,
+  text TYPE smealt-text,
+  END OF ts_smealt.
+
+  TYPES: BEGIN OF ts_scarr,
+  carrid TYPE scarr-carrid,
+  carrname TYPE scarr-carrname,
+  expand,
+END OF ts_scarr.
+
+TYPES: BEGIN OF ts_final,
+  carrid TYPE smenu-carrid,
+  menunumber TYPE smenu-menunumber,
+  starter TYPE smealt-text,
+  maincourse TYPE smealt-text,
+  dessert TYPE smealt-text,
+  END OF ts_final.
+
+  DATA: gt_smenu TYPE TABLE OF ts_smenu,
+        gs_smenu TYPE ts_smenu,
+        gs_smealt TYPE ts_smealt,
+        gt_smealt TYPE TABLE OF ts_smealt,
+        gs_scarr TYPE ts_scarr,
+        gt_scarr TYPE TABLE OF ts_scarr.
+
+  DATA: gs_final TYPE ts_final,
+      gt_final TYPE TABLE OF ts_final.
+
+
+* FIELDCAT -------------------------------------------------
+
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv,
+      gs_key TYPE slis_keyinfo_alv.
+"gt_sortcat TYPE slis_t_sortinfo_alv.
+
+DATA: ls_sort TYPE slis_sortinfo_alv,
+      gt_sortcat TYPE slis_t_sortinfo_alv,
+      ls_layout TYPE slis_layout_alv.

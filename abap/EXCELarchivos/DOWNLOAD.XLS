@@ -1,0 +1,120 @@
+CARRID	CONNID	FLDATE	ORDER_DATE	NAME	STREET	PRICE
+AA	0017	04.02.2009	12.09.2008	Irmgard Kreiss	Max-Planck-Str. 178	55,00
+AA	0017	04.02.2009	15.09.2008	Simon Dumbach	rue de Moillebeau 235	55,00
+AA	0017	04.02.2009	16.09.2008	Jean-Luc Bentink	206 Rue Balzac	55,00
+AA	0017	04.02.2009	18.09.2008	Thilo Eichbaum	Zwischergasse 24	55,00
+AA	0017	04.02.2009	22.09.2008	Irmgard Mechler	Max-Planck-Str. 57	55,00
+AA	0017	04.02.2009	24.09.2008	Ludwig Heiler	Wilhelm-Glaessing-Str. 154	55,00
+AA	0017	04.02.2009	25.09.2008	Lothar Lindwurm	Stiftsbogen 238	55,00
+AA	0017	04.02.2009	26.09.2008	Laura Sudhoff	Raupelsweg 105	55,00
+AA	0017	04.02.2009	28.09.2008	Lothar Barth	Hauptstr. 260	55,00
+AA	0017	04.02.2009	29.09.2008	Claire Kramer	Meerfeldstr. 41	55,00
+AA	0017	04.02.2009	29.09.2008	Torben Gutenberg	Carl-Metz Strasse 242	55,00
+AA	0017	04.02.2009	30.09.2008	Thilo Heiler	Zwischergasse 47	55,00
+AA	0017	04.02.2009	03.10.2008	Torben Marshall	Carl-Metz Strasse 20	55,00
+AA	0017	04.02.2009	03.10.2008	Pierre Trensch	128 route de PÈgomas	55,00
+AA	0017	04.02.2009	05.10.2008	Lothar Dumbach	Hauptstr. 60	55,00
+AA	0017	04.02.2009	11.10.2008	Carmel Buchholz	91 Oak Street	55,00
+AA	0017	04.02.2009	11.10.2008	Mathilde Buchholz	Erlengrund 222	55,00
+AA	0017	04.02.2009	15.10.2008	Johannes Montero	Leichhof 251	55,00
+AA	0017	04.02.2009	16.10.2008	Metal Container Inc.	Boardwalk Street	55,00
+AA	0017	04.02.2009	17.10.2008	Torben Neubacher	Carl-Metz Strasse 256	55,00
+AA	0017	04.02.2009	19.10.2008	Lee Mechler	18 17th St.	55,00
+AA	0017	04.02.2009	22.10.2008	Torben Barth	Carl-Metz Strasse 56	55,00
+AA	0017	04.02.2009	23.10.2008	Johannes Kreiss	Leichhof 230	55,00
+AA	0017	04.02.2009	26.10.2008	Torben Madeya	Carl-Metz Strasse 65	55,00
+AA	0017	04.02.2009	28.10.2008	August D¥Oultrement	Alte Reichsstr. 164	55,00
+AA	0017	04.02.2009	01.11.2008	Matthias Barth	Gartenstr. 210	55,00
+AA	0017	04.02.2009	01.11.2008	Laura Fischer	Raupelsweg 158	55,00
+AA	0017	04.02.2009	01.11.2008	Irene Forstmann	Akazienweg 62	55,00
+AA	0017	04.02.2009	09.11.2008	Chantal Pratt	161 rue Nieuport	55,00
+AA	0017	04.02.2009	11.11.2008	Thilo Montero	Zwischergasse 174	55,00
+AA	0017	04.02.2009	12.11.2008	Pierre Moyano	13 route de PÈgomas	55,00
+AA	0017	04.02.2009	15.11.2008	Marta Matthaeus	237 Camelias	55,00
+AA	0017	04.02.2009	24.11.2008	Roland Vrsic	Gemeindestr. 105	55,00
+AA	0017	04.02.2009	26.11.2008	Florian Matthaeus	Gruenlingweg 246	55,00
+AA	0017	04.02.2009	30.11.2008	Benjamin Dumbach	223 Voodoo Avenue	55,00
+AA	0017	04.02.2009	05.12.2008	Adam Ittner	Heidelberger Str. 150	55,00
+AA	0017	04.02.2009	05.12.2008	Uli Matthaeus	Franz-Marc-Str. 156	55,00
+AA	0017	04.02.2009	06.12.2008	Anneliese Buehler	Am Deich 36	55,00
+AA	0017	04.02.2009	12.12.2008	Anna Kirk	Lerchenstr. 112	55,00
+AA	0017	04.02.2009	15.12.2008	Guillermo Benjamin	145 Pza. Pablo Ruiz Picasso	55,00
+AA	0017	04.02.2009	21.12.2008	Juan Montero Soria	96 Fuenlabrada	55,00
+AA	0017	04.02.2009	25.12.2008	Sophie Jacqmain	Mutterstadter Str. 74	55,00
+AA	0017	04.02.2009	28.12.2008	Lothar Legrand	Hauptstr. 208	55,00
+AA	0017	04.02.2009	28.12.2008	Lothar Henry	Stiftsbogen 268	55,00
+AA	0017	04.02.2009	29.12.2008	Joschka Zimmermann	Jogging-Str. 278	55,00
+AA	0017	04.02.2009	30.12.2008	Amelie Forstmann	Froschstr. 171	55,00
+AA	0017	04.02.2009	06.01.2009	Thilo Hunter	Zwischergasse 97	55,00
+AA	0017	04.02.2009	11.01.2009	Anna Matthaeus	Lerchenstr. 97	55,00
+AA	0017	04.02.2009	20.01.2009	Annemarie Rahn	Stauboernchenstrasse 184	55,00
+AA	0017	04.02.2009	21.01.2009	Carmel Heiler	138 Oak Street	55,00
+AA	0017	04.03.2009	05.10.2008	Chantal Schneider	134 rue Nieuport	9,00
+AA	0017	04.03.2009	05.10.2008	Thomas Madeya	143 Lake Shore Drive	9,00
+AA	0017	04.03.2009	08.10.2008	Torben Hunter	Carl-Metz Strasse 160	9,00
+AA	0017	04.03.2009	08.10.2008	Jean Pratt	117 rue Voltaire	9,00
+AA	0017	04.03.2009	16.10.2008	Ida Kirk	Dudweilerstr. 50	9,00
+AA	0017	04.03.2009	20.10.2008	Gerd Wohl	Forstmann 169	9,00
+AA	0017	04.03.2009	20.10.2008	Thomas Heiler	35 Lake Shore Drive	9,00
+AA	0017	04.03.2009	25.10.2008	Cindy Simon	94 Windstone Drive	9,00
+AA	0017	04.03.2009	26.10.2008	Annemarie Kreiss	Stauboernchenstrasse 88	9,00
+AA	0017	04.03.2009	31.10.2008	Matthias Cesari	Gartenstr. 92	9,00
+AA	0017	04.03.2009	01.11.2008	Simon Simon	rue de Moillebeau 75	9,00
+AA	0017	04.03.2009	03.11.2008	Johannes Delon	Leichhof 2	9,00
+AA	0017	04.03.2009	04.11.2008	Buy & Fly Supermarkt	Saalburgstr. 765	9,00
+AA	0017	04.03.2009	11.11.2008	Amelie Wohl	Froschstr. 150	9,00
+AA	0017	04.03.2009	13.11.2008	Adam Vrsic	Heidelberger Str. 229	9,00
+AA	0017	04.03.2009	13.11.2008	Siegfried S. Leisert	Schillerstr. 111	9,00
+AA	0017	04.03.2009	16.11.2008	Benjamin Matthaeus	23 Voodoo Avenue	9,00
+AA	0017	04.03.2009	21.11.2008	Sophie Picard	Mutterstadter Str. 143	9,00
+AA	0017	04.03.2009	25.11.2008	Peter Gueldenpfennig	Karl-Marx-Allee 121	9,00
+AA	0017	04.03.2009	02.12.2008	Lee Hoffmann	76 17th St.	9,00
+AA	0017	04.03.2009	03.12.2008	Horst Deichgraeber	Elzstrasse 240	9,00
+AA	0017	04.03.2009	03.12.2008	Anneliese Lautenbach	Am Deich 117	9,00
+AA	0017	04.03.2009	05.12.2008	Juan Forstmann	24 Fuenlabrada	9,00
+AA	0017	04.03.2009	12.12.2008	Benjamin Zimmermann	253 Voodoo Avenue	9,00
+AA	0017	04.03.2009	13.12.2008	Horst Lindwurm	Muehltalstr. 77	9,00
+AA	0017	04.03.2009	15.12.2008	Torben Simon	Carl-Metz Strasse 54	9,00
+AA	0017	04.03.2009	28.12.2008	Pierre D¥Oultrement	29 route de PÈgomas	9,00
+AA	0017	04.03.2009	29.12.2008	Benjamin Kreiss	272 Voodoo Avenue	9,00
+AA	0017	04.03.2009	15.01.2009	Ida Henry	Dudweilerstr. 229	9,00
+AA	0017	04.03.2009	16.01.2009	Johannes Schneider	Leichhof 128	9,00
+AA	0017	04.03.2009	21.01.2009	Carmel Marshall	14 Oak Street	9,00
+AA	0017	04.03.2009	26.01.2009	SAP America Inc.	701 Lee Road	9,00
+AA	0017	04.03.2009	27.01.2009	Torben Sisko	Carl-Metz Strasse 14	9,00
+AA	0017	04.03.2009	30.01.2009	Irene Schneider	Akazienweg 146	9,00
+AA	0017	04.03.2009	03.02.2009	EWI Transport GmbH	Dieselstraﬂe 14	9,00
+AA	0017	04.03.2009	03.02.2009	Anna Fischer	N7, 277	9,00
+AA	0017	04.03.2009	05.02.2009	Friedrich Kirk	Friedensallee 115	9,00
+AA	0017	04.03.2009	06.02.2009	Joschka Schneider	Jogging-Str. 116	9,00
+AA	0017	04.03.2009	06.02.2009	Florian Picard	Gruenlingweg 162	9,00
+AA	0017	04.03.2009	10.02.2009	Thomas Picard	46 Lake Shore Drive	9,00
+AA	0017	04.03.2009	11.02.2009	Christa Kirk	Ausserhalb 31	9,00
+AA	0017	04.03.2009	15.02.2009	King	Hyde Park 7	9,00
+AA	0017	04.03.2009	15.02.2009	Friedrich Buehler	Friedensallee 70	9,00
+AA	0017	04.03.2009	16.02.2009	Irene Mechler	Akazienweg 105	9,00
+AA	0017	04.03.2009	22.02.2009	Gerd Picard	Forstmann 54	9,00
+AZ	0555	04.02.2009	11.09.2008	Jean Pratt	117 rue Voltaire	5,00
+AZ	0555	04.02.2009	19.09.2008	Joschka Ittner	Jogging-Str. 48	5,00
+AZ	0555	04.02.2009	27.09.2008	Stephen Sudhoff	Arionweg 203	5,00
+AZ	0555	04.02.2009	20.10.2008	Johannes Zimmermann	Leichhof 70	5,00
+AZ	0555	04.02.2009	25.10.2008	Matthias Goerke	Gartenstr. 33	5,00
+AZ	0555	04.02.2009	07.11.2008	Roland Moyano	Gemeindestr. 86	5,00
+AZ	0555	04.02.2009	09.11.2008	Lothar Detemple	Hauptstr. 126	5,00
+AZ	0555	04.02.2009	11.11.2008	Andreas Rahn	Hasnerstrasse 187	5,00
+AZ	0555	04.02.2009	13.11.2008	Frank Abbott	123 Main Street	5,00
+AZ	0555	04.02.2009	14.11.2008	Marta Matthaeus	237 Camelias	5,00
+AZ	0555	04.02.2009	17.11.2008	Jean-Luc Zimmermann	22 Rue Balzac	5,00
+AZ	0555	04.02.2009	26.11.2008	Horst Kreiss	Muehltalstr. 37	5,00
+AZ	0555	04.02.2009	07.12.2008	Peter Rahn	Karl-Marx-Allee 125	5,00
+AZ	0555	04.02.2009	08.12.2008	Jean Sudhoff	74 rue Voltaire	5,00
+AZ	0555	04.02.2009	23.12.2008	Carmel Leisert	182 Oak Street	5,00
+AZ	0555	04.02.2009	24.12.2008	Claire Zimmermann	Meerfeldstr. 71	5,00
+AZ	0555	04.02.2009	24.12.2008	Laura Hunter	Raupelsweg 36	5,00
+AZ	0555	04.02.2009	24.12.2008	Guillermo Goerke	139 Pza. Pablo Ruiz Picasso	5,00
+AZ	0555	04.02.2009	31.12.2008	Achim Weiss	Rankestr. 265	5,00
+AZ	0555	04.02.2009	06.01.2009	Thilo Hunter	Zwischergasse 97	5,00
+AZ	0555	04.02.2009	07.01.2009	Allen Kreiss	252 Sagamore St.	5,00
+AZ	0555	04.02.2009	10.01.2009	Lothar Columbo	Stiftsbogen 210	5,00
+AZ	0555	04.02.2009	13.01.2009	Amelie Koslowski	Froschstr. 249	5,00
+AZ	0555	04.02.2009	15.01.2009	August Marshall	Alte Reichsstr. 54	5,00

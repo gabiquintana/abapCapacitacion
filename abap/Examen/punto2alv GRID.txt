@@ -1,0 +1,164 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_ALV_GRID_1
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zu64_alv_grid_1.
+
+TABLES: spfli, sflight, scarr.
+
+TYPE-POOLS: slis.
+
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv,
+      gt_sortcat TYPE slis_t_sortinfo_alv.
+
+TYPES: BEGIN OF ts_final,
+       carrid TYPE sflight-carrid,
+       connid TYPE sflight-connid,
+       fldate TYPE sflight-fldate,
+       price TYPE sflight-price,
+       currency TYPE sflight-currency,
+       cityfrom TYPE spfli-cityfrom,
+       cityto TYPE spfli-cityto,
+       carrname TYPE scarr-carrname,
+  END OF ts_final.
+
+TYPES: BEGIN OF ts_sflight,
+    carrid TYPE sflight-carrid,
+       connid TYPE sflight-connid,
+       fldate TYPE sflight-fldate,
+       price TYPE sflight-price,
+       currency TYPE sflight-currency,
+END OF ts_sflight.
+
+TYPES: BEGIN OF ts_spfli,
+         carrid TYPE spfli-carrid,
+         connid TYPE spfli-connid,
+         cityfrom TYPE spfli-cityfrom,
+       cityto TYPE spfli-cityto,
+END OF ts_spfli.
+
+TYPES: BEGIN OF ts_scarr,
+  carrid TYPE scarr-carrid,
+  carrname TYPE scarr-carrname,
+END OF ts_scarr.
+
+SELECT-OPTIONS: price FOR sflight-price,
+                fldate FOR sflight-fldate.
+
+DATA: gs_final TYPE ts_final,
+      gt_final TYPE TABLE OF ts_final,
+      gs_sflight TYPE ts_sflight,
+      gt_sflight TYPE TABLE OF ts_sflight,
+      gs_spfli TYPE ts_spfli,
+      gt_spfli TYPE TABLE OF ts_spfli,
+      gs_scarr TYPE ts_scarr,
+      gt_scarr TYPE TABLE OF ts_scarr.
+
+SELECT sflight~carrid sflight~connid sflight~fldate sflight~price sflight~currency
+FROM sflight
+INTO TABLE  gt_sflight
+WHERE sflight~fldate IN fldate AND sflight~price IN price.
+IF sy-subrc = 0.
+SELECT spfli~carrid spfli~connid spfli~cityfrom spfli~cityto
+FROM spfli
+INTO TABLE gt_spfli
+FOR ALL ENTRIES IN gt_sflight
+WHERE spfli~carrid = gt_sflight-carrid AND spfli~connid = gt_sflight-connid.
+
+  IF sy-subrc = 0.
+SELECT scarr~carrid scarr~carrname
+FROM scarr
+INTO TABLE gt_scarr
+FOR ALL ENTRIES IN gt_sflight
+WHERE scarr~carrid = gt_sflight-carrid.
+  IF sy-subrc = 0.
+LOOP AT gt_sflight INTO gs_sflight.
+READ TABLE gt_spfli INTO gs_spfli WITH KEY carrid = gs_sflight-carrid connid = gs_sflight-connid.
+IF sy-subrc = 0.
+gs_final-cityfrom = gs_spfli-cityfrom.
+gs_final-cityto = gs_spfli-cityto.
+ENDIF.
+READ TABLE gt_scarr INTO gs_scarr with key carrid = gs_scarr-carrid.
+if sy-subrc = 0.
+  gs_final-carrname = gs_scarr-carrname.
+  endif.
+  gs_final-carrid = gs_sflight-carrid.
+  gs_final-connid = gs_sflight-connid.
+  gs_final-fldate = gs_sflight-fldate.
+  gs_final-price = gs_sflight-price.
+  gs_final-currency = gs_sflight-currency.
+  APPEND gs_final TO gt_final.
+ENDLOOP.
+  ENDIF.
+  ENDIF.
+ENDIF.
+
+
+gs_fieldcat-fieldname = 'CARRID'.
+gs_fieldcat-seltext_S = 'carrid'.
+APPEND gs_fieldcat TO gt_fieldcat.
+CLEAR gs_fieldcat.
+
+gs_fieldcat-fieldname = ' CONNID'.
+gs_fieldcat-seltext_S = 'connid'.
+APPEND gs_fieldcat TO gt_fieldcat.
+CLEAR gs_fieldcat.
+
+gs_fieldcat-fieldname = 'FLDATE'.
+gs_fieldcat-seltext_S = 'fecha'.
+APPEND gs_fieldcat TO gt_fieldcat.
+CLEAR gs_fieldcat.
+
+gs_fieldcat-fieldname = 'PRICE'.
+gs_fieldcat-seltext_S = 'precio'.
+gs_fieldcat-do_sum = 'X'.
+APPEND gs_fieldcat TO gt_fieldcat.
+CLEAR gs_fieldcat.
+
+gs_fieldcat-fieldname = 'CITYFROM'.
+gs_fieldcat-seltext_S = 'DESDE'.
+APPEND gs_fieldcat TO gt_fieldcat.
+CLEAR gs_fieldcat.
+
+gs_fieldcat-fieldname = 'CURRENCY'.
+gs_fieldcat-seltext_S = 'moneda'.
+APPEND gs_fieldcat TO gt_fieldcat.
+CLEAR gs_fieldcat.
+gs_fieldcat-fieldname = 'CITYTO'.
+gs_fieldcat-seltext_S = 'HASTA'.
+APPEND gs_fieldcat TO gt_fieldcat.
+CLEAR gs_fieldcat.
+
+gs_fieldcat-fieldname = 'CARRNAME'.
+gs_fieldcat-seltext_S = 'AEROLINEA'.
+APPEND gs_fieldcat TO gt_fieldcat.
+CLEAR gs_fieldcat.
+
+DATA: ls_sort TYPE slis_sortinfo_alv.
+
+ls_sort-fieldname = 'CARRID'.
+ls_sort-spos = 1.
+ls_sort-up = 'X'.
+ls_sort-subtot = 'X'.
+* ls_sort-expa = 'X'. " Sirve para que salgan los subtotales plegados
+APPEND ls_sort TO gt_sortcat.
+
+DATA: ls_layout TYPE slis_layout_alv.
+ls_layout-colwidth_optimize = 'X'.
+ls_layout-zebra = 'X'.
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+EXPORTING
+i_callback_program = sy-repid
+is_layout = ls_layout
+it_fieldcat = gt_fieldcat
+
+it_sort = gt_sortcat
+*it_events = gt_events
+TABLES
+t_outtab = gt_final.

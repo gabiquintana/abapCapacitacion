@@ -1,0 +1,340 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZACN_IS_DOMINGUEZ_F01
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  F_ACCESOS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM f_accesos .
+
+*** Accedo a las tablas transparentes y guardo los datos en las tablas internas.
+
+  SELECT SINGLE *
+    FROM zdet_sucursal
+    INTO wa_det_sucu
+    WHERE deposito EQ p_depo.
+
+  IF sy-subrc NE 0.
+    MESSAGE e002(z00_zacn_15) DISPLAY LIKE 'E'.
+  ENDIF.
+
+  SELECT *
+    FROM znom_sucursal
+    INTO TABLE it_nom_sucu
+    WHERE deposito EQ p_depo
+    AND patente IN s_pate.
+
+  IF sy-subrc NE 0.
+    MESSAGE e001(z00_zacn_15) DISPLAY LIKE 'E'.
+  ELSE.
+
+    SELECT *
+      FROM znom_entregas
+      INTO TABLE it_entregas
+      FOR ALL ENTRIES IN it_nom_sucu
+      WHERE patente EQ it_nom_sucu-patente.
+
+    IF sy-subrc NE 0.
+      MESSAGE e003(z00_zacn_15) DISPLAY LIKE 'E'.
+    ELSE.
+
+      SORT it_entregas BY patente.
+
+      SELECT *
+        FROM zacn_dominguez
+        INTO TABLE it_reintegro
+        FOR ALL ENTRIES IN it_entregas
+        WHERE patente EQ it_entregas-patente.
+
+      IF sy-subrc EQ 0.
+        SORT it_reintegro BY patente.
+      ENDIF.
+    ENDIF.
+  ENDIF.
+
+
+ENDFORM.                    " F_ACCESOS
+*&---------------------------------------------------------------------*
+*&      Form  LLENAR_TABLA_FINAL
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM llenar_tabla_final .
+
+*** Por cada registro de la tabla it_nom_sucu, lleno la tabla final obteniendo datos de mis otras tablas
+*** internas con los reads tambien.
+
+  LOOP AT it_nom_sucu INTO wa_nom_sucu.
+
+    wa_final-patente = wa_nom_sucu-patente.
+    wa_final-marca = wa_nom_sucu-marca.
+    wa_final-ano = wa_nom_sucu-ano.
+    wa_final-clase = wa_nom_sucu-clase.
+
+    READ TABLE it_entregas
+    INTO wa_entregas
+    WITH KEY patente = wa_nom_sucu-patente
+    BINARY SEARCH.
+
+    IF sy-subrc EQ 0.
+      wa_final-entrega = wa_entregas-entrega.
+   ELSE.
+     CONTINUE.
+     ENDIF.
+
+    READ TABLE it_reintegro
+    INTO wa_reintegro
+    WITH KEY patente = wa_nom_sucu-patente.
+
+    IF sy-subrc EQ 0.
+      wa_final-rei_real = wa_reintegro-rei_real.
+    ELSE.
+      wa_final-comentario = 'Vehiculo aun no entregado'.
+    ENDIF.
+
+    IF wa_entregas-deposito NE wa_reintegro-dep_ent.
+      wa_final-ent_diferida = 'X'.
+    ENDIF.
+
+
+    DATA: lv_days TYPE p.
+
+    CALL FUNCTION 'HRVE_GET_TIME_BETWEEN_DATES'
+      EXPORTING
+        beg_date             = wa_entregas-rei_plan
+        end_date             = wa_reintegro-rei_real
+     IMPORTING
+       days                 = lv_days
+*       MONTHS               =
+*       YEARS                =
+     EXCEPTIONS
+       invalid_period       = 1
+       OTHERS               = 2
+              .
+    IF sy-subrc <> 0.
+      MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+              WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+    ENDIF.
+
+
+    IF lv_days > 0.
+      wa_final-dias_excedido = 'X'.
+    ENDIF.
+
+
+    IF wa_reintegro-km_ent > wa_entregas-km_plan.
+      wa_final-km_excedido = 'X'.
+    ENDIF.
+
+
+    APPEND wa_final TO it_final.
+
+    CLEAR wa_final.
+
+  ENDLOOP.
+
+ENDFORM.                    " LLENAR_TABLA_FINAL
+*&---------------------------------------------------------------------*
+*&      Form  F_SALIDA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM f_salida .
+
+*** Dependiendo de lo elegido en la pantalla de seleccion se mostrar los datos con un ALV o con un Smartform.
+
+  IF rb_alv EQ 'X'.
+
+    PERFORM f_alv.
+
+  ELSE.
+
+    IF rb_form EQ 'X'.
+
+      PERFORM f_smartform.
+
+    ENDIF.
+
+  ENDIF.
+
+ENDFORM.                    " F_SALIDA
+*&---------------------------------------------------------------------*
+*&      Form  F_ALV
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM f_alv .
+
+  perform f_llenar_catalogo using:
+        'PATENTE' 'IT_FINAL' 'Patente' 8 'C',
+        'MARCA' 'IT_FINAL' 'Marca' 9 'C',
+        'ANO' 'IT_FINAL' 'Año' 6 'C',
+        'CLASE' 'IT_FINAL' 'Clase' 9 'C',
+        'ENTREGA' 'IT_FINAL' 'Entrega' 12 'C',
+        'REI_REAL' 'IT_FINAL' 'Fecha Reintegro' 12 'C',
+        'ENT_DIFERIDA' 'IT_FINAL' 'Entrega Diferida' 3 'C',
+        'DIAS_EXCEDIDO' 'IT_FINAL' 'Excedido en dias' 3 'C',
+        'KM_EXCEDIDO' 'IT_FINAL' 'Excedido en KM' 3 'C',
+        'COMENTARIO' 'IT_FINAL' 'Comentario' 30 'C'.
+
+  clear wa_layout.
+
+  wa_layout-zebra = 'X'.
+  wa_layout-window_titlebar = 'Repote ALV'.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+   EXPORTING
+*     I_INTERFACE_CHECK                 = ' '
+*     I_BYPASSING_BUFFER                = ' '
+*     I_BUFFER_ACTIVE                   = ' '
+     I_CALLBACK_PROGRAM                = v_repid
+*     I_CALLBACK_PF_STATUS_SET          = ' '
+*     I_CALLBACK_USER_COMMAND           = ' '
+*     I_CALLBACK_TOP_OF_PAGE            = ' '
+*     I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*     I_CALLBACK_HTML_END_OF_LIST       = ' '
+*     I_STRUCTURE_NAME                  =
+*     I_BACKGROUND_ID                   = ' '
+*     I_GRID_TITLE                      =
+*     I_GRID_SETTINGS                   =
+     IS_LAYOUT                         = wa_layout
+     IT_FIELDCAT                       = it_catalogo
+*     IT_EXCLUDING                      =
+*     IT_SPECIAL_GROUPS                 =
+*     IT_SORT                           =
+*     IT_FILTER                         =
+*     IS_SEL_HIDE                       =
+*     I_DEFAULT                         = 'X'
+*     I_SAVE                            = ' '
+*     IS_VARIANT                        =
+*     IT_EVENTS                         =
+*     IT_EVENT_EXIT                     =
+*     IS_PRINT                          =
+*     IS_REPREP_ID                      =
+*     I_SCREEN_START_COLUMN             = 0
+*     I_SCREEN_START_LINE               = 0
+*     I_SCREEN_END_COLUMN               = 0
+*     I_SCREEN_END_LINE                 = 0
+*     I_HTML_HEIGHT_TOP                 = 0
+*     I_HTML_HEIGHT_END                 = 0
+*     IT_ALV_GRAPHICS                   =
+*     IT_HYPERLINK                      =
+*     IT_ADD_FIELDCAT                   =
+*     IT_EXCEPT_QINFO                   =
+*     IR_SALV_FULLSCREEN_ADAPTER        =
+*   IMPORTING
+*     E_EXIT_CAUSED_BY_CALLER           =
+*     ES_EXIT_CAUSED_BY_USER            =
+    TABLES
+      t_outtab                          = it_final
+   EXCEPTIONS
+     PROGRAM_ERROR                     = 1
+     OTHERS                            = 2
+            .
+  IF sy-subrc <> 0.
+ MESSAGE ID SY-MSGID TYPE SY-MSGTY NUMBER SY-MSGNO
+         WITH SY-MSGV1 SY-MSGV2 SY-MSGV3 SY-MSGV4.
+  ENDIF.
+
+
+
+ENDFORM.                    " F_ALV
+*&---------------------------------------------------------------------*
+*&      Form  F_SMARTFORM
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM f_smartform .
+
+  DATA: lv_nombre_funcion type rs38l_fnam.
+
+  CALL FUNCTION 'SSF_FUNCTION_MODULE_NAME'
+    EXPORTING
+      formname                 = 'ZACN_SF_DOMINGUEZ'
+*     VARIANT                  = ' '
+*     DIRECT_CALL              = ' '
+   IMPORTING
+     FM_NAME                  = lv_nombre_funcion
+*   EXCEPTIONS
+*     NO_FORM                  = 1
+*     NO_FUNCTION_MODULE       = 2
+*     OTHERS                   = 3
+            .
+  IF sy-subrc <> 0.
+* MESSAGE ID SY-MSGID TYPE SY-MSGTY NUMBER SY-MSGNO
+*         WITH SY-MSGV1 SY-MSGV2 SY-MSGV3 SY-MSGV4.
+  ENDIF.
+
+
+  CALL FUNCTION lv_nombre_funcion
+    EXPORTING
+*     ARCHIVE_INDEX              =
+*     ARCHIVE_INDEX_TAB          =
+*     ARCHIVE_PARAMETERS         =
+*     CONTROL_PARAMETERS         =
+*     MAIL_APPL_OBJ              =
+*     MAIL_RECIPIENT             =
+*     MAIL_SENDER                =
+*     OUTPUT_OPTIONS             =
+*     USER_SETTINGS              = 'X'
+      wa_det_sucu                = wa_det_sucu
+*   IMPORTING
+*     DOCUMENT_OUTPUT_INFO       =
+*     JOB_OUTPUT_INFO            =
+*     JOB_OUTPUT_OPTIONS         =
+    tables
+      it_final                   = it_final
+   EXCEPTIONS
+     FORMATTING_ERROR           = 1
+     INTERNAL_ERROR             = 2
+     SEND_ERROR                 = 3
+     USER_CANCELED              = 4
+     OTHERS                     = 5
+            .
+  IF sy-subrc <> 0.
+ MESSAGE ID SY-MSGID TYPE SY-MSGTY NUMBER SY-MSGNO
+         WITH SY-MSGV1 SY-MSGV2 SY-MSGV3 SY-MSGV4.
+  ENDIF.
+
+
+ENDFORM.                    " F_SMARTFORM
+*&---------------------------------------------------------------------*
+*&      Form  F_LLENAR_CATALOGO
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*      -->P_0283   text
+*      -->P_0284   text
+*      -->P_0285   text
+*      -->P_20     text
+*      -->P_0287   text
+*----------------------------------------------------------------------*
+form F_LLENAR_CATALOGO  using fieldname tabname seltext outputlen just.
+
+  wa_catalogo-fieldname = fieldname.
+  wa_catalogo-tabname = tabname.
+  wa_catalogo-seltext_s = seltext.
+  wa_catalogo-outputlen = outputlen.
+  wa_catalogo-just = just.
+
+  append wa_catalogo to it_catalogo.
+
+  clear wa_catalogo.
+
+endform.                    " F_LLENAR_CATALOGO

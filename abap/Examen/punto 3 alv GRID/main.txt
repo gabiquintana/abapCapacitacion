@@ -1,0 +1,13 @@
+REPORT  zu52_alv_grid_2 NO STANDARD PAGE HEADING.
+
+INCLUDE zu52_alv_grid_2_top.
+INCLUDE zu52_alv_grid_2_screen.
+INCLUDE zu52_alv_grid_2_form.
+
+START-OF-SELECTION.
+  PERFORM f_get_data.
+  PERFORM f_create_fcat.
+*  PERFORM f_field_sort.
+  PERFORM f_display_data.
+
+END-OF-SELECTION.

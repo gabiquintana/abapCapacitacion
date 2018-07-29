@@ -1,0 +1,8 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_REPORTE1_SCREEN
+*&---------------------------------------------------------------------*
+
+
+PARAMETERS: p_linea TYPE sbook-carrid OBLIGATORY,
+            p_vuelo TYPE sbook-connid OBLIGATORY,
+            p_fecha TYPE sbook-fldate.

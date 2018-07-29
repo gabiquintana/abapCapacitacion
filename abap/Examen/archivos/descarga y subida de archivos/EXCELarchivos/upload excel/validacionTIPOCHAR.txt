@@ -1,0 +1,69 @@
+*&---------------------------------------------------------------------*
+*& Report  ZREPORTE_GABRIEL
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  ZREPORTE_GABRIEL.
+*tables: sscrfields.
+*PARAMETERS: b TYPE c.
+*SELECTION-SCREEN PUSHBUTTON /5(10) text-002 USER-COMMAND pb1 MODIF ID PB1.
+*AT USER-COMMAND.
+*
+*if screen-group1 eq 'PB1'.
+*    screen-active = 0.
+*    MODIFY SCREEN.
+*     ENDIF.
+
+*DECLARACIÓN DE ESTRUCTURA, LA CUAL DEBE CONCORDAR CON LOS DATOS DEL
+*ARCHIVO DE EXCEL
+TYPES: BEGIN OF ty_datos,
+         distrib(60),
+         version(100),
+         dificultad(60),
+       END OF ty_datos.
+
+       TYPES: BEGIN OF ty_final,
+         distrib(60),
+         version TYPE i,
+         dificultad(60),
+       END OF ty_final.
+DATA: gs_datos TYPE ty_datos,
+      gt_datos TYPE TABLE OF ty_datos,
+      gs_final TYPE ty_final,
+      gt_final TYPE TABLE OF ty_final.
+
+DATA: c_numeric TYPE c LENGTH 15 value '0123456789'.
+
+gs_datos-distrib = 'aaaa'.
+gs_datos-version = '11'.
+gs_datos-dificultad = 'bbbb'.
+append gs_datos to gt_datos.
+CLEAR gs_datos.
+gs_datos-distrib = 'aaac'.
+gs_datos-version = 'cccc'.
+gs_datos-dificultad = '1111'.
+append gs_datos to gt_datos.
+CLEAR gs_datos.
+LOOP AT gt_datos into gs_datos.
+if gs_datos-distrib cn c_numeric. "valido que sea char"
+gs_final-distrib = gs_datos-distrib.
+ENDIF.
+if gs_datos-version co c_numeric. "valido que sea numerico"
+gs_final-version = gs_datos-version.
+ENDIF.
+if gs_datos-dificultad cn c_numeric. "valido que sea char"
+gs_final-dificultad = gs_datos-dificultad.
+ENDIF.
+APPEND gs_final to gt_final.
+CLEAR gs_final.
+ENDLOOP.
+
+LOOP at gt_final into gs_final.
+  WRITE:/ gs_final-distrib, gs_final-version, gs_final-dificultad.
+if gs_final-distrib is INITIAL or gs_final-version is INITIAL or gs_final-dificultad is INITIAL.
+  Write:/ 'datos no correspondientes'.
+  ENDIF.
+  ENDLOOP.

@@ -1,0 +1,134 @@
+REPORT zdonwload_excel.
+
+*DECLARACIÓN DE ESTRUCTURA, LA CUAL DEBE CONCORDAR CON LOS DATOS DEL
+*ARCHIVO DE EXCEL
+TYPES: BEGIN OF ty_datos,
+         distrib(60),
+         version(100),
+         dificultad(60),
+       END OF ty_datos.
+
+DATA: p_file_name TYPE string,
+      p_fullpath  TYPE string,
+      error(255),
+
+      it_datos    TYPE TABLE OF ty_datos,
+      wa_datos    LIKE LINE OF  it_datos,
+
+      it_excel    TYPE STANDARD TABLE OF alsmex_tabline,
+      wa_excel    TYPE alsmex_tabline,
+      v_id        TYPE i,
+      v_value(30).
+
+*PEDIMOS EL ARCHIVO A SUBIR
+SELECTION-SCREEN BEGIN OF BLOCK blk1 WITH FRAME.
+PARAMETERS  p_file  LIKE rlgrap-filename OBLIGATORY.
+SELECTION-SCREEN END OF BLOCK blk1.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+*ESTA FUNCIÓN NOS AYUDA A UBICAR EL ARCHIVO COMO LO HARÍAMOS EN WINDOWS
+  CALL FUNCTION 'GUI_FILE_LOAD_DIALOG'
+    EXPORTING
+      window_title = 'Selecciona el archivo a cargar…'
+      file_filter  = ',*.XLS,*.xls.'
+    IMPORTING
+      filename     = p_file_name
+      fullpath     = p_fullpath.
+  IF sy-subrc = 0.
+    p_file = p_fullpath.
+  ENDIF.
+
+START-OF-SELECTION.
+*VERIFICAMOS QUE SE HAYA SELECCIONADO UN ARCHIVO DE EXCEL
+*TAMBIÉN APLICA PARA EL FORMATO DE OFFICE 2007 “.XLSX”
+  IF p_file_name IS INITIAL.
+    IF p_file NS '.xls'.
+      PERFORM mensaje_error.
+      MESSAGE error TYPE 'I' DISPLAY LIKE 'E'.
+      LEAVE LIST-PROCESSING.
+*      EXIT.
+    ENDIF.
+  ELSE.
+    IF p_file_name NS '.xls'.
+      PERFORM mensaje_error.
+      MESSAGE error TYPE 'I' DISPLAY LIKE 'E'.
+      LEAVE LIST-PROCESSING.
+*      EXIT.
+    ENDIF.
+  ENDIF.
+
+*PASAMOS EL ARCHIVO DE EXCEL A LA TABLA INTERNA
+  CALL FUNCTION 'ALSM_EXCEL_TO_INTERNAL_TABLE'
+    EXPORTING
+      filename                = p_file
+*COLUMNA DONDE SE EMPIEZA A BUSCAR DATOS
+      i_begin_col             = 1
+*RENGLÓN DONDE SE EMPIEZA A BUSCAR DATOS
+      i_begin_row             = 2
+*COLUMNA DONDE TERMINA DE BUSCAR DATOS
+      i_end_col               = 3
+*RENGLÓN DONDE TERMINA DE BUSCAR DATOS
+      i_end_row               = 10
+    TABLES
+*TABLA INTERNA DONDE ME REGRESA LOS DATOS
+      intern                  = it_excel
+    EXCEPTIONS
+      inconsistent_parameters = 1
+      upload_ole              = 2
+      OTHERS                  = 3.
+  IF sy-subrc <> 0.
+    MESSAGE e010(ad) WITH 'error en el archivo, verifique datos'.
+  ELSE.
+
+*ORDENAMOS DATOS EN TABLA FINAL.
+    DO.
+      v_id = v_id + 1.
+      LOOP AT it_excel INTO wa_excel WHERE row = v_id.
+        CASE wa_excel-col.
+          WHEN '0001'.
+            wa_datos-distrib     = wa_excel-value.
+          WHEN '0002'.
+            wa_datos-version     = wa_excel-value.
+          WHEN '0003'.
+            wa_datos-dificultad  = wa_excel-value.
+        ENDCASE.
+      ENDLOOP.
+*Si se cargaron datos a la tabla interna, validamos que venga
+*información en campos que sean obligatorios
+      IF sy-subrc = 0.
+        IF wa_datos-distrib IS INITIAL OR wa_datos-version IS INITIAL.
+          MESSAGE i010(ad) WITH 'Faltan datos en el archivo' DISPLAY LIKE 'E'.
+          EXIT.
+        ELSE.
+          APPEND wa_datos TO it_datos.
+        ENDIF.
+      ELSE.
+        EXIT.
+      ENDIF.
+    ENDDO.
+
+    IF it_datos[] IS INITIAL.
+      MESSAGE i010(ad) WITH 'Error en el archivo, verifique datos' DISPLAY LIKE 'E'.
+      EXIT.
+*SI TODO HA SALIDO BIEN, YA TENEMOS LOS DATOS EN NUESTRA TABLA INTERNA
+    ELSE.
+      WRITE: sy-uline,10 'DISTRIBUCION',40 'VERSION',70 'DIFICULTAD',sy-uline, /.
+      LOOP AT it_datos INTO wa_datos.
+        WRITE:  10 wa_datos-distrib,
+                40 wa_datos-version,
+                70 wa_datos-dificultad,/.
+      ENDLOOP.
+
+      WRITE sy-uline.
+
+    ENDIF.
+
+  ENDIF.
+
+END-OF-SELECTION.
+
+FORM mensaje_error.
+  CONCATENATE 'Archivo' p_file_name 'Inválido'
+  'Verifique que su archivo sea de tipo excel .xls'
+  INTO error SEPARATED BY space.
+ENDFORM.

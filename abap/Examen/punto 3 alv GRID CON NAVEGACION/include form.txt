@@ -1,0 +1,281 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU52_ALV_GRID_2_FORM
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  F_GET_DATA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM f_get_data .
+
+  SELECT carrid connid fldate bookid customid smoker agencynum
+  FROM sbook INTO TABLE gt_sbook
+  WHERE carrid IN s_carrid AND connid IN s_connid
+  AND fldate IN s_fldate AND agencynum IN s_agency.
+
+  SELECT agencynum street city country telephone
+    FROM stravelag INTO TABLE gt_stravel
+    FOR ALL ENTRIES IN gt_sbook
+    WHERE agencynum = gt_sbook-agency.
+
+  SELECT id name telephone FROM scustom INTO TABLE gt_scustom
+    FOR ALL ENTRIES IN gt_sbook
+    WHERE id = gt_sbook-customid.
+
+  SELECT carrid connid cityfrom cityto FROM spfli
+    INTO TABLE gt_spfli FOR ALL ENTRIES IN gt_sbook
+    WHERE carrid = gt_sbook-carrid AND connid = gt_sbook-connid.
+
+  APPEND LINES OF gt_sbook TO gt_final.
+
+  SORT gt_sbook BY carrid connid fldate agency.
+  SORT gt_stravel BY agency.
+  SORT gt_scustom BY id.
+  SORT gt_spfli BY carrid connid.
+
+  LOOP AT gt_sbook INTO gs_sbook.
+    var = sy-tabix.
+
+    READ TABLE gt_final INTO gs_final INDEX var.
+
+    READ TABLE gt_stravel INTO gs_stravel
+    WITH KEY agency = gs_final-agency
+    BINARY SEARCH.
+    gs_final-street = gs_stravel-street.
+    gs_final-city = gs_stravel-city.
+    gs_final-country = gs_stravel-country.
+    gs_final-telephone = gs_stravel-telephone.
+
+    READ TABLE gt_scustom INTO gs_scustom
+    WITH KEY id = gs_sbook-customid
+    BINARY SEARCH.
+    gs_final-id = gs_scustom-id.
+    gs_final-name = gs_scustom-name.
+
+    READ TABLE gt_spfli INTO gs_spfli
+    WITH KEY carrid = gs_sbook-carrid
+             connid = gs_sbook-connid
+    BINARY SEARCH.
+    gs_final-cityfrom = gs_spfli-cityfrom.
+    gs_final-cityto = gs_spfli-cityto.
+
+
+    MODIFY gt_final FROM gs_final INDEX var.
+
+  ENDLOOP.
+
+ENDFORM.                    " F_GET_DATA
+*&---------------------------------------------------------------------*
+*&      Form  F_CREATE_FCAT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM f_create_fcat .
+
+  v_pos = 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'CARRID'.
+  gs_fieldcat-seltext_s = 'CARRID'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'CONNID'.
+  gs_fieldcat-seltext_s = 'CONNID'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'FLDATE'.
+  gs_fieldcat-seltext_s = 'FLDATE'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'CONNID'.
+  gs_fieldcat-seltext_s = 'CONNID'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'BOOKID'.
+  gs_fieldcat-seltext_s = 'BOOKID'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'CUSTOMID'.
+  gs_fieldcat-seltext_s = 'ID'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'SMOKER'.
+  gs_fieldcat-seltext_s = 'SMOKER'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'AGENCY'.
+  gs_fieldcat-seltext_s = 'NUM AGENCY'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'STREET'.
+  gs_fieldcat-seltext_s = 'CALLE'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'CITY'.
+  gs_fieldcat-seltext_s = 'CUIDAD'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'COUNTRY'.
+  gs_fieldcat-seltext_s = 'PAIS'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'TELEPHONE'.
+  gs_fieldcat-seltext_s = 'TELEFONO'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'NAME'.
+  gs_fieldcat-seltext_s = 'NAME'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'CITYFROM'.
+  gs_fieldcat-seltext_s = 'C. SALIDA'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+  v_pos = v_pos + 1.
+  gs_fieldcat-col_pos = v_pos.
+  gs_fieldcat-fieldname = 'CITYTO'.
+  gs_fieldcat-seltext_s = 'C. LLEGADA'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR gs_fieldcat.
+
+ENDFORM.                    " F_CREATE_FCAT
+*&---------------------------------------------------------------------*
+*&      Form  F_DISPLAY_DATA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM f_display_data .
+
+  DATA: ls_layout TYPE slis_layout_alv.
+  ls_layout-colwidth_optimize = 'X'.
+  ls_layout-zebra = 'X'.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      i_callback_program      = sy-repid
+      i_callback_user_command = 'F_USER_COMMAND'
+      is_layout               = ls_layout
+      it_fieldcat             = gt_fieldcat
+      it_sort                 = gt_sortcat
+      it_events               = gt_events
+    TABLES
+      t_outtab                = gt_final.
+
+ENDFORM.                    " F_DISPLAY_DATA
+*&---------------------------------------------------------------------*
+*&      Form  F_FIELD_SORT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM f_field_sort .
+
+  ls_sort-fieldname = 'CARRID'.
+  ls_sort-spos = 1.
+  ls_sort-up = 'X'.
+  ls_sort-subtot = 'X'.
+* ls_sort-expa = 'X'. " Sirve para que salgan los subtotales plegados
+  APPEND ls_sort TO gt_sortcat.
+
+
+ENDFORM.                    " F_FIELD_SORT
+*&---------------------------------------------------------------------*
+*&      Form  F_USER_COMMAND
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM f_user_command USING r_ucomm TYPE sy-ucomm
+                          rs_selfield TYPE slis_selfield .
+
+  IF rs_selfield-sel_tab_field CS 'CARRID'.
+
+    READ TABLE gt_final INTO gs_final INDEX rs_selfield-tabindex.
+
+    SET PARAMETER ID: 'CAR' FIELD gs_final-carrid,
+                      'BOK' FIELD gs_final-bookid.
+
+    CALL TRANSACTION 'BC_GLOBAL_SBOOK_EDIT' AND SKIP FIRST SCREEN.
+    IF sy-subrc IS INITIAL.
+
+      SELECT SINGLE * FROM sbook WHERE carrid = gs_final-carrid
+                                 AND connid = gs_final-connid
+                                 AND fldate = gs_final-fldate AND bookid = gs_final-bookid.
+
+      IF sy-subrc IS INITIAL.
+        gs_final-smoker = sbook-smoker.
+        MODIFY gt_final FROM gs_final INDEX rs_selfield-tabindex.
+        rs_selfield-refresh = 'X'.
+
+      ENDIF.
+
+    ENDIF.
+  ENDIF.
+ENDFORM.                    " F_USER_COMMAND

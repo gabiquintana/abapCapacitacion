@@ -1,0 +1,278 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_ALLENTRIES
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  zu64_allentries.
+"LISTAR POR PANTALLA UNA LISTA DE RESERVAS DE VUELOS (SBOOK) CUYAS RESERVAS SEAN ASIENTO RESERVADOS POR FUMADORES (SMOKERS),
+"EL LISTADO DEBE CONTENER ESTOS CAMPOS: carrid, connid, fldate, order_date, name y street
+TABLES: sbook, scustom, sflight.
+TYPE-POOLS: slis.
+TYPE-POOLS: truxs.
+DATA: gt_text TYPE truxs_t_text_data,
+gs_text LIKE LINE OF gt_text.
+PARAMETERS: p_file TYPE ibipparms-path OBLIGATORY.
+SELECT-OPTIONS: so_price FOR sflight-price.
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_layout   TYPE slis_layout_alv,
+      gs_fieldcat TYPE slis_fieldcat_alv.
+
+TYPES: BEGIN OF ts_final,
+  carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  order_date TYPE sbook-order_date,
+  name TYPE scustom-name,
+  street TYPE scustom-street,
+  price TYPE sflight-price,
+  END OF ts_final.
+
+TYPES: BEGIN OF ts_sflight,
+  carrid TYPE sflight-carrid,
+  connid TYPE sflight-connid,
+  fldate TYPE sflight-fldate,
+  price TYPE sflight-price,
+  END OF ts_sflight.
+
+TYPES: BEGIN OF ts_sbook,
+    carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  order_date TYPE sbook-order_date,
+  customid TYPE sbook-customid,
+  END OF ts_sbook.
+
+TYPES: BEGIN OF ts_scustom,
+  id TYPE scustom-id,
+    name TYPE scustom-name,
+  street TYPE scustom-street,
+  END OF ts_scustom.
+
+DATA: gt_final TYPE TABLE OF ts_final,
+      gs_final TYPE ts_final,
+      gt_sbook TYPE TABLE OF ts_sbook,
+      gs_sbook  TYPE ts_sbook,
+      gt_scustom TYPE TABLE OF ts_scustom,
+      gs_scustom TYPE ts_scustom,
+      gt_sflight TYPE TABLE OF ts_sflight,
+      gs_sflight TYPE ts_sflight.
+
+
+
+
+
+SELECT carrid connid fldate price
+    FROM sflight
+    INTO TABLE gt_sflight
+    WHERE price IN so_price.
+
+SELECT carrid connid fldate order_date customid
+FROM sbook
+INTO TABLE gt_sbook
+FOR ALL ENTRIES IN gt_sflight
+WHERE carrid = gt_sflight-carrid AND connid = gt_sflight-connid AND fldate = gt_sflight-fldate AND smoker = 'X'.
+
+IF sy-subrc = 0.
+  SELECT id name street
+  FROM scustom
+  INTO TABLE gt_scustom
+  FOR ALL ENTRIES IN gt_sbook
+  WHERE id = gt_sbook-customid.
+  SORT gt_scustom BY id.
+  IF sy-subrc = 0.
+    SELECT carrid connid fldate price
+    FROM sflight
+    INTO TABLE gt_sflight
+    FOR ALL ENTRIES IN gt_sbook
+    WHERE carrid = gt_sbook-carrid AND connid = gt_sbook-connid AND fldate = gt_sbook-fldate AND price IN so_price.
+
+    IF sy-subrc = 0.
+      LOOP AT gt_sbook INTO gs_sbook.
+        READ TABLE gt_scustom INTO gs_scustom WITH KEY id = gs_sbook-customid
+        BINARY SEARCH.
+        IF sy-subrc = 0.
+          gs_final-name = gs_scustom-name.
+          gs_final-street = gs_scustom-street.
+        ENDIF.
+        READ TABLE gt_sflight INTO gs_sflight WITH KEY carrid = gs_sbook-carrid connid = gs_sbook-connid fldate = gs_sbook-fldate
+        BINARY SEARCH.
+        IF sy-subrc = 0.
+          gs_final-price = gs_sflight-price.
+        ENDIF.
+        gs_final-carrid = gs_sbook-carrid.
+        gs_final-connid = gs_sbook-connid.
+        gs_final-fldate = gs_sbook-fldate.
+        gs_final-order_date = gs_sbook-order_date.
+        APPEND gs_final TO gt_final.
+      ENDLOOP.
+    ENDIF.
+  ENDIF.
+ENDIF.
+
+*LOOP AT gt_final INTO gs_final.
+*WRITE:/ gs_final-carrid, gs_final-connid, gs_final-fldate, gs_final-order_date, gs_final-name, gs_final-street .
+*
+*at LAST.
+*  WRITE:/ sy-tabix.
+*  ENDAT.
+*ENDLOOP.
+
+gs_fieldcat-fieldname = 'CARRID'.
+gs_fieldcat-seltext_s = 'carr'.
+" gs_fieldcat-just = 'L'. para ponerlo a la izquierda
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'CONNID'.
+gs_fieldcat-seltext_s = 'connid'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'FLDATE'.
+gs_fieldcat-seltext_s = 'fecha'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'ORDER_DATE'.
+gs_fieldcat-seltext_s = 'FECHA DE ORDEN'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'NAME'.
+gs_fieldcat-seltext_s = 'nombre'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'STREET'.
+gs_fieldcat-seltext_s = 'calle'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_fieldcat-fieldname = 'PRICE'.
+gs_fieldcat-seltext_s = 'Precio'.
+APPEND gs_fieldcat TO gt_fieldcat.
+
+gs_layout-colwidth_optimize = 'X'.
+gs_layout-zebra = 'X'.
+DATA : fun TYPE TABLE OF rseul_fun. "tabla fun que va a tener todos los botones"
+DATA : wa_fun LIKE LINE OF fun. "wa de la fun"
+DATA : it_exclude TYPE slis_t_extab, "tabla exclude a la que voy a agregar lo que quiero ocultar"
+wa_exclude TYPE slis_extab. "wa de la exclude"
+CALL FUNCTION 'RS_CUA_GET_STATUS_FUNCTIONS' "le digo de que status voy a hacer los exclude"
+  EXPORTING
+    language  = 'E'
+    program   = 'ZU64_ALLENTRIES'
+    status    = 'STANDARD'
+  TABLES
+    functions = fun.
+LOOP AT fun INTO wa_fun. "loop through all functions
+  IF wa_fun-fcode EQ '&F03' OR wa_fun-fcode EQ '&F15'
+  OR wa_fun-fcode EQ '&F12' OR wa_fun-fcode = '&BT1'."elimino todo menos el tachito y volver atras"
+  ELSE.
+    wa_exclude-fcode = wa_fun-fcode. "add all remaining
+    APPEND wa_exclude TO it_exclude.
+    CLEAR wa_exclude.
+  ENDIF.
+ENDLOOP.
+
+DATA: gv_filename TYPE string.
+*---------------------------------------------------------------------
+* START-OF-SELECTION
+*---------------------------------------------------------------------
+
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+  EXPORTING
+    i_callback_program       = sy-repid
+    is_layout                = gs_layout
+    it_fieldcat              = gt_fieldcat
+    it_excluding             = it_exclude "le digo que de mi status excluir" "tiene que estar este junto pf_status para exluir de mi status creado"
+    i_callback_pf_status_set = 'MI_STANDARD' "le digo que status usar no el por defecto"
+    i_callback_user_command  = 'MI_USER_COMMAND'
+  TABLES
+    t_outtab                 = gt_final      "i_save = 'A'
+  EXCEPTIONS
+    program_error            = 1
+    OTHERS                   = 2.
+
+*&---------------------------------------------------------------------*
+*&      Form  mi_user_command
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*      -->R_UCOMM      text
+*      -->RS_SELFIELD  text
+*----------------------------------------------------------------------*
+FORM mi_user_command USING r_ucomm TYPE sy-ucomm
+rs_selfield TYPE slis_selfield.
+  CASE r_ucomm.
+    WHEN '&BT1'. "Se ha hecho click en el botón
+      DATA: gv_filename TYPE string.
+      DATA: gt_text TYPE truxs_t_text_data,
+gs_text LIKE LINE OF gt_text.
+      IF NOT gt_final IS INITIAL.
+PERFORM save_file.
+ELSE.
+MESSAGE 'No se encontraron datos' TYPE 'I'.
+ENDIF.
+      MESSAGE 'Has pulsado el botón creado' TYPE 'I'.
+  ENDCASE.
+ENDFORM. "mi_user_command
+*&---------------------------------------------------------------------*
+*&      Form  mi_standard
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*      -->RT_EXTAB   text
+*----------------------------------------------------------------------*
+FORM mi_standard USING rt_extab TYPE slis_t_extab.
+  SET PF-STATUS 'STANDARD' EXCLUDING it_exclude. "setea mi status y le filtro los exclude"
+ENDFORM. "mi_standard
+FORM save_file.
+DATA: lv_price TYPE char14,
+lv_distance TYPE char14,
+lv_period TYPE char3.
+*Move complete file path to file name
+gv_filename = p_file.
+LOOP AT gt_final INTO gs_final.
+WRITE: gs_final-price TO lv_price.
+*gs_spfli-distance TO lv_distance,
+*gs_spfli-period TO lv_period.
+*carrid TYPE sbook-carrid,
+*  connid TYPE sbook-connid,
+*  fldate TYPE sbook-fldate,
+*  order_date TYPE sbook-order_date,
+*  name TYPE scustom-name,
+*  street TYPE scustom-street,
+*  price TYPE sflight-price,
+CONCATENATE gs_final-carrid
+gs_final-fldate
+gs_final-order_date
+gs_final-name
+gs_final-street
+lv_price "gs_final-price
+*lv_fltime "gs_spfli-fltime
+*
+*lv_distance "gs_spfli-distance
+*
+*lv_period "gs_spfli-period
+INTO gs_text
+SEPARATED BY ';'.
+APPEND gs_text TO gt_text.
+ENDLOOP.
+*Download the internal table data into a file in PC Local
+CALL FUNCTION 'GUI_DOWNLOAD'
+EXPORTING
+filename = gv_filename
+filetype = 'ASC'
+write_field_separator = 'X'
+TABLES
+data_tab = gt_text. "gt_spfli.
+ENDFORM. " save_file
+* AT SELECTION-SCREEN ON VALUE-REQUEST
+*----------------------------------------------------------------------*
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+CALL FUNCTION 'F4_FILENAME'
+* EXPORTING
+* PROGRAM_NAME =
+* DYNPRO_NUMBER =
+* FIELD_NAME =
+IMPORTING
+file_name = p_file.

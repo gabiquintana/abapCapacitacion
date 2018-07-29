@@ -1,0 +1,183 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_REPORTE2_FORM
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  CARGARDATOS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM cargardatos .
+  SELECT carrid menunumber starter maincourse dessert
+    FROM smenu
+    INTO TABLE gt_smenu
+    WHERE carrid IN s_linea.
+  IF sy-subrc = 0.
+    SELECT carrid mealnumber sprache text
+      FROM smealt
+      INTO TABLE gt_smealt
+      FOR ALL ENTRIES IN gt_smenu
+      WHERE carrid = gt_smenu-carrid
+      AND sprache = 'E'.
+
+    IF sy-subrc = 0.
+      SELECT carrid carrname
+        FROM scarr
+        INTO TABLE gt_scarr
+        WHERE carrid IN s_linea.
+
+      LOOP AT gt_smenu INTO gs_smenu.
+        READ TABLE gt_smealt INTO gs_smealt WITH KEY carrid = gs_smenu-carrid mealnumber = gs_smenu-starter.
+
+        IF sy-subrc = 0.
+          gs_final-carrid = gs_smenu-carrid.
+          gs_final-menunumber = gs_smenu-menunumber.
+          gs_final-starter = gs_smealt-text.
+          READ TABLE gt_smealt INTO gs_smealt WITH KEY carrid = gs_smenu-carrid mealnumber = gs_smenu-maincourse.
+          IF  sy-subrc = 0.
+            gs_final-maincourse = gs_smealt-text.
+            READ TABLE gt_smealt INTO gs_smealt WITH KEY carrid = gs_smenu-carrid mealnumber = gs_smenu-dessert.
+            IF  sy-subrc = 0.
+              gs_final-dessert = gs_smealt-text.
+              APPEND gs_final TO gt_final.
+            ENDIF.
+          ENDIF.
+
+        ENDIF.
+
+      ENDLOOP.
+    ELSE.
+      MESSAGE: 'No se encontraron datos' TYPE 'I'.
+    ENDIF.
+
+  ELSE.
+    MESSAGE: 'No se encontraron datos' TYPE 'I'.
+  ENDIF.
+
+
+ENDFORM.                    " CARGARDATOS
+*&---------------------------------------------------------------------*
+*&      Form  ARMARFIELDCAT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM armarfieldcat .
+
+  gs_fieldcat-fieldname = 'CARRNAME'.
+  gs_fieldcat-seltext_s = 'CARRNAME'.
+  gs_fieldcat-tabname = 'GT_SCARR'.
+  gs_fieldcat-just = 'L'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+
+*Fieldcat detalle
+
+  gs_fieldcat-fieldname = 'CARRID'.
+  gs_fieldcat-seltext_s = 'CARRID'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  gs_fieldcat-just = 'L'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+  gs_fieldcat-fieldname = 'MENUNUMBER'.
+  gs_fieldcat-seltext_s = 'MENUNUMBER'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  gs_fieldcat-just = 'L'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+  gs_fieldcat-fieldname = 'STARTER'.
+  gs_fieldcat-seltext_s = 'STARTER'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  gs_fieldcat-just = 'L'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+  gs_fieldcat-fieldname = 'MAINCOURSE'.
+  gs_fieldcat-seltext_s = 'MAINCOURSE'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  gs_fieldcat-just = 'L'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+  gs_fieldcat-fieldname = 'DESSERT'.
+  gs_fieldcat-seltext_s = 'DESSERT'.
+  gs_fieldcat-tabname = 'GT_FINAL'.
+  gs_fieldcat-just = 'L'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+
+ENDFORM.                    " ARMARFIELDCAT
+*&---------------------------------------------------------------------*
+*&      Form  SETEARLAYOUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM setearlayout .
+
+
+  ls_layout-colwidth_optimize = 'X'.
+  ls_layout-zebra = 'X'.
+  ls_layout-window_titlebar   = 'MENUS DE LAS AEROLINEAS'.
+  ls_layout-expand_fieldname = 'EXPAND'.
+
+ENDFORM.                    " SETEARLAYOUT
+*&---------------------------------------------------------------------*
+*&      Form  DISPLAYALV
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM displayalv .
+  if gt_final is NOT INITIAL.
+  CALL FUNCTION 'REUSE_ALV_HIERSEQ_LIST_DISPLAY'
+   EXPORTING
+     i_callback_program       = sy-repid
+    " i_callback_user_command  = 'USERCOMMAND' " evento al tocar el campo (navegacion)
+*   i_callback_pf_status_set = 'MI_STANDARD' " se41 armar mi standar
+*    it_excluding             = gt_exclude
+     it_sort                  = gt_sortcat
+     is_layout                = ls_layout
+     it_fieldcat              = gt_fieldcat
+     i_tabname_header         = 'GT_SCARR'
+     i_tabname_item           = 'GT_FINAL'
+     i_save                   = 'A'
+     is_keyinfo               = gs_key
+   TABLES
+     t_outtab_header          = gt_scarr
+     t_outtab_item            = gt_final
+   EXCEPTIONS
+     program_error            = 1
+     OTHERS                   = 2.
+  ENDIF.
+ENDFORM.                    " DISPLAYALV
+*&---------------------------------------------------------------------*
+*&      Form  SETEARSORT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form SETEARSORT .
+  ls_sort-fieldname = 'CARRID'.
+  ls_sort-expa      = 'X'.
+  APPEND ls_sort TO gt_sortcat.
+endform.                    " SETEARSORT
+*&---------------------------------------------------------------------*
+*&      Form  SETEARKEY
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form SETEARKEY .
+  gs_key-header01 = 'CARRID'.
+  gs_key-item01 = 'CARRID'.
+endform.                    " SETEARKEY

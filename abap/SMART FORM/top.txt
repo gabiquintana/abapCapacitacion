@@ -1,0 +1,25 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZACN_IS_DOMINGUEZ_TOP
+*&---------------------------------------------------------------------*
+
+*** Definicion de tablas internas y sus respectivas working areas.
+
+  DATA: it_final TYPE TABLE OF zacn_e_dominguez, """ Tabla interna con los datos finales que usa tanto el avl y el SM.
+        wa_final TYPE zacn_e_dominguez,
+        it_nom_sucu TYPE TABLE OF znom_sucursal,
+        wa_nom_sucu TYPE znom_sucursal,
+        it_entregas TYPE TABLE OF znom_entregas,
+        wa_entregas TYPE znom_entregas,
+        it_det_sucu TYPE TABLE OF zdet_sucursal,
+        wa_det_sucu TYPE zdet_sucursal,
+        it_reintegro type TABLE OF zacn_dominguez,
+        wa_reintegro type zacn_dominguez.
+
+*** Definicion de tablas internas, workins areas y variable para el ALV.
+
+  TYPE-POOLS slis. """ tipos para el ALV.
+
+  DATA: it_catalogo TYPE slis_t_fieldcat_alv,
+        wa_catalogo TYPE slis_fieldcat_alv,
+        wa_layout TYPE slis_layout_alv,
+        v_repid TYPE sy-repid.

@@ -1,0 +1,196 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_REPORTE1_FORM
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  CARGARDATOS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form CARGARDATOS .
+
+  IF p_fecha IS NOT INITIAL.
+
+
+  SELECT carrid connid fldate bookid customid
+  FROM sbook
+  INTO TABLE gt_sbook
+  WHERE carrid = p_linea AND connid = p_vuelo AND fldate = p_fecha.
+
+    ELSE.
+  SELECT carrid connid fldate bookid customid
+  FROM sbook
+  INTO TABLE gt_sbook
+  WHERE carrid = p_linea AND connid = p_vuelo .
+
+    ENDIF.
+   IF sy-subrc <> 0.
+    MESSAGE: 'Error al traer los datos' TYPE 'I'.
+ENDIF.
+
+    IF sy-subrc = 0.
+     SELECT id name street postcode city country
+     FROM scustom
+     INTO TABLE gt_scustom
+     FOR ALL ENTRIES IN gt_sbook
+     WHERE id = gt_sbook-customid.
+
+       IF sy-subrc = 0.
+
+         SORT gt_scustom by id.
+       LOOP AT gt_sbook INTO gs_sbook.
+
+         READ TABLE gt_scustom INTO gs_scustom WITH KEY id = gs_sbook-customid
+         BINARY SEARCH.
+
+         IF  sy-subrc = 0.
+          gs_final-carrid = gs_sbook-carrid.
+          gs_final-connid = gs_sbook-connid.
+          gs_final-fldate = gs_sbook-fldate.
+          gs_final-bookid = gs_sbook-bookid.
+          gs_final-customid = gs_sbook-customid.
+          gs_final-name = gs_scustom-name.
+          gs_final-street = gs_scustom-street.
+          gs_final-postcode = gs_scustom-postcode.
+          gs_final-city = gs_scustom-city.
+          gs_final-country = gs_scustom-country.
+
+          APPEND gs_final TO gt_final.
+         ENDIF.
+
+         ENDLOOP.
+         ELSE.
+     MESSAGE: 'Error al traer los datos' TYPE 'I'.
+           ENDIF.
+
+    ENDIF.
+
+endform.                    " CARGARDATOS
+*&---------------------------------------------------------------------*
+*&      Form  ARMARFIELDCAT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form ARMARFIELDCAT .
+gs_fieldcat-fieldname = 'CARRID'.
+      gs_fieldcat-seltext_S = 'CARRID'.
+      gs_fieldcat-just = 'C'.
+      APPEND gs_fieldcat TO gt_fieldcat.
+
+       gs_fieldcat-fieldname = 'CONNID'.
+      gs_fieldcat-seltext_S = 'CONNID'.
+      gs_fieldcat-just = 'C'.
+      APPEND gs_fieldcat TO gt_fieldcat.
+
+       gs_fieldcat-fieldname = 'FLDATE'.
+      gs_fieldcat-seltext_S = 'FECHA'.
+      gs_fieldcat-just = 'C'.
+      APPEND gs_fieldcat TO gt_fieldcat.
+
+      gs_fieldcat-fieldname = 'BOOKID'.
+      gs_fieldcat-seltext_S = 'BOOKID'.
+      gs_fieldcat-just = 'C'.
+      APPEND gs_fieldcat TO gt_fieldcat.
+
+      gs_fieldcat-fieldname = 'CUSTOMID'.
+      gs_fieldcat-seltext_S = 'CUSTOMID'.
+      gs_fieldcat-just = 'C'.
+      APPEND gs_fieldcat TO gt_fieldcat.
+
+      gs_fieldcat-fieldname = 'NAME'.
+      gs_fieldcat-seltext_S = 'NAME'.
+      gs_fieldcat-just = 'C'.
+      APPEND gs_fieldcat TO gt_fieldcat.
+
+      gs_fieldcat-fieldname = 'STREET'.
+      gs_fieldcat-seltext_S = 'STREET'.
+      gs_fieldcat-just = 'C'.
+      APPEND gs_fieldcat TO gt_fieldcat.
+
+      gs_fieldcat-fieldname = 'POSTCODE'.
+      gs_fieldcat-seltext_S = 'POSTCODE'.
+      gs_fieldcat-just = 'C'.
+      APPEND gs_fieldcat TO gt_fieldcat.
+
+      gs_fieldcat-fieldname = 'CITY'.
+      gs_fieldcat-seltext_S = 'CITY'.
+      gs_fieldcat-just = 'C'.
+      APPEND gs_fieldcat TO gt_fieldcat.
+
+      gs_fieldcat-fieldname = 'COUNTRY'.
+      gs_fieldcat-seltext_S = 'COUNTRY'.
+      gs_fieldcat-just = 'C'.
+      APPEND gs_fieldcat TO gt_fieldcat.
+endform.                    " ARMARFIELDCAT
+*&---------------------------------------------------------------------*
+*&      Form  SETEARLAYOUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form SETEARLAYOUT .
+gs_layout-colwidth_optimize = 'X'.
+  gs_layout-zebra = 'X'.
+endform.                    " SETEARLAYOUT
+*&---------------------------------------------------------------------*
+*&      Form  DISPLAYALV
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form DISPLAYALV .
+  IF gt_final is not INITIAL.
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+
+    EXPORTING
+      i_callback_program = sy-repid
+      is_layout          = gs_layout
+      it_fieldcat        = gt_fieldcat
+      "i_callback_pf_status_set = 'MI_STANDARD'
+     i_callback_user_command           = 'USERCOMMAND'
+      i_save             = 'A'
+     " it_events = gt_events
+    "  it_sort            = gt_sortcat
+    TABLES
+      t_outtab           = gt_final
+    EXCEPTIONS
+      program_error      = 1
+      OTHERS             = 2.
+
+  IF sy-subrc <> 0.
+*Mostrar Error si no pudo armar la LISTA
+  ENDIF.
+ENDIF.
+
+
+endform.                    " DISPLAYALV
+
+FORM USERCOMMAND USING r_ucom TYPE sy-ucomm
+                       rs_selfield TYPE slis_selfield.
+
+  IF r_ucom = '&IC1' and rs_selfield-sel_tab_field CS 'BOOKID'.
+
+        READ TABLE gt_final INTO gs_final INDEX rs_selfield-tabindex.
+
+        SET PARAMETER ID 'CAR' FIELD gs_final-carrid.
+        SET PARAMETER ID 'BOK' FIELD gs_final-bookid.
+        CALL TRANSACTION 'BC_GLOBAL_SBOOK_DISP' AND SKIP FIRST SCREEN.
+
+
+          ENDIF.
+
+
+
+
+
+ENDFORM.

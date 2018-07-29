@@ -1,0 +1,70 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZU64_REP003_TOP
+*&---------------------------------------------------------------------*
+
+TABLES: sbook, spfli, scarr.
+
+TYPES: BEGIN OF ts_sbook,
+  carrid TYPE sbook-carrid,
+  connid TYPE sbook-connid,
+  fldate TYPE sbook-fldate,
+  bookid TYPE sbook-bookid,
+  END OF ts_sbook.
+
+TYPES: BEGIN OF ts_spfli,
+  carrid TYPE spfli-carrid,
+  connid TYPE spfli-connid,
+  cityfrom TYPE spfli-cityfrom,
+  airpfrom TYPE spfli-airpfrom,
+  cityto TYPE spfli-cityto,
+  airpto TYPE spfli-airpto,
+  END OF ts_spfli.
+
+TYPES: BEGIN OF ts_scarr,
+  carrid TYPE scarr-carrid,
+  carrname TYPE scarr-carrname,
+  url TYPE scarr-url,
+  END OF ts_scarr.
+TYPES: BEGIN OF ts_sflight,
+  carrid TYPE sflight-carrid,
+  connid TYPE sflight-connid,
+  fldate TYPE sflight-fldate,
+  price TYPE sflight-price,
+  END OF ts_sflight.
+
+TYPES: BEGIN OF ts_reporte,
+carrid TYPE sflight-carrid,
+connid TYPE sflight-connid,
+fldate TYPE sflight-fldate,
+price TYPE sflight-price,
+carrname TYPE scarr-carrname,
+url TYPE scarr-url,
+cityfrom TYPE spfli-cityfrom,
+airpfrom TYPE spfli-airpfrom,
+cityto TYPE spfli-cityto,
+airpto TYPE spfli-airpto,
+bookid TYPE sbook-bookid,
+  END OF ts_reporte.
+
+TYPES:  tt_sbook TYPE TABLE OF ts_sbook, "con esto hacemos las tablas internas del tipo tt_sbook
+        tt_spfli TYPE TABLE OF ts_spfli,
+        tt_scarr TYPE TABLE OF ts_scarr,
+        tt_sflight TYPE TABLE OF ts_sflight,
+        tt_reporte TYPE TABLE OF ts_reporte.
+
+DATA: gs_sbook TYPE ts_sbook, "gs es wa"
+      gt_sbook TYPE tt_sbook, "gt es ta"
+      gs_spfli TYPE ts_spfli,
+      gt_spfli TYPE tt_spfli,
+      gt_spfli_tmp TYPE tt_spfli,
+      gs_spfli_tmp type ts_spfli,
+      gt_sbook_tmp TYPE tt_sbook,
+      gs_sbook_tmp TYPE ts_sbook,
+      gs_scarr TYPE ts_scarr,
+      gt_scarr TYPE tt_scarr,
+      gs_sflight TYPE ts_sflight,
+      gt_sflight TYPE tt_sflight,
+      gt_sflight_tmp TYPE tt_sflight,
+      gs_sflight_tmp type ts_sflight,
+      gs_reporte TYPE ts_reporte,
+      gt_reporte TYPE tt_reporte.

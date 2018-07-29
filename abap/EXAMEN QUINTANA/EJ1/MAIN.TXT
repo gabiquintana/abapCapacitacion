@@ -1,0 +1,21 @@
+*&---------------------------------------------------------------------*
+*& Report  ZU64_REPORTE1
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  ZU64_REPORTE1.
+INCLUDE ZU64_REPORTE1_TOP.
+INCLUDE ZU64_REPORTE1_SCREEN.
+INCLUDE ZU64_REPORTE1_FORM.
+
+START-OF-SELECTION.
+
+  PERFORM cargarDatos.
+  PERFORM armarFieldcat.
+  PERFORM setearLayout.
+  PERFORM displayALV.
+
+END-OF-SELECTION.
